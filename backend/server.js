@@ -1,7 +1,7 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
-const { parse } = require('json2csv');
+const ExcelJS = require('exceljs');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -32,7 +32,7 @@ app.post('/attendance', async (req, res) => {
       data: {
         date: new Date(date),
         status: record.status,
-        rollNo: record.rollNo 
+        rollNo: record.rollNo
       }
     });
   });
@@ -54,11 +54,28 @@ app.get('/attendance/download/:classId', async (req, res) => {
     }
   });
 
-  const fields = ['student.name', 'date', 'status'];
-  const csv = parse(attendance, { fields });
-  res.header('Content-Type', 'text/csv');
-  res.attachment('attendance.csv');
-  res.send(csv);
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Attendance');
+
+  worksheet.columns = [
+    { header: 'Student Name', key: 'name', width: 30 },
+    { header: 'Date', key: 'date', width: 15 },
+    { header: 'Status', key: 'status', width: 15 },
+  ];
+
+  attendance.forEach(record => {
+    worksheet.addRow({
+      name: record.student.name,
+      date: record.date.toISOString().split('T')[0],
+      status: record.status
+    });
+  });
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=attendance.xlsx');
+
+  await workbook.xlsx.write(res);
+  res.end();
 });
 
 app.listen(PORT, () => {
