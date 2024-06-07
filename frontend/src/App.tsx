@@ -1,18 +1,27 @@
-import Navbar from "./components/Navbar";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import TestModules from "./modules/TestModules";
+import { Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Admin from './pages/Admin.tsx';
+import Student from './pages/Student.tsx';
+import Attendance from './pages/Attendance.tsx';
+import Fees from './pages/Fees.tsx';
+import Hostel from './pages/Hostel.tsx';
+import Marks from './pages/Marks.tsx';
+import "./styles/App.css"
 
 const App = () => {
   return (
-    <div>
-      <Router>
-        <Navbar />
+    <div className="App">
+      <Navbar />
+      <div className='content-wrapper'>
         <Routes>
-          <Route path="/Test" element={<TestModules />} />
-
-          {/* <Route path="/p" element={<Single />} /> */}
+          <Route path="/Admin" element={<Admin />} />
+          <Route path="/Student" element={<Student />} />
+          <Route path="/Attendance" element={<Attendance />} />
+          <Route path="/Fees" element={<Fees />} />
+          <Route path="/Hostel" element={<Hostel />} />
+          <Route path="/Marks" element={<Marks />} />
         </Routes>
-      </Router>
+      </div>
     </div>
   );
 };

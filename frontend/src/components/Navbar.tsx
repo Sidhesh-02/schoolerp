@@ -1,14 +1,13 @@
-import React from "react";
-import "../styles/navbar.css";
+import { Link } from "react-router-dom";
+import "../styles/Navbar.css"
+
 const Navbar = () => {
   return (
-    <div className="nav">
-      <ul className="app_navbar-links">
-        {["Home", "About", "Contact", "Work", "skills"].map((ele) => (
+    <div className="navbar">
+      <ul>
+        {["Admin", "Student", "Attendance", "Fees", "Hostel", "Marks"].map((ele) => (
           <li key={`link-${ele}`} className="app_flex p-text">
-            <div></div>
-
-            <a href={`/${ele}`}>{ele}</a>
+            <Link to={`/${ele}`}>{ele}</Link>
           </li>
         ))}
       </ul>
