@@ -2,13 +2,50 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 const ExcelJS = require('exceljs');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = 5000;
 
+const upload = multer({ dest: 'uploads/' });
+
 app.use(cors());
 app.use(express.json());
+
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const filePath = req.file.path;
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(filePath);
+  const worksheet = workbook.getWorksheet(1);
+
+  const students = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber !== 1) { // Skip header row
+      const name = row.getCell(1).value;
+      const rollNo = row.getCell(2).value;
+      const classId = row.getCell(3).value;
+      students.push({ name, rollNo, classId });
+    }
+  });
+
+  try {
+    await prisma.student.createMany({
+      data: students,
+      skipDuplicates: true, // Optional: to skip inserting duplicate records
+    });
+
+    fs.unlinkSync(filePath); // Delete the file after processing
+
+    res.status(200).send('File uploaded and data imported successfully');
+  } catch (error) {
+    console.error('Error importing data:', error);
+    res.status(500).send('Failed to import data');
+  }
+});
 
 app.get('/classes', async (req, res) => {
   const classes = await prisma.class.findMany();
@@ -19,21 +56,21 @@ app.get('/students/:classId', async (req, res) => {
   const { classId } = req.params;
   const students = await prisma.student.findMany({
     where: {
-      classId: parseInt(classId)
-    }
+      classId: parseInt(classId),
+    },
   });
   res.json(students);
 });
 
 app.post('/attendance', async (req, res) => {
   const { date, records } = req.body;
-  const attendancePromises = records.map(record => {
+  const attendancePromises = records.map((record) => {
     return prisma.attendance.create({
       data: {
         date: new Date(date),
         status: record.status,
-        rollNo: record.rollNo
-      }
+        rollNo: record.rollNo,
+      },
     });
   });
 
@@ -46,12 +83,12 @@ app.get('/attendance/download/:classId', async (req, res) => {
   const attendance = await prisma.attendance.findMany({
     where: {
       student: {
-        classId: parseInt(classId)
-      }
+        classId: parseInt(classId),
+      },
     },
     include: {
-      student: true
-    }
+      student: true,
+    },
   });
 
   const workbook = new ExcelJS.Workbook();
@@ -63,11 +100,11 @@ app.get('/attendance/download/:classId', async (req, res) => {
     { header: 'Status', key: 'status', width: 15 },
   ];
 
-  attendance.forEach(record => {
+  attendance.forEach((record) => {
     worksheet.addRow({
       name: record.student.name,
       date: record.date.toISOString().split('T')[0],
-      status: record.status
+      status: record.status,
     });
   });
 

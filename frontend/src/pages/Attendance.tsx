@@ -4,6 +4,7 @@ import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import ClassDropdown from '../components/ClassDropdown';
 import '../styles/Attendance.css'; 
+import UploadExcel from '../components/UploadExcel';
 
 interface Student {
   id: number;
@@ -100,6 +101,8 @@ const Attendance: React.FC = () => {
         <button onClick={handleSubmit} className="submit-button">Submit Attendance</button>
         <button onClick={handleDownload} className="download-button">Download Attendance</button>
       </div>
+
+      <UploadExcel />
     </div>
   );
 };
