@@ -23,22 +23,50 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   const worksheet = workbook.getWorksheet(1);
 
   const students = [];
+  const classes = new Set();
+
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber !== 1) { // Skip header row
       const name = row.getCell(1).value;
       const rollNo = row.getCell(2).value;
       const classId = row.getCell(3).value;
       students.push({ name, rollNo, classId });
+      classes.add(classId.toString());
     }
   });
 
   try {
-    await prisma.student.createMany({
-      data: students,
-      skipDuplicates: true, // Optional: to skip inserting duplicate records
+    // Insert unique classes into the Class table and get their IDs
+    const classEntries = Array.from(classes).map(name => ({ name }));
+    
+    // Prisma does not support createMany with skipDuplicates
+    // So we manually handle it by inserting classes one by one
+    const existingClasses = await prisma.class.findMany();
+    const existingClassNames = new Set(existingClasses.map(cls => cls.name));
+    
+    const newClasses = classEntries.filter(cls => !existingClassNames.has(cls.name));
+    const insertedClasses = await Promise.all(newClasses.map(cls => prisma.class.create({ data: cls })));
+
+    const classMap = {};
+    const allClasses = await prisma.class.findMany();
+    allClasses.forEach(cls => {
+      classMap[cls.name] = cls.id;
     });
 
-    fs.unlinkSync(filePath); // Delete the file after processing
+    // Map class names to new class IDs
+    const studentData = students.map(student => ({
+      name: student.name,
+      rollNo: student.rollNo,
+      classId: classMap[student.classId.toString()],
+    }));
+
+    // Insert students into the Student table
+    await prisma.student.createMany({
+      data: studentData,
+      skipDuplicates: true,
+    });
+
+    fs.unlinkSync(filePath);
 
     res.status(200).send('File uploaded and data imported successfully');
   } catch (error) {
@@ -46,6 +74,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(500).send('Failed to import data');
   }
 });
+
+
 
 app.get('/classes', async (req, res) => {
   const classes = await prisma.class.findMany();
