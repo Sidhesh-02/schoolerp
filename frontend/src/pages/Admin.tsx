@@ -1,16 +1,23 @@
+import UploadExcel from "../components/UploadExcel";
+
 const Admin = () => {
     return ( 
         <>
             Admin
-
             <div>
-                <h3>Total Students</h3>
-                <h3></h3>
-                <h3></h3>
-                <h3></h3>
-                <h3></h3>
-                <h3></h3>
-                <h3></h3>
+                <UploadExcel/>
+                <div className="Dashboard">
+                    <h3>Total Students</h3>
+                    <h3>0</h3>
+                    <h3>Absent Students</h3>
+                    <h3>0</h3>
+                    <h3>Total Money Collected</h3>
+                    <h3>0</h3>
+                    <h3>Students Yet to Fees</h3>
+                    <h3>0</h3>
+                    <h3>Total Bed Remaining</h3>
+                    <h3>0</h3>
+                </div>
             </div>
         </>
      );
@@ -18,28 +25,3 @@ const Admin = () => {
  
 export default Admin;
 
-/*
-
-Total Students
-
-500
-
-Absent Students
-
-100
-
-Total Money Collected
-
-8000$
-
-Students Yet to 
-Pay Fees
-
-50
-
-Get Student Reports
-Total Bed
-Remaining
-
-8
-*/

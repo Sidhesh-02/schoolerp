@@ -1,31 +1,73 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// schema.prisma
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Class {
-  id       Int       @id @default(autoincrement())
-  name     String
-  students Student[]
+generator client {
+  provider = "prisma-client-js"
 }
 
 model Student {
-  id       Int       @id @default(autoincrement())
-  name     String
-  rollNo   Int       @unique
-  classId  Int
-  class    Class     @relation(fields: [classId], references: [id])
+  id                Int        @id @default(autoincrement())
+  fullName          String
+  gender            Gender
+  dateOfBirth       DateTime
+  rollNo            Int        
+  standard          String     
+  adhaarCardNo      BigInt     @unique
+  scholarshipApplied Boolean
+  address           String
+  parents           Parent[]
+  fees              Fee[]
   attendanceRecords Attendance[]
 }
 
+model Parent {
+  id                Int        @id @default(autoincrement())
+  fatherName        String
+  fatherOccupation  String
+  motherName        String
+  motherOccupation  String
+  fatherContact     BigInt
+  motherContact     BigInt
+  address           String
+  student           Student    @relation(fields: [id], references: [id])
+}
+
+model Fee {
+  id                Int        @id @default(autoincrement())
+  title             String
+  amount            Float
+  amountDate        DateTime
+  admissionDate     DateTime
+  pendingAmount     Float
+  student           Student    @relation(fields: [id], references: [id])
+}
+
 model Attendance {
-  id        Int       @id @default(autoincrement())
-  date      DateTime
-  status    String
-  rollNo    Int
-  student   Student   @relation(fields: [rollNo], references: [rollNo])
+  id                Int        @id @default(autoincrement())
+  studentName       String
+  date              DateTime
+  status            Boolean
+  rollNo            Int
+  studentId         Int
+  student           Student    @relation(fields: [studentId], references: [id])
+  subjectId         Int?
+  subject           Subject?   @relation(fields: [subjectId], references: [id])
+  standard          String
+  subjectName       String?
+}
+
+
+model Subject {
+  id                Int        @id @default(autoincrement())
+  name              String
+  attendanceRecords Attendance[]
+}
+
+enum Gender {
+  Male
+  Female
 }

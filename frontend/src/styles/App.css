@@ -40,3 +40,15 @@ button:hover {
   padding: 4px;
   margin: 0px 10px;
 }
+
+.Dashboard{
+  background-color: #f4f4f4;
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.ExcelUpload{
+  background-color: #f4f4f4;
+  padding: 10px;
+  margin-top: 20px;
+}

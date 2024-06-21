@@ -32,8 +32,8 @@ const UploadExcel: React.FC = () => {
   };
 
   return (
-    <div className="upload-container">
-      <h2>Upload Excel File</h2>
+    <div className='ExcelUpload'>
+      <h2>Upload Students at Once</h2>
       <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
       <button onClick={handleUpload} className="upload-button">Upload</button>
     </div>
