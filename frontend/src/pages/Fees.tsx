@@ -81,7 +81,7 @@ const Fees: React.FC = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={loading} // Disable input during loading
+          disabled={loading} 
         /><br />
         <input
           type="text"
@@ -89,7 +89,7 @@ const Fees: React.FC = () => {
           value={rollNo}
           onChange={(e) => setRollNo(e.target.value)}
           required
-          disabled={loading} // Disable input during loading
+          disabled={loading} 
         /><br />
         <button onClick={search} disabled={loading}>Search</button>
         <button onClick={clearForm} disabled={loading}>Clear</button>

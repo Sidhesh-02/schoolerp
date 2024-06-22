@@ -22,6 +22,7 @@ model Student {
   parents           Parent[]
   fees              Fee[]
   attendanceRecords Attendance[]
+  marks             Marks[]
 }
 
 model Parent {
@@ -65,6 +66,26 @@ model Subject {
   id                Int        @id @default(autoincrement())
   name              String
   attendanceRecords Attendance[]
+  marks             Marks[]
+}
+
+model Marks {
+  id             Int      @id @default(autoincrement())
+  studentId      Int
+  subjectId      Int
+  subjectName    String
+  examinationType String
+  obtainedMarks  Float
+  totalMarks     Float
+  percentage     Float
+  student        Student  @relation(fields: [studentId], references: [id])
+  subject        Subject  @relation(fields: [subjectId], references: [id])
+}
+
+enum ExaminationType {
+  UnitTest
+  MidTerm
+  Final
 }
 
 enum Gender {
