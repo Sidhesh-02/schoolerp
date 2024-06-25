@@ -45,11 +45,11 @@ app.post('/students', async (req, res) => {
         },
         fees: {
           create: fees.map(fee => ({
-            ...fee,
+            title : fee.installmentType,
             amount: parseFloat(fee.amount),
             amountDate: new Date(fee.amountDate),
             admissionDate: new Date(fee.admissionDate),
-            pendingAmount : parseInt(fee.pendingAmount)
+            pendingAmount : 10500-parseFloat(fee.amount)
           })),
         },
       },
@@ -64,6 +64,33 @@ app.post('/students', async (req, res) => {
   } catch (error) {
     console.error('Error creating student:', error);
     res.status(500).send('Failed to create student');
+  }
+});
+
+
+const deleteStudent = async (rollNo, standard, adhaarCardNo) => {
+  try {
+    await prisma.student.deleteMany({
+      where: {
+        rollNo: parseInt(rollNo),
+        standard: standard,
+        adhaarCardNo : adhaarCardNo
+      }
+    });
+    return { success: true, message: 'Student deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting student:', error);
+    throw new Error('Failed to delete student');
+  }
+};
+
+app.delete('/delete/students', async (req, res) => {
+  const { rollNo, standard, adhaarCardNo } = req.query;
+  try {
+    await deleteStudent(rollNo, standard,adhaarCardNo);
+    res.status(200).send({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).send({ error: 'Failed to delete student' });
   }
 });
 
@@ -273,17 +300,19 @@ app.get('/downloadattendance', async (req, res) => {
 });
 
 //get searched student by rollno.:
-app.get("/students/rollNo/:rollno", async (req, res) => {
-  const rollno = parseInt(req.params.rollno);
+app.get("/students/rollNo", async (req, res) => {
+  const {rollno,standard}= req.query;
 
-  if (isNaN(rollno)) {
-    return res.status(400).json({ message: "Invalid roll number" });
+  
+  if (!rollno || isNaN(rollno) || !standard) {
+    return res.status(400).json({ message: "Invalid roll number or standard" });
   }
 
   try {
     const student = await prisma.student.findFirst({
       where: {
-        rollNo: rollno,
+        rollNo: parseInt(rollno),
+        standard: standard,
       },
       include: {
         parents: true,
@@ -384,6 +413,32 @@ app.get("/fees/details", async (req, res) => {
   }
 });
 
+app.post("/fees/add", async (req, res) => {
+  const { title, amount, amountDate, admissionDate, pendingAmount, studentId } = req.body;
+
+  if (!title || !amount || !amountDate || !admissionDate || !studentId) {
+    return res.status(400).json({ error: 'Invalid data' });
+  }
+
+  try {
+    const fee = await prisma.fee.create({
+      data: {
+        title,
+        amount: parseFloat(amount),
+        amountDate: new Date(amountDate),
+        admissionDate: new Date(admissionDate),
+        pendingAmount: parseFloat(pendingAmount),
+        studentId: parseInt(studentId),
+      },
+    });
+
+    res.status(201).json(fee);
+  } catch (error) {
+    console.error('Error adding fee:', error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 // Marks Structure
 app.post('/add', async (req, res) => {
   const { studentName, standard, examinationType, marks } = req.body;
@@ -421,85 +476,98 @@ app.post('/add', async (req, res) => {
   }
 });
 
+// Hostel Structure
+const occupied = [];
+const available = [];
+for (let i = 1; i <= 100; i++) {
+  available.push(i);
+}
 
+app.get('/gethosteldata', async (req, res) => {
+  try {
+    const result = await prisma.hosteldata.findMany();
+    if (result.length > 0) {
+      console.log(result[0].bed_number); // Log the bed number for debugging
+    }
 
-// // To Get Hostel Details
-// app.get("/gethosteldata", async (req, res) => {
-//   const { id } = req.body;
-  
-//   try {
-//       const result = await prisma.hosteldata.findFirst({
-//           where: {
-//               id: id,
-//           }
-//       });
-//       res.status(201).json(result);
-//   } catch (error) {
-//       res.status(500).json({ error: "An error occurred while creating the hostel data entry." });
-//   }
-// });
+    available.forEach((e) => {
+      result.forEach((v) => {
+        if (e === v.bed_number) {
+          let index = available.indexOf(e);
+          available[index] = 0;
+        }
+      });
+    });
 
-// //To Download the Hostel Details
-// app.get("/gethosteldata/download", async (req, res) => {
-//   const workbook = new ExcelJS.Workbook();
-//   const worksheet = workbook.addWorksheet("HostelData");
-  
-//   try {
-//       const hosteldata = await prisma.hosteldata.findMany();
-      
-//       worksheet.columns = [
-//           { header: 'Student Name', key: 'name', width: 30 },
-//           { header: 'Age', key: 'age', width: 30 },
-//           { header: 'Class', key: 'Class', width: 30 },
-//           { header: 'Gender', key: 'gender', width: 30 },
-//           { header: 'Room Number', key: 'room_number', width: 30 },
-//           { header: 'Bed Number', key: 'bed_number', width: 30 },
-//       ];
+    res.status(201).json({ result, available });
+  } catch (error) {
+    console.error("Error fetching hostel data: ", error); // Detailed logging
+    res.status(500).json({ error: 'An error occurred while fetching the hostel data.' });
+  }
+});
 
-//       hosteldata.forEach(e => {
-//           worksheet.addRow({
-//               name: e.name,
-//               age: e.age,
-//               Class: e.Class,
-//               gender: e.gender,
-//               room_number: e.room_number,
-//               bed_number: e.bed_number,
-//           });
-//       });
+app.post("/hosteldata",async (req, res)=>{
 
-//       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-//       res.setHeader('Content-Disposition', 'attachment; filename=Hosteldata.xlsx');
-      
-//       await workbook.xlsx.write(res);
-//       res.end();
-//   } catch (error) {
-//       res.status(500).json({ error: "An error occurred while creating the hostel data entry." });
-//   }
-// });
+  const { name, rollNo, standard, gender, room_no, bed_no } = req.body;
 
-// //To Append the Hostel Data to Database
-// app.post("/hosteldata", async (req, res) => {
-//   const { name, age, Class, gender, room_no, bed_no } = req.body;
-  
-//   try {
-//       const result = await prisma.hosteldata.create({
-//           data: {
-//               name: name,
-//               age: age,
-//               Class: Class,
-//               gender: gender,
-//               room_number: room_no,
-//               bed_number: bed_no,
-//           },
-//       });
-      
-//       res.status(201).json(result);
-//   } catch (error) {
-//       console.log(error);
-//       res.status(500).json({ error: "An error occurred while creating the hostel data entry." });
-//   }
-// });
+  try {
+      const result = await prisma.hosteldata.create({
+          data: {
+              name : name,
+              standard: standard,
+              gender : gender,
+              room_number : room_no,
+              bed_number: bed_no,
+              rollNo : rollNo,
+          },
+      });
+     
+      res.status(201).json(result);
+  }catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "An error occurred while creating the hostel data entry." });
+  }
+});
 
+app.post("/updatehostel",async (req, res)=>{
+
+  const { rollNo, standard, room_no, bed_no} = req.body;
+  try {
+      const result = await prisma.hosteldata.update({
+          where : {
+            rollNo_Class : {
+              rollNo : rollNo,
+              standard : standard
+            }
+          },
+          data: {
+            room_number : room_no,
+            bed_number: bed_no,
+          },
+      });
+     
+      res.status(201).json(result);
+  }catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "An error occurred while updating the hostel data entry." });
+  }
+});
+
+app.post("/hostel/delete" , async(req, res)=>{
+    const {rollNo, bed_no } = req.body;
+
+    try{
+        const result = await prisma.hosteldata.delete({
+          where :{
+            rollNo : rollNo,
+            bed_number : bed_no
+          }
+        })
+        res.status(201).json(result)
+    }catch(error){
+      res.status(404).json({message : error})
+    }
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

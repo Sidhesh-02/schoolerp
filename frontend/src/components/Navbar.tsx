@@ -5,7 +5,7 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <ul>
-        {["Admin", "Student", "Attendance", "Fees", "Hostel", "Marks"].map((ele) => (
+        {["Admin","UploadAll", "Student", "Attendance", "Fees", "Hostel", "Marks"].map((ele) => (
           <li key={`link-${ele}`} className="app_flex p-text">
             <Link to={`/${ele}`}>{ele}</Link>
           </li>

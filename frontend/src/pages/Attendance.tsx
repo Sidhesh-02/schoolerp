@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/Attendance.css';
 import DownloadAttendance from '../components/DownloadAttendance';
 
 
@@ -149,7 +148,7 @@ const Attendance: React.FC = () => {
         <label htmlFor="attendance-date">Select Date:</label>
         <input type="date" id="attendance-date" name="attendance-date" value={attendanceDate} onChange={handleDateChange} />
 
-        <label htmlFor="subject">Select Subject (Optional):</label>
+        <label htmlFor="subject">Select Subject : </label>
         <select id="subject" name="subject" value={selectedSubject || ''} onChange={handleSubjectChange}>
           <option value="">Global Attendance</option>
           {subjects.map((subject) => (

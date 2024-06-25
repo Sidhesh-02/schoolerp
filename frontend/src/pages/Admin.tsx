@@ -1,11 +1,8 @@
-import UploadExcel from "../components/UploadExcel";
-
 const Admin = () => {
     return ( 
         <>
             Admin
             <div>
-                <UploadExcel/>
                 <div className="Dashboard">
                     <h3>Total Students</h3>
                     <h3>0</h3>

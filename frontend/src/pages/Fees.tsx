@@ -19,7 +19,15 @@ const Fees: React.FC = () => {
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState('');
   const [student, setStudent] = useState<Student | null>(null);
-  const [loading, setLoading] = useState(false); // New state for loading indicator
+  const [loading, setLoading] = useState(false);
+
+  const [newInstallment, setNewInstallment] = useState<Fee>({
+    title: '',
+    amount: 0,
+    amountDate: '',
+    admissionDate: '',
+    pendingAmount: 0,
+  });
 
   const search = async () => {
     try {
@@ -28,7 +36,7 @@ const Fees: React.FC = () => {
         return;
       }
 
-      setLoading(true); // Set loading state to true during API call
+      setLoading(true);
 
       const res = await axios.get('http://localhost:5000/fees/details', {
         params: {
@@ -40,14 +48,14 @@ const Fees: React.FC = () => {
       if (res.data && !res.data.error) {
         setStudent(res.data);
       } else {
-        setStudent(null); // Clear student state on error
+        setStudent(null);
         alert("Student does not exist");
       }
     } catch (error) {
       console.error('Error fetching fees details', error);
       alert('An error occurred while fetching fees details. Please try again later.');
     } finally {
-      setLoading(false); // Always set loading state to false after API call
+      setLoading(false);
     }
   };
 
@@ -69,6 +77,89 @@ const Fees: React.FC = () => {
     } catch (error) {
       console.error('Error downloading fees details', error);
       alert('An error occurred while downloading fees details. Please try again later.');
+    }
+  };
+
+  const handleAddInstallmentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    let amount = newInstallment.amount;
+
+    if (name === 'title') {
+      switch (value) {
+        case '2nd':
+          amount = 3500;
+          break;
+        case '3rd':
+          amount = 2000;
+          break;
+        default:
+          amount = 0;
+          break;
+      }
+    }
+
+    setNewInstallment((prev) => ({
+      ...prev,
+      [name]: value,
+      amount: name === 'title' ? amount : prev.amount,
+    }));
+  };
+
+  const calculatePendingAmount = () => {
+    if (student) {
+      const totalPaid = student.fees.reduce((acc, fee) => acc + fee.amount, 0);
+      const totalAmount = 10500; // assuming the total fee is 10500
+      const pendingAmount = totalAmount - totalPaid;
+      return pendingAmount;
+    }
+    return 0;
+  };
+
+  const addInstallment = async () => {
+    try {
+      if (!student) {
+        alert('No student data available.');
+        return;
+      }
+
+      const pendingAmount = calculatePendingAmount();
+      if (pendingAmount <= 0) {
+        alert('No pending fees. The student has completed all payments.');
+        return;
+      }
+      const updatedInstallment = {
+        ...newInstallment,
+        admissionDate: student.fees[0].admissionDate,
+        pendingAmount: pendingAmount - newInstallment.amount,
+        studentId: student.id, // assuming student ID is available
+      };
+
+      const res = await axios.post('http://localhost:5000/fees/add', updatedInstallment);
+
+      if (res.data && !res.data.error) {
+        setStudent((prevStudent) => {
+          if (prevStudent) {
+            return {
+              ...prevStudent,
+              fees: [...prevStudent.fees, updatedInstallment],
+            };
+          }
+          return prevStudent;
+        });
+        setNewInstallment({
+          title: '',
+          amount: 0,
+          amountDate: '',
+          admissionDate: '',
+          pendingAmount: 0,
+        });
+      } else {
+        alert("Failed to add installment");
+      }
+    } catch (error) {
+      console.error('Error adding installment', error);
+      alert('An error occurred while adding installment. Please try again later.');
     }
   };
 
@@ -112,6 +203,40 @@ const Fees: React.FC = () => {
               <p>Pending Amount: {fee.pendingAmount}</p>
             </div>
           ))}
+          
+          <h3>Add New Installment</h3>
+          <div>
+            <label>Installment Type</label>
+            <select
+              name="title"
+              value={newInstallment.title}
+              onChange={handleAddInstallmentChange}
+            >
+              <option value="">Select installment type</option>
+              <option value="2nd">2nd Installment</option>
+              <option value="3rd">3rd Installment</option>
+            </select>
+          </div>
+          <div>
+            <label>Amount</label>
+            <input
+              type="number"
+              name="amount"
+              value={newInstallment.amount}
+              onChange={handleAddInstallmentChange}
+              disabled
+            />
+          </div>
+          <div>
+            <label>Amount Date</label>
+            <input
+              type="date"
+              name="amountDate"
+              value={newInstallment.amountDate}
+              onChange={handleAddInstallmentChange}
+            />
+          </div>
+          <button onClick={addInstallment}>Add Installment</button>
         </div>
       )}
     </div>

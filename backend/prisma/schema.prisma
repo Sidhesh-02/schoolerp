@@ -44,8 +44,10 @@ model Fee {
   amountDate        DateTime
   admissionDate     DateTime
   pendingAmount     Float
-  student           Student    @relation(fields: [id], references: [id])
+  studentId         Int
+  student           Student    @relation(fields: [studentId], references: [id])
 }
+
 
 model Attendance {
   id                Int        @id @default(autoincrement())
@@ -80,6 +82,18 @@ model Marks {
   percentage     Float
   student        Student  @relation(fields: [studentId], references: [id])
   subject        Subject  @relation(fields: [subjectId], references: [id])
+}
+
+model Hosteldata{
+    id Int @unique @id @default(autoincrement())
+    name String 
+    rollNo Int
+    standard String
+    gender String
+    room_number Int 
+    bed_number Int  @unique
+
+    @@unique([rollNo, standard])
 }
 
 enum ExaminationType {

@@ -26,7 +26,7 @@ interface Parent {
 }
 
 interface Fee {
-  title: string;
+  installmentType: string;
   amount: number;
   amountDate: string;
   admissionDate: string;
@@ -54,7 +54,7 @@ const Student: React.FC = () => {
       address: '',
     }],
     fees: [{
-      title: '',
+      installmentType: '',
       amount: 0,
       amountDate: '',
       admissionDate: '',
@@ -63,6 +63,7 @@ const Student: React.FC = () => {
   });
   const [searchRollNo, setSearchRollNo] = useState('');
   const [searchResult, setSearchResult] = useState<Student | null>(null);
+  const [standard, setStandard] = useState<string | undefined>();
 
   const handleSubmit = async () => {
     try {
@@ -92,14 +93,71 @@ const Student: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get<Student>(`http://localhost:5000/students/rollNo/${searchRollNo}`);
-      console.log("Response Data -",response.data)
+      const response = await axios.get<Student>(`http://localhost:5000/students/rollNo`,{
+        params :{
+          rollno : searchRollNo,
+          standard : standard
+        }
+      });
       setSearchResult(response.data);
     } catch (error) {
       console.error('Error fetching student:', error);
       alert('Failed to fetch student');
     }
   };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/delete/students`, {
+        params: {
+          rollNo: searchRollNo,
+          standard: standard,
+        }
+      });
+      alert('Student deleted successfully');
+      setSearchResult(null); // Clear the search result after deletion
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      alert('Failed to delete student');
+    }
+  };
+
+  const handleFeeChange2 = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    index: number
+  ) => {
+    const { name, value } = e.target;
+  
+    if (name === 'installmentType') {
+      let amount = 0;
+      switch (value) {
+        case 'Total':
+          amount = 10500;
+          break;
+        case '1st':
+          amount = 5000;
+          break;
+        case '2nd':
+          amount = 3500;
+          break;
+        case '3rd':
+          amount = 2000;
+          break;
+        default:
+          amount = 0;
+          break;
+      }
+      const newFees = [...student.fees];
+      newFees[index] = { ...newFees[index], [name]: value, amount };
+      setStudent((prev) => ({ ...prev, fees: newFees }));
+    } else {
+      const { name, value } = e.target;
+      const newFees = [...student.fees];
+      newFees[index] = { ...newFees[index], [name]: value };
+      setStudent((prev) => ({ ...prev, fees: newFees }));
+    }
+  };
+  
 
   return (
     <div>
@@ -123,10 +181,28 @@ const Student: React.FC = () => {
         <label>Roll No</label>
         <input type="text" name="rollNo" value={student.rollNo} onChange={(e) => (setStudent(v => ({...v, rollNo:e.target.value})))} />
       </div>
-      <div>
+      {/* <div>
         <label>Standard</label>
         <input type="text" name="standard" value={student.standard} onChange={(e) => (setStudent(v => ({...v, standard:e.target.value})))} />
-      </div>
+      </div> */}
+      
+            <label>Standard</label>
+            <select
+              name="standard"
+              value={student.standard}
+              onChange={(e) => (setStudent(v => ({...v, standard:e.target.value})))}
+            >
+              <option value="">Select standard</option>
+              <option value="lkg1">Lkg1</option>
+              <option value="kg1">kg1</option>
+              <option value="kg2">kg2</option>
+              <option value="1st">1st</option>
+              <option value="2nd">2nd</option>
+              <option value="3rd">3rd</option>
+              <option value="4th">4th</option>
+              <option value="5th">5th</option>
+            </select>
+
       <div>
         <label>Adhaar Card No</label>
         <input type="text" name="adhaarCardNo" value={student.adhaarCardNo} onChange={(e) => (setStudent(v => ({...v, adhaarCardNo:e.target.value})))} />
@@ -178,12 +254,29 @@ const Student: React.FC = () => {
       {student.fees.map((fee, index) => (
         <div key={index}>
           <div>
-            <label>Title</label>
-            <input type="text" name="title" value={fee.title} onChange={(e) => handleFeeChange(e, index)} />
+            <label>Installment Type</label>
+            <select
+              name="installmentType"
+              value={fee.installmentType}
+              onChange={(e) => handleFeeChange2(e, index)}
+            >
+              <option value="">Select installment type</option>
+              <option value="Total">Total</option>
+              <option value="1st">1st Installment</option>
+              <option value="2nd">2nd Installment</option>
+              <option value="3rd">3rd Installment</option>
+            </select>
           </div>
+
           <div>
             <label>Amount</label>
-            <input type="number" name="amount" value={fee.amount} onChange={(e) => handleFeeChange(e, index)} />
+            <input
+              type="number"
+              name="amount"
+              value={fee.amount}
+              onChange={(e) => handleFeeChange(e, index)}
+              disabled // disable user input since it's calculated
+            />
           </div>
           <div>
             <label>Amount Date</label>
@@ -193,10 +286,6 @@ const Student: React.FC = () => {
             <label>Admission Date</label>
             <input type="date" name="admissionDate" value={fee.admissionDate} onChange={(e) => handleFeeChange(e, index)} />
           </div>
-          <div>
-            <label>Pending Amount</label>
-            <input type="number" name="pendingAmount" value={Number(fee.pendingAmount)} onChange={(e) => handleFeeChange(e, index)} />
-          </div>
         </div>
       ))}
 
@@ -205,6 +294,17 @@ const Student: React.FC = () => {
       <h2>Search Student</h2>
       <div>
         <input type="number" placeholder="Enter Roll No" value={searchRollNo} onChange={(e) => setSearchRollNo(e.target.value)} />
+            <select className='inputB' onChange={(e) => { setStandard(e.target.value); }}>
+              <option value=''>Select standard</option>
+              <option value='lkg1'>Lkg1</option>
+              <option value='kg1'>kg1</option>
+              <option value='kg2'>kg2</option>
+              <option value='1st'>1st</option>
+              <option value='2nd'>2nd</option>
+              <option value='3rd'>3rd</option>
+              <option value='4th'>4th</option>
+              <option value='5th'>5th</option>
+            </select><br />
         <button onClick={handleSearch}>Search</button>
       </div>
       {searchResult && (
@@ -235,13 +335,15 @@ const Student: React.FC = () => {
           <h4>Fees Information</h4>
           {searchResult.fees.map((fee, index) => (
             <div key={index}>
-              <p><strong>Title:</strong> {fee.title}</p>
+              <p><strong>Title:</strong> {fee.installmentType}</p>
               <p><strong>Amount:</strong> {fee.amount}</p>
               <p><strong>Amount Date:</strong> {fee.amountDate}</p>
               <p><strong>Admission Date:</strong> {fee.admissionDate}</p>
               <p><strong>Pending Amount:</strong> {fee.pendingAmount}</p>
             </div>
           ))}
+
+          <button onClick={handleDelete}>Delete Student</button>
         </div>
       )}
     </div>

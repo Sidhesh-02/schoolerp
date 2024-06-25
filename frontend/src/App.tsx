@@ -7,6 +7,7 @@ import Fees from './pages/Fees.tsx';
 import Hostel from './pages/Hostel.tsx';
 import Marks from './pages/Marks.tsx';
 import "./styles/App.css"
+import UploadStudent from './pages/UploadStudents.tsx';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <div className='content-wrapper'>
         <Routes>
           <Route path="/Admin" element={<Admin />} />
+          <Route path="/UploadAll" element={<UploadStudent />} />
           <Route path="/Student" element={<Student />} />
           <Route path="/Attendance" element={<Attendance />} />
           <Route path="/Fees" element={<Fees />} />
