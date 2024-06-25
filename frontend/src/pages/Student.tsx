@@ -16,6 +16,7 @@ interface Student {
 }
 
 interface Parent {
+  studentId: number;
   fatherName: string;
   fatherOccupation: string;
   motherName: string;
@@ -52,6 +53,7 @@ const Student: React.FC = () => {
       fatherContact: '',
       motherContact: '',
       address: '',
+      studentId: 0
     }],
     fees: [{
       installmentType: '',
@@ -64,6 +66,9 @@ const Student: React.FC = () => {
   const [searchRollNo, setSearchRollNo] = useState('');
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [standard, setStandard] = useState<string | undefined>();
+  const [studentIdToDelete, setStudentIdToDelete] = useState<number | null>(null);
+
+  
 
   const handleSubmit = async () => {
     try {
@@ -99,6 +104,7 @@ const Student: React.FC = () => {
           standard : standard
         }
       });
+      console.log("Response Data ",response.data)
       setSearchResult(response.data);
     } catch (error) {
       console.error('Error fetching student:', error);
@@ -110,12 +116,12 @@ const Student: React.FC = () => {
     try {
       await axios.delete(`http://localhost:5000/delete/students`, {
         params: {
-          rollNo: searchRollNo,
-          standard: standard,
-        }
+          studentId: studentIdToDelete,
+        },
       });
       alert('Student deleted successfully');
       setSearchResult(null); // Clear the search result after deletion
+      setStudentIdToDelete(null); // Clear the studentIdToDelete state
     } catch (error) {
       console.error('Error deleting student:', error);
       alert('Failed to delete student');
@@ -181,10 +187,6 @@ const Student: React.FC = () => {
         <label>Roll No</label>
         <input type="text" name="rollNo" value={student.rollNo} onChange={(e) => (setStudent(v => ({...v, rollNo:e.target.value})))} />
       </div>
-      {/* <div>
-        <label>Standard</label>
-        <input type="text" name="standard" value={student.standard} onChange={(e) => (setStudent(v => ({...v, standard:e.target.value})))} />
-      </div> */}
       
             <label>Standard</label>
             <select
@@ -310,6 +312,7 @@ const Student: React.FC = () => {
       {searchResult && (
         <div>
           <h3>Student Profile</h3>
+          
           <p><strong>Full Name:</strong> {searchResult.fullName}</p>
           <p><strong>Gender:</strong> {searchResult.gender}</p>
           <p><strong>Date of Birth:</strong> {searchResult.dateOfBirth}</p>
@@ -322,6 +325,7 @@ const Student: React.FC = () => {
           <h4>Parents Information</h4>
           {searchResult.parents.map((parent, index) => (
             <div key={index}>
+              <p><strong>Student Id : </strong> {parent.studentId}</p>
               <p><strong>Father Name:</strong> {parent.fatherName}</p>
               <p><strong>Father Occupation:</strong> {parent.fatherOccupation}</p>
               <p><strong>Mother Name:</strong> {parent.motherName}</p>
@@ -343,6 +347,12 @@ const Student: React.FC = () => {
             </div>
           ))}
 
+          <input
+            type="number"
+            placeholder="Enter Student ID to delete"
+            value={studentIdToDelete ?? ''}
+            onChange={(e) => setStudentIdToDelete(parseInt(e.target.value))}
+          />
           <button onClick={handleDelete}>Delete Student</button>
         </div>
       )}

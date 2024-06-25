@@ -34,7 +34,8 @@ model Parent {
   fatherContact     BigInt
   motherContact     BigInt
   address           String
-  student           Student    @relation(fields: [id], references: [id])
+  studentId         Int
+  student           Student    @relation(fields: [studentId], references: [id])
 }
 
 model Fee {

@@ -38,9 +38,13 @@ app.post('/students', async (req, res) => {
         address,
         parents: {
           create: parents.map(parent => ({
-            ...parent,
-            fatherContact : parseInt(parent.fatherContact),
-            motherContact : parseInt(parent.motherContact)
+            fatherName: parent.fatherName,
+            fatherOccupation: parent.fatherOccupation,
+            motherName: parent.motherName,
+            motherOccupation: parent.motherOccupation,
+            fatherContact: parseInt(parent.fatherContact),
+            motherContact: parseInt(parent.motherContact),
+            address: parent.address,
           })),
         },
         fees: {
@@ -67,17 +71,18 @@ app.post('/students', async (req, res) => {
   }
 });
 
-
-const deleteStudent = async (rollNo, standard, adhaarCardNo) => {
+const deleteStudent = async (studentId) => {
   try {
-    await prisma.student.deleteMany({
-      where: {
-        rollNo: parseInt(rollNo),
-        standard: standard,
-        adhaarCardNo : adhaarCardNo
-      }
-    });
-    return { success: true, message: 'Student deleted successfully' };
+    // Delete related records
+    await prisma.parent.deleteMany({ where: { studentId: studentId, } });
+    await prisma.fee.deleteMany({ where: { studentId: studentId, } });
+    await prisma.attendance.deleteMany({ where: { studentId: studentId, } });
+    // await prisma.mark.deleteMany({ where: { studentId: studentId, } });
+
+    // Delete the student record
+    await prisma.student.delete({ where: { id: parseInt(studentId) } });
+
+    return { success: true, message: 'Student and related records deleted successfully' };
   } catch (error) {
     console.error('Error deleting student:', error);
     throw new Error('Failed to delete student');
@@ -85,9 +90,9 @@ const deleteStudent = async (rollNo, standard, adhaarCardNo) => {
 };
 
 app.delete('/delete/students', async (req, res) => {
-  const { rollNo, standard, adhaarCardNo } = req.query;
+  const { studentId } = req.query;
   try {
-    await deleteStudent(rollNo, standard,adhaarCardNo);
+    await deleteStudent(parseInt(studentId));
     res.status(200).send({ message: 'Student deleted successfully' });
   } catch (error) {
     res.status(500).send({ error: 'Failed to delete student' });
@@ -322,6 +327,7 @@ app.get("/students/rollNo", async (req, res) => {
     });
 
     if (student) {
+      console.log("Backend data from postgress ", student)
       res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
     } else {
       res.status(404).json({ message: "Student not found" });
