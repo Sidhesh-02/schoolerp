@@ -1,7 +1,7 @@
-const Admin = () => {
+const Report = () => {
     return ( 
         <>
-            Admin
+            Reports
             <div>
                 <div className="Dashboard">
                     <h3>Total Students</h3>
@@ -20,5 +20,5 @@ const Admin = () => {
      );
 }
  
-export default Admin;
+export default Report;
 

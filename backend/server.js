@@ -8,8 +8,10 @@ const fs = require('fs');
 const PORT = 5000;
 const app = express();
 const prisma = new PrismaClient();
-
 const upload = multer({ dest: 'uploads/' });
+
+app.use(cors());
+app.use(express.json());
 
 function jsonBigIntReplacer(key, value) {
   if (typeof value === 'bigint') {
@@ -17,9 +19,6 @@ function jsonBigIntReplacer(key, value) {
   }
   return value;
 }
-
-app.use(cors());
-app.use(express.json());
 
 // Create Student
 app.post('/students', async (req, res) => {
@@ -304,7 +303,7 @@ app.get('/downloadattendance', async (req, res) => {
   }
 });
 
-//get searched student by rollno.:
+//Get searched student by rollno.:
 app.get("/students/rollNo", async (req, res) => {
   const {rollno,standard}= req.query;
 
