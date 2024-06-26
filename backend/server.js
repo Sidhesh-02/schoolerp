@@ -326,7 +326,7 @@ app.get("/students/rollNo", async (req, res) => {
     });
 
     if (student) {
-      console.log("Backend data from postgress ", student)
+      
       res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
     } else {
       res.status(404).json({ message: "Student not found" });
@@ -482,17 +482,21 @@ app.post('/add', async (req, res) => {
 });
 
 // Hostel Structure
-const occupied = [];
-const available = [];
-for (let i = 1; i <= 100; i++) {
-  available.push(i);
-}
+// const available = [];
+// for (let i = 1; i <= 100; i++) {
+//   available.push(i);
+// }
 
 app.get('/gethosteldata', async (req, res) => {
   try {
     const result = await prisma.hosteldata.findMany();
-    if (result.length > 0) {
-      console.log(result[0].bed_number); // Log the bed number for debugging
+    // if (result.length > 0) {
+    //   console.log("Bedno used",result[0].bed_number); // Log the bed number for debugging
+    // }
+
+    const available = [];
+    for (let i = 1; i <= 100; i++) {
+      available.push(i);
     }
 
     available.forEach((e) => {
@@ -503,6 +507,8 @@ app.get('/gethosteldata', async (req, res) => {
         }
       });
     });
+    // console.log("Result", result);
+    console.log("Available", available);
 
     res.status(201).json({ result, available });
   } catch (error) {
@@ -540,7 +546,7 @@ app.post("/updatehostel",async (req, res)=>{
   try {
       const result = await prisma.hosteldata.update({
           where : {
-            rollNo_Class : {
+            rollNo_standard : {
               rollNo : rollNo,
               standard : standard
             }

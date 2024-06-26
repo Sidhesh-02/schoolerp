@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Hostel() {
+  
+  const nav = useNavigate();
   const [rollNo, setRollNo] = useState<number>();
   const [standard, setStandard] = useState<string | undefined>();
   const [room_no, setRoom] = useState<number | undefined>();
@@ -13,7 +15,6 @@ function Hostel() {
   const [show, setShow] = useState<boolean>(false);
   const [data, setData] = useState<any>(null);
   const [res, setRes] = useState<any>(null);
-  const nav = useNavigate();
 
   const submit = async () => {
     try {
@@ -121,7 +122,7 @@ function Hostel() {
           <input className='inputB' type='number' placeholder='Room no.' onChange={(e) => { setRoom(Number(e.target.value)); }} /><br />
           <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
         </div>
-        <button className='' onClick={submit}>Save</button>
+        <button onClick={submit}>Save</button>
       </div>
 
       <button onClick={update}>Update</button>
@@ -142,9 +143,11 @@ function Hostel() {
           <h2>Hostel bed rooms:</h2>
           {occupied.map((ele, index) => {
             return (
-              <button key={index} onClick={() => details(ele)} className='' style={{ backgroundColor: available[index] !== 0 ? '#0056b3' : '#DC143C', borderRadius: '50px' }}>
-                {ele}
-              </button>
+              <>
+                <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#0056b3' : '#DC143C', borderRadius: '50px' }}>
+                  {ele}
+                </button>
+              </>
             );
           })}
         </div>

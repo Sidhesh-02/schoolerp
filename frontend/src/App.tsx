@@ -10,6 +10,7 @@ import Marks from './pages/Marks';
 import UploadStudent from './pages/UploadStudents';
 import ProtectedRoute from './components/ProtectedRoute';
 import "./styles/App.css";
+import UpdateHostel from './components/UpdateHostel';
 
 interface Auth {
   username: string;
@@ -68,6 +69,7 @@ const App: React.FC = () => {
           <Route path="/Fees" element={<ProtectedRoute auth={auth} allowedRoles={['admin']}><Fees /></ProtectedRoute>} />
           <Route path="/Hostel" element={<ProtectedRoute auth={auth} allowedRoles={['admin']}><Hostel /></ProtectedRoute>} />
           <Route path="/Marks" element={<ProtectedRoute auth={auth} allowedRoles={['teacher', 'admin']}><Marks /></ProtectedRoute>} />
+          <Route path="/Hostel/update"  element={<ProtectedRoute auth={auth} allowedRoles={['admin']}><UpdateHostel/></ProtectedRoute>}/>
         </Routes>
       </div>
     </div>
