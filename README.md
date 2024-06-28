@@ -1,10 +1,16 @@
 # Student ERP System
 
-![ERP Logo](C:\Users\Lenovo\Downloads\Screenshot 2024-06-28 224156.png)
+![Screenshot 2024-06-28 224156](https://github.com/Aryanryn09/schoolerp/assets/105795148/1513b128-bccb-4f6a-9e86-6dc05cdf7f0f)
+
 
 ## Description
 
 The Student ERP (Enterprise Resource Planning) System is designed to streamline various administrative tasks in educational institutions. This system manages student profiles, attendance, fees, hostel accommodations, and academic performance.
+
+#Overview
+
+![overview](https://github.com/Aryanryn09/schoolerp/assets/105795148/f90544f1-7514-4ad4-b300-b42122188d3e)
+
 
 ## Features
 
@@ -53,7 +59,8 @@ The Student ERP (Enterprise Resource Planning) System is designed to streamline 
 
 ### 2. Student Management
 
-![ERP Logo](C:\Users\Lenovo\Downloads\studentinfo.png)
+![studentinfo](https://github.com/Aryanryn09/schoolerp/assets/105795148/1911c635-4a62-4702-9a46-d62d68f99e70)
+
 
 #### Upload Student Details
 
@@ -87,7 +94,8 @@ Allows the creation of individual student profiles by entering details such as:
 
 ### 3. Attendance System
 
-![ERP Logo](C:\Users\Lenovo\Downloads\attendance.png)
+![attendance](https://github.com/Aryanryn09/schoolerp/assets/105795148/60e4ad51-787a-4810-9f74-1beb71a7e3b5)
+
 
 #### Global Attendance
 
@@ -105,7 +113,8 @@ Lists students who have outstanding fees, helping administrators follow up on pe
 
 ### 5. Hostel Management
 
-![ERP Logo](C:\Users\Lenovo\Downloads\hostel_accomodation.png)
+![hostel_accomodation](https://github.com/Aryanryn09/schoolerp/assets/105795148/c257034d-fca8-4f97-8b32-728670480b8f)
+
 
 #### Available Beds
 
