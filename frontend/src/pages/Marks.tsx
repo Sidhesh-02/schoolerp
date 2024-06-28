@@ -1,6 +1,6 @@
-import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
-
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import axios from "axios";
+import "../styles/marks.css";
 interface FormData {
   standard: string;
   studentName: string;
@@ -29,9 +29,9 @@ interface Standard {
 
 const Marks: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    standard: '',
-    studentName: '',
-    examinationType: '',
+    standard: "",
+    studentName: "",
+    examinationType: "",
     marks: [],
   });
 
@@ -43,19 +43,19 @@ const Marks: React.FC = () => {
   useEffect(() => {
     const fetchStandards = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/getstandards');
+        const response = await axios.get("http://localhost:5000/getstandards");
         setStandards(response.data.standards);
       } catch (error) {
-        console.error('Error fetching standards:', error);
+        console.error("Error fetching standards:", error);
       }
     };
 
     const fetchSubjects = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/getsubjects');
+        const response = await axios.get("http://localhost:5000/getsubjects");
         setSubjects(response.data);
       } catch (error) {
-        console.error('Error fetching subjects:', error);
+        console.error("Error fetching subjects:", error);
       }
     };
 
@@ -68,17 +68,20 @@ const Marks: React.FC = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       standard,
-      studentName: '', // reset studentName when standard changes
+      studentName: "", // reset studentName when standard changes
       marks: [], // reset marks when standard changes
     }));
 
     try {
-      const response = await axios.get('http://localhost:5000/getattendancelist', {
-        params: { standard },
-      });
+      const response = await axios.get(
+        "http://localhost:5000/getattendancelist",
+        {
+          params: { standard },
+        }
+      );
       setStudents(response.data);
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error("Error fetching students:", error);
     }
   };
 
@@ -87,7 +90,7 @@ const Marks: React.FC = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       studentName,
-      marks: subjects.map(subject => ({
+      marks: subjects.map((subject) => ({
         subjectId: subject.id,
         subjectName: subject.name,
         obtainedMarks: 0,
@@ -96,7 +99,9 @@ const Marks: React.FC = () => {
     }));
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -104,10 +109,14 @@ const Marks: React.FC = () => {
     }));
   };
 
-  const handleMarksChange = (subjectId: number, field: 'obtainedMarks' | 'totalMarks', value: number) => {
+  const handleMarksChange = (
+    subjectId: number,
+    field: "obtainedMarks" | "totalMarks",
+    value: number
+  ) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      marks: prevFormData.marks.map(mark =>
+      marks: prevFormData.marks.map((mark) =>
         mark.subjectId === subjectId ? { ...mark, [field]: value } : mark
       ),
     }));
@@ -117,36 +126,37 @@ const Marks: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/add', formData);
-      console.log('Marks added:', response.data);
-      setSuccessMessage('Marks added successfully!');
+      const response = await axios.post("http://localhost:5000/add", formData);
+      console.log("Marks added:", response.data);
+      setSuccessMessage("Marks added successfully!");
 
       // Optionally reset form
       setFormData({
-        standard: '',
-        studentName: '',
-        examinationType: '',
+        standard: "",
+        studentName: "",
+        examinationType: "",
         marks: [],
       });
       setStudents([]);
     } catch (error) {
-      console.error('Error adding marks:', error);
-      setSuccessMessage('Failed to add marks.');
+      console.error("Error adding marks:", error);
+      setSuccessMessage("Failed to add marks.");
     }
   };
 
   return (
     <div>
       <h1>Add Marks</h1>
-      {successMessage && (
-        <div className="alert">
-          {successMessage}
-        </div>
-      )}
+      {successMessage && <div className="alert">{successMessage}</div>}
       <form onSubmit={handleSubmit}>
         <div>
           <label>Standard:</label>
-          <select name="standard" value={formData.standard} onChange={handleStandardChange} required>
+          <select
+            name="standard"
+            value={formData.standard}
+            onChange={handleStandardChange}
+            required
+          >
             <option value="">Select Standard</option>
             {standards.map((standard, index) => (
               <option key={index} value={standard}>
@@ -157,7 +167,12 @@ const Marks: React.FC = () => {
         </div>
         <div>
           <label>Student Name:</label>
-          <select name="studentName" value={formData.studentName} onChange={handleStudentChange} required>
+          <select
+            name="studentName"
+            value={formData.studentName}
+            onChange={handleStudentChange}
+            required
+          >
             <option value="">Select Student</option>
             {students.map((student) => (
               <option key={student.id} value={student.fullName}>
@@ -168,7 +183,12 @@ const Marks: React.FC = () => {
         </div>
         <div>
           <label>Examination Type:</label>
-          <select name="examinationType" value={formData.examinationType} onChange={handleChange} required>
+          <select
+            name="examinationType"
+            value={formData.examinationType}
+            onChange={handleChange}
+            required
+          >
             <option value="">Select Examination Type</option>
             <option value="UnitTest">Unit Test</option>
             <option value="MidTerm">Mid Term</option>
@@ -191,16 +211,36 @@ const Marks: React.FC = () => {
                   <td>
                     <input
                       type="number"
-                      value={formData.marks.find(mark => mark.subjectId === subject.id)?.obtainedMarks || 0}
-                      onChange={(e) => handleMarksChange(subject.id, 'obtainedMarks', parseFloat(e.target.value))}
+                      value={
+                        formData.marks.find(
+                          (mark) => mark.subjectId === subject.id
+                        )?.obtainedMarks || 0
+                      }
+                      onChange={(e) =>
+                        handleMarksChange(
+                          subject.id,
+                          "obtainedMarks",
+                          parseFloat(e.target.value)
+                        )
+                      }
                       required
                     />
                   </td>
                   <td>
                     <input
                       type="number"
-                      value={formData.marks.find(mark => mark.subjectId === subject.id)?.totalMarks || 0}
-                      onChange={(e) => handleMarksChange(subject.id, 'totalMarks', parseFloat(e.target.value))}
+                      value={
+                        formData.marks.find(
+                          (mark) => mark.subjectId === subject.id
+                        )?.totalMarks || 0
+                      }
+                      onChange={(e) =>
+                        handleMarksChange(
+                          subject.id,
+                          "totalMarks",
+                          parseFloat(e.target.value)
+                        )
+                      }
                       required
                     />
                   </td>
