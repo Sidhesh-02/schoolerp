@@ -10,7 +10,7 @@ The Student ERP (Enterprise Resource Planning) System is designed to streamline 
 
 1. **Reports**:
 
-![ERP Logo](C:\Users\Lenovo\Downloads\report.png)
+![ERP Logo]("C:\Users\Lenovo\Downloads\report.png")
 
 - **Total Students**: Displays the total number of students.
 - **Absent Students**: Shows the count of students who are absent.
