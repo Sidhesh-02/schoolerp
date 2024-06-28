@@ -9,8 +9,8 @@ The Student ERP (Enterprise Resource Planning) System is designed to streamline 
 ## Features
 
 1. **Reports**:
+![Screenshot 2024-06-28 224156](https://github.com/Aryanryn09/schoolerp/assets/105795148/2caf9c73-333d-4b5b-9ebc-f2db337b1e74)
 
-![ERP Logo]("C:\Users\Lenovo\Downloads\report.png")
 
 - **Total Students**: Displays the total number of students.
 - **Absent Students**: Shows the count of students who are absent.
