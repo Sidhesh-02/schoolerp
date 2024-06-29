@@ -482,11 +482,6 @@ app.post('/add', async (req, res) => {
 });
 
 // Hostel Structure
-// const available = [];
-// for (let i = 1; i <= 100; i++) {
-//   available.push(i);
-// }
-
 app.get('/gethosteldata', async (req, res) => {
   try {
     const result = await prisma.hosteldata.findMany();

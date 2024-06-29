@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react'
 
-
-
 const UpdateHostel = () => {
     const [rollNo,setrollNo] = useState<number>();
     const [room_no , setRoom] = useState<number | undefined>();
@@ -27,7 +25,6 @@ const UpdateHostel = () => {
         }
         
     }
-
 
     const Delete = async()=>{
         try{
