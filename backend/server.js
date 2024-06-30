@@ -70,6 +70,7 @@ app.post('/students', async (req, res) => {
   }
 });
 
+
 const deleteStudent = async (studentId) => {
   try {
     // Delete related records
