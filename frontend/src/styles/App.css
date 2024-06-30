@@ -27,14 +27,15 @@ button {
   margin-right: 10px;
   /* width: 100px; */
   padding: 10px 20px;
-  background-color: #007bff;
-  color: #fff;
+  background-color: #87ff89;
+  color: #000000;
   border: none;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #000000;
+  color: white;
 }
 
 .class-dropdown {

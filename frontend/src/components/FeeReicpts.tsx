@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
@@ -6,7 +7,7 @@ import axios from "axios";
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   const [title ,setTitle] = useState<string>('');
-  const [feedata, setFeedata] = useState<any>();
+  const [, setFeedata] = useState<any>();
   
   const fetchFeeData = async () => {
     try {
@@ -30,8 +31,6 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
     const year = date.getFullYear();
     const month = date.getMonth(); // Note: Month is zero-based
     const dayOfMonth = date.getDate();
-    const dayOfWeek = date.getDay();
-    
 
     const doc = new Document({
       sections: [

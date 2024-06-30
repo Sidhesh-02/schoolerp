@@ -144,8 +144,8 @@ function Hostel() {
               <></>
             )}
           </div>
-<<<<<<< HEAD
-=======
+{/* <<<<<<< HEAD
+======= */}
           <input
             className="inputB"
             type="number"
@@ -163,7 +163,7 @@ function Hostel() {
               setBed(Number(e.target.value));
             }}
           />
->>>>>>> 2669e3c89cc049ec03b3e3a9869ec2c44639c985
+{/* >>>>>>> 2669e3c89cc049ec03b3e3a9869ec2c44639c985 */}
         </div>
         {res && <button onClick={submit}>Save</button>}
       </div>

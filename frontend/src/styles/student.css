@@ -44,22 +44,6 @@ textarea {
   resize: vertical;
 }
 
-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: #0056b3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-button:hover {
-  background-color: #003f8a;
-}
 
 .profile,
 .parent-info,

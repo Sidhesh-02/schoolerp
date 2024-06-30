@@ -1,13 +1,14 @@
-<<<<<<< HEAD
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// <<<<<<< HEAD
 import React, { useState } from "react";
 import axios from "axios";
 import "../styles/feesc.css";
-=======
-import React, { useState } from 'react';
-import axios from 'axios';
+// =======
+// import React, { useState } from 'react';
+// import axios from 'axios';
 import FeeReicpts from '../components/FeeReicpts';
 
->>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
+// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
 interface Fee {
   title: string;
   amount: number;
@@ -23,15 +24,15 @@ interface Student {
 }
 
 const Fees: React.FC = () => {
-<<<<<<< HEAD
-  const [name, setName] = useState("");
-  const [rollNo, setRollNo] = useState("");
-  const [student, setStudent] = useState<Student | null>(null);
-=======
+// <<<<<<< HEAD
+//   const [name, setName] = useState("");
+//   const [rollNo, setRollNo] = useState("");
+//   const [student, setStudent] = useState<Student | null>(null);
+// =======
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState('');
   const [student, setStudent] = useState<Student | null>();
->>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
+// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
   const [loading, setLoading] = useState(false);
   
  
@@ -56,15 +57,15 @@ const Fees: React.FC = () => {
 
       const res = await axios.get("http://localhost:5000/fees/details", {
         params: {
-<<<<<<< HEAD
-          name: name,
-          roll_no: rollNo,
-        },
-=======
+// <<<<<<< HEAD
+//           name: name,
+//           roll_no: rollNo,
+//         },
+// =======
           name: name.trim(), // Trim any leading/trailing spaces
           roll_no: rollNo.trim(), // Ensure roll_no is trimmed as well
         }
->>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
+// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
       });
       
       if (res.data && !res.data.error) {
@@ -117,17 +118,17 @@ const Fees: React.FC = () => {
 
     if (name === "title") {
       switch (value) {
-<<<<<<< HEAD
-        case "2nd":
-          amount = 3500;
-          break;
-        case "3rd":
-=======
+// <<<<<<< HEAD
+//         case "2nd":
+//           amount = 3500;
+//           break;
+//         case "3rd":
+// =======
         case '2nd Installment':
           amount = 3500;
           break;
         case '3rd Installment':
->>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
+// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
           amount = 2000;
           break;
         default:
@@ -169,7 +170,7 @@ const Fees: React.FC = () => {
         ...newInstallment,
         admissionDate: student.fees[0].admissionDate,
         pendingAmount: pendingAmount - newInstallment.amount,
-        // @ts-ignore
+        // @ts-expect-error
         studentId: student.id, // assuming student ID is available
       };
 

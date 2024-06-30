@@ -551,18 +551,11 @@ app.post("/add", async (req, res) => {
   }
 });
 
-// Hostel Structure
-<<<<<<< HEAD
-app.get('/gethosteldata', async (req, res) => {
-=======
-const occupied = [];
+//Hostel
 const available = [];
-for (let i = 1; i <= 100; i++) {
-  available.push(i);
-}
 
 app.get("/gethosteldata", async (req, res) => {
->>>>>>> 2669e3c89cc049ec03b3e3a9869ec2c44639c985
+// >>>>>>> 2669e3c89cc049ec03b3e3a9869ec2c44639c985
   try {
     const result = await prisma.hosteldata.findMany();
     if (result.length > 0) {
@@ -577,11 +570,6 @@ app.get("/gethosteldata", async (req, res) => {
         }
       });
     });
-<<<<<<< HEAD
-=======
-    // console.log("Result", result);
-    // console.log("Available", available);
->>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
 
     res.status(201).json({ result, available });
   } catch (error) {
