@@ -25,6 +25,7 @@ select {
 button {
   margin-top: 20px;
   margin-right: 10px;
+  /* width: 100px; */
   padding: 10px 20px;
   background-color: #007bff;
   color: #fff;
@@ -36,23 +37,40 @@ button:hover {
   background-color: #0056b3;
 }
 
-.class-dropdown{
+.class-dropdown {
   padding: 4px;
   margin: 0px 10px;
 }
 
-.Dashboard{
+.Dashboard {
   background-color: #f4f4f4;
   padding: 10px;
   margin-top: 20px;
 }
 
-.ExcelUpload{
+.ExcelUpload {
   background-color: #f4f4f4;
   padding: 10px;
   margin-top: 20px;
 }
 
-input{
+input {
   margin: 10px 0px;
+}
+.login {
+  width: 50vw;
+  height: 50vh;
+  display: flex;
+  /* justify-content: center; */
+  flex-direction: column;
+  align-items: center;
+  /* margin-left: 100px; */
+  position: absolute;
+}
+
+.login input {
+  width: 100%;
+  border-radius: 5px;
+  border: none;
+  height: 50px;
 }

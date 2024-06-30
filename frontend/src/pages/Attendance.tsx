@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import DownloadAttendance from '../components/DownloadAttendance';
-
+import React, { useState, useEffect } from "react";
+import DownloadAttendance from "../components/DownloadAttendance";
+import "../styles/attendancec.css";
 
 interface Student {
   id: number;
@@ -21,8 +21,8 @@ interface Subject {
 
 const Attendance: React.FC = () => {
   const [standards, setStandards] = useState<string[]>([]);
-  const [selectedStandard, setSelectedStandard] = useState<string>('');
-  const [attendanceDate, setAttendanceDate] = useState<string>('');
+  const [selectedStandard, setSelectedStandard] = useState<string>("");
+  const [attendanceDate, setAttendanceDate] = useState<string>("");
   const [students, setStudents] = useState<Student[]>([]);
   const [absentStudents, setAbsentStudents] = useState<number[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -35,45 +35,47 @@ const Attendance: React.FC = () => {
 
   const fetchStandards = async () => {
     try {
-      const response = await fetch('http://localhost:5000/getstandards');
+      const response = await fetch("http://localhost:5000/getstandards");
       if (response.ok) {
         const data = await response.json();
         setStandards(data.standards);
         setSelectedStandard(data.standards[0]);
         fetchStudents(data.standards[0]);
       } else {
-        console.error('Failed to fetch standards');
+        console.error("Failed to fetch standards");
       }
     } catch (error) {
-      console.error('Error fetching standards:', error);
+      console.error("Error fetching standards:", error);
     }
   };
 
   const fetchSubjects = async () => {
     try {
-      const response = await fetch('http://localhost:5000/getsubjects');
+      const response = await fetch("http://localhost:5000/getsubjects");
       if (response.ok) {
         const data = await response.json();
         setSubjects(data);
       } else {
-        console.error('Failed to fetch subjects');
+        console.error("Failed to fetch subjects");
       }
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      console.error("Error fetching subjects:", error);
     }
   };
 
   const fetchStudents = async (standard: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/getattendancelist?standard=${standard}`);
+      const response = await fetch(
+        `http://localhost:5000/getattendancelist?standard=${standard}`
+      );
       if (response.ok) {
         const data = await response.json();
         setStudents(data);
       } else {
-        console.error('Failed to fetch students');
+        console.error("Failed to fetch students");
       }
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error("Error fetching students:", error);
     }
   };
 
@@ -111,33 +113,36 @@ const Attendance: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/submitattendance', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/submitattendance", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (response.ok) {
-        alert('Attendance recorded successfully');
+        alert("Attendance recorded successfully");
       } else {
-        throw new Error('Failed to record attendance');
+        throw new Error("Failed to record attendance");
       }
     } catch (error) {
-      console.error('Error recording attendance:', error);
-      alert('Failed to record attendance');
+      console.error("Error recording attendance:", error);
+      alert("Failed to record attendance");
     }
   };
-
-  
 
   return (
     <div className="Attendance">
       <h1>Attendance System</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="standard">Select Standard:</label>
-        <select id="standard" name="standard" value={selectedStandard} onChange={handleStandardChange}>
+        <select
+          id="standard"
+          name="standard"
+          value={selectedStandard}
+          onChange={handleStandardChange}
+        >
           {standards.map((standard) => (
             <option key={standard} value={standard}>
               {standard}
@@ -146,10 +151,21 @@ const Attendance: React.FC = () => {
         </select>
 
         <label htmlFor="attendance-date">Select Date:</label>
-        <input type="date" id="attendance-date" name="attendance-date" value={attendanceDate} onChange={handleDateChange} />
+        <input
+          type="date"
+          id="attendance-date"
+          name="attendance-date"
+          value={attendanceDate}
+          onChange={handleDateChange}
+        />
 
         <label htmlFor="subject">Select Subject : </label>
-        <select id="subject" name="subject" value={selectedSubject || ''} onChange={handleSubjectChange}>
+        <select
+          id="subject"
+          name="subject"
+          value={selectedSubject || ""}
+          onChange={handleSubjectChange}
+        >
           <option value="">Global Attendance</option>
           {subjects.map((subject) => (
             <option key={subject.id} value={subject.id}>
@@ -169,7 +185,9 @@ const Attendance: React.FC = () => {
                 checked={absentStudents.includes(student.rollNo)}
                 onChange={() => handleCheckboxChange(student.rollNo)}
               />
-              <label htmlFor={`student-${student.rollNo}`}>{student.fullName} (Roll No: {student.rollNo})</label>
+              <label htmlFor={`student-${student.rollNo}`}>
+                {student.fullName} (Roll No: {student.rollNo})
+              </label>
             </div>
           ))}
         </fieldset>
@@ -177,8 +195,7 @@ const Attendance: React.FC = () => {
         <button type="submit">Submit Attendance</button>
       </form>
 
-      <DownloadAttendance/>
-
+      <DownloadAttendance />
     </div>
   );
 };

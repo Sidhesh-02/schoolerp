@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-
+import React, { useState } from "react";
+import axios from "axios";
+import "../styles/feesc.css";
 interface Fee {
   title: string;
   amount: number;
@@ -16,33 +16,33 @@ interface Student {
 }
 
 const Fees: React.FC = () => {
-  const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState('');
+  const [name, setName] = useState("");
+  const [rollNo, setRollNo] = useState("");
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [newInstallment, setNewInstallment] = useState<Fee>({
-    title: '',
+    title: "",
     amount: 0,
-    amountDate: '',
-    admissionDate: '',
+    amountDate: "",
+    admissionDate: "",
     pendingAmount: 0,
   });
 
   const search = async () => {
     try {
       if (!name || !rollNo) {
-        alert('Please enter both Full Name and Roll_no.');
+        alert("Please enter both Full Name and Roll_no.");
         return;
       }
 
       setLoading(true);
 
-      const res = await axios.get('http://localhost:5000/fees/details', {
+      const res = await axios.get("http://localhost:5000/fees/details", {
         params: {
           name: name,
           roll_no: rollNo,
-        }
+        },
       });
 
       if (res.data && !res.data.error) {
@@ -52,45 +52,53 @@ const Fees: React.FC = () => {
         alert("Student does not exist");
       }
     } catch (error) {
-      console.error('Error fetching fees details', error);
-      alert('An error occurred while fetching fees details. Please try again later.');
+      console.error("Error fetching fees details", error);
+      alert(
+        "An error occurred while fetching fees details. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const clearForm = () => {
-    setName('');
-    setRollNo('');
+    setName("");
+    setRollNo("");
     setStudent(null);
   };
 
   const downloadExcel = async () => {
     try {
       if (!student) {
-        alert('No student data available to download.');
+        alert("No student data available to download.");
         return;
       }
 
-      const downloadUrl = `http://localhost:5000/fees/details?name=${encodeURIComponent(name)}&roll_no=${encodeURIComponent(rollNo)}&download=true`;
-      window.open(downloadUrl, '_blank');
+      const downloadUrl = `http://localhost:5000/fees/details?name=${encodeURIComponent(
+        name
+      )}&roll_no=${encodeURIComponent(rollNo)}&download=true`;
+      window.open(downloadUrl, "_blank");
     } catch (error) {
-      console.error('Error downloading fees details', error);
-      alert('An error occurred while downloading fees details. Please try again later.');
+      console.error("Error downloading fees details", error);
+      alert(
+        "An error occurred while downloading fees details. Please try again later."
+      );
     }
   };
 
-  const handleAddInstallmentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleAddInstallmentChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
 
     let amount = newInstallment.amount;
 
-    if (name === 'title') {
+    if (name === "title") {
       switch (value) {
-        case '2nd':
+        case "2nd":
           amount = 3500;
           break;
-        case '3rd':
+        case "3rd":
           amount = 2000;
           break;
         default:
@@ -102,7 +110,7 @@ const Fees: React.FC = () => {
     setNewInstallment((prev) => ({
       ...prev,
       [name]: value,
-      amount: name === 'title' ? amount : prev.amount,
+      amount: name === "title" ? amount : prev.amount,
     }));
   };
 
@@ -119,13 +127,13 @@ const Fees: React.FC = () => {
   const addInstallment = async () => {
     try {
       if (!student) {
-        alert('No student data available.');
+        alert("No student data available.");
         return;
       }
 
       const pendingAmount = calculatePendingAmount();
       if (pendingAmount <= 0) {
-        alert('No pending fees. The student has completed all payments.');
+        alert("No pending fees. The student has completed all payments.");
         return;
       }
       const updatedInstallment = {
@@ -135,7 +143,10 @@ const Fees: React.FC = () => {
         studentId: student.id, // assuming student ID is available
       };
 
-      const res = await axios.post('http://localhost:5000/fees/add', updatedInstallment);
+      const res = await axios.post(
+        "http://localhost:5000/fees/add",
+        updatedInstallment
+      );
 
       if (res.data && !res.data.error) {
         setStudent((prevStudent) => {
@@ -148,18 +159,20 @@ const Fees: React.FC = () => {
           return prevStudent;
         });
         setNewInstallment({
-          title: '',
+          title: "",
           amount: 0,
-          amountDate: '',
-          admissionDate: '',
+          amountDate: "",
+          admissionDate: "",
           pendingAmount: 0,
         });
       } else {
         alert("Failed to add installment");
       }
     } catch (error) {
-      console.error('Error adding installment', error);
-      alert('An error occurred while adding installment. Please try again later.');
+      console.error("Error adding installment", error);
+      alert(
+        "An error occurred while adding installment. Please try again later."
+      );
     }
   };
 
@@ -168,24 +181,32 @@ const Fees: React.FC = () => {
       <div>
         <input
           type="text"
-          placeholder='Full Name'
+          placeholder="Full Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          disabled={loading} 
-        /><br />
+          disabled={loading}
+        />
+        <br />
         <input
           type="text"
-          placeholder='Roll_no'
+          placeholder="Roll_no"
           value={rollNo}
           onChange={(e) => setRollNo(e.target.value)}
           required
-          disabled={loading} 
-        /><br />
-        <button onClick={search} disabled={loading}>Search</button>
-        <button onClick={clearForm} disabled={loading}>Clear</button>
+          disabled={loading}
+        />
+        <br />
+        <button onClick={search} disabled={loading}>
+          Search
+        </button>
+        <button onClick={clearForm} disabled={loading}>
+          Clear
+        </button>
         {student && (
-          <button onClick={downloadExcel} disabled={loading}>Download Excel</button>
+          <button onClick={downloadExcel} disabled={loading}>
+            Download Excel
+          </button>
         )}
       </div>
 
@@ -203,7 +224,7 @@ const Fees: React.FC = () => {
               <p>Pending Amount: {fee.pendingAmount}</p>
             </div>
           ))}
-          
+
           <h3>Add New Installment</h3>
           <div>
             <label>Installment Type</label>
