@@ -1,6 +1,6 @@
-import React, { useState} from 'react';
-import axios from 'axios';
-
+import React, { ChangeEvent, FormEvent, useState } from "react";
+import axios from "axios";
+import "../styles/student.css";
 interface Student {
   id?: number;
   fullName: string;
@@ -34,81 +34,97 @@ interface Fee {
   pendingAmount: number;
 }
 
-
 const Student: React.FC = () => {
   const [student, setStudent] = useState<Student>({
-    fullName: '',
-    gender: 'Male',
-    dateOfBirth: '',
-    rollNo: '',
-    standard: '',
-    adhaarCardNo: '',
+    fullName: "",
+    gender: "Male",
+    dateOfBirth: "",
+    rollNo: "",
+    standard: "",
+    adhaarCardNo: "",
     scholarshipApplied: false,
-    address: '',
-    parents: [{
-      fatherName: '',
-      fatherOccupation: '',
-      motherName: '',
-      motherOccupation: '',
-      fatherContact: '',
-      motherContact: '',
-      address: '',
-      studentId: 0
-    }],
-    fees: [{
-      installmentType: '',
-      amount: 0,
-      amountDate: '',
-      admissionDate: '',
-      pendingAmount: 0,
-    }],
+    address: "",
+    parents: [
+      {
+        fatherName: "",
+        fatherOccupation: "",
+        motherName: "",
+        motherOccupation: "",
+        fatherContact: "",
+        motherContact: "",
+        address: "",
+        studentId: 0,
+      },
+    ],
+    fees: [
+      {
+        installmentType: "",
+        amount: 0,
+        amountDate: "",
+        admissionDate: "",
+        pendingAmount: 0,
+      },
+    ],
   });
-  const [searchRollNo, setSearchRollNo] = useState('');
+  const [searchRollNo, setSearchRollNo] = useState("");
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [standard, setStandard] = useState<string | undefined>();
-  const [studentIdToDelete, setStudentIdToDelete] = useState<number | null>(null);
-
-  
+  const [studentIdToDelete, setStudentIdToDelete] = useState<number | null>(
+    null
+  );
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/students', student);
-      console.log(response)
-      alert('Student created successfully');
+      const response = await axios.post(
+        "http://localhost:5000/students",
+        student
+      );
+      console.log(response);
+      alert("Student created successfully");
     } catch (error) {
-      console.error('Error creating student:', error);
-      alert('Failed to create student');
+      console.error("Error creating student:", error);
+      alert("Failed to create student");
     }
   };
 
-  const handleParentChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
+  const handleParentChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | React.ChangeEvent<HTMLTextAreaElement>,
+    index: number
+  ) => {
     const { name, value } = e.target;
     const newParents = [...student.parents];
     newParents[index] = { ...newParents[index], [name]: value };
-    setStudent(prev => ({ ...prev, parents: newParents }));
+    setStudent((prev) => ({ ...prev, parents: newParents }));
   };
 
-  const handleFeeChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleFeeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { name, value } = e.target;
     const newFees = [...student.fees];
     newFees[index] = { ...newFees[index], [name]: value };
-    setStudent(prev => ({ ...prev, fees: newFees }));
+    setStudent((prev) => ({ ...prev, fees: newFees }));
   };
-
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get<Student>(`http://localhost:5000/students/rollNo`,{
-        params :{
-          rollno : searchRollNo,
-          standard : standard
+      const response = await axios.get<Student>(
+        `http://localhost:5000/students/rollNo`,
+        {
+          params: {
+            rollno: searchRollNo,
+            standard: standard,
+          },
         }
-      });
-      console.log("Response Data ",response.data)
+      );
+      console.log("Response Data ", response.data);
       setSearchResult(response.data);
     } catch (error) {
-      console.error('Error fetching student:', error);
-      alert('Failed to fetch student');
+      console.error("Error fetching student:", error);
+      alert("Failed to fetch student");
     }
   };
 
@@ -119,12 +135,12 @@ const Student: React.FC = () => {
           studentId: studentIdToDelete,
         },
       });
-      alert('Student deleted successfully');
+      alert("Student deleted successfully");
       setSearchResult(null); // Clear the search result after deletion
       setStudentIdToDelete(null); // Clear the studentIdToDelete state
     } catch (error) {
-      console.error('Error deleting student:', error);
-      alert('Failed to delete student');
+      console.error("Error deleting student:", error);
+      alert("Failed to delete student");
     }
   };
 
@@ -133,20 +149,20 @@ const Student: React.FC = () => {
     index: number
   ) => {
     const { name, value } = e.target;
-  
-    if (name === 'installmentType') {
+
+    if (name === "installmentType") {
       let amount = 0;
       switch (value) {
-        case 'Total':
+        case "Total":
           amount = 10500;
           break;
-        case '1st':
+        case "1st":
           amount = 5000;
           break;
-        case '2nd':
+        case "2nd":
           amount = 3500;
           break;
-        case '3rd':
+        case "3rd":
           amount = 2000;
           break;
         default:
@@ -163,59 +179,223 @@ const Student: React.FC = () => {
       setStudent((prev) => ({ ...prev, fees: newFees }));
     }
   };
-  
+
+  const [imageUploaded, setImageUploaded] = useState<File | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [uploadedImageUrl1, setUploadedImageUrl1] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const handleChangeFormAdhar = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setImageUploaded(event.target.files[0]);
+    }
+  };
+
+  const handleSubmitFormAdhar = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!imageUploaded) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", imageUploaded);
+
+      const response = await axios.post(
+        "http://localhost:5000/uploads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setSuccessMessage("File uploaded successfully!");
+      setUploadedImageUrl(
+        `http://localhost:5000/student/${response.data.filename}`
+      );
+    } catch (error) {
+      setSuccessMessage("failed to uploaded!");
+    }
+  };
+
+  const handleChangeFormPhoto = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setImageUploaded(event.target.files[0]);
+    }
+  };
+
+  const handleSubmitFormPhoto = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!imageUploaded) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", imageUploaded);
+
+      const response = await axios.post(
+        "http://localhost:5000/uploads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setSuccessMessage("File uploaded successfully!");
+      setUploadedImageUrl1(
+        `http://localhost:5000/student/${response.data.filename}`
+      );
+    } catch (error) {
+      setSuccessMessage("failed to uploaded!");
+    }
+  };
 
   return (
     <div>
       <h2>Create Student Profile</h2>
       <div>
         <label>Full Name</label>
-        <input type="text" name="fullName" value={student.fullName} onChange={(e) => {setStudent(v =>({...v ,fullName:e.target.value}))}} />
+        <input
+          type="text"
+          name="fullName"
+          value={student.fullName}
+          onChange={(e) => {
+            setStudent((v) => ({ ...v, fullName: e.target.value }));
+          }}
+        />
       </div>
       <div>
         <label>Gender</label>
-        <select name="gender" value={student.gender} onChange={(e) => (setStudent(v => ({...v, gender:e.target.value})))}>
+        <select
+          name="gender"
+          value={student.gender}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, gender: e.target.value }))
+          }
+        >
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </select>
       </div>
       <div>
         <label>Date of Birth</label>
-        <input type="date" name="dateOfBirth" value={student.dateOfBirth} onChange={(e) => (setStudent(v => ({...v, dateOfBirth:e.target.value})))} />
+        <input
+          type="date"
+          name="dateOfBirth"
+          value={student.dateOfBirth}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, dateOfBirth: e.target.value }))
+          }
+        />
       </div>
       <div>
         <label>Roll No</label>
-        <input type="text" name="rollNo" value={student.rollNo} onChange={(e) => (setStudent(v => ({...v, rollNo:e.target.value})))} />
+        <input
+          type="text"
+          name="rollNo"
+          value={student.rollNo}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, rollNo: e.target.value }))
+          }
+        />
       </div>
-      
-            <label>Standard</label>
-            <select
-              name="standard"
-              value={student.standard}
-              onChange={(e) => (setStudent(v => ({...v, standard:e.target.value})))}
-            >
-              <option value="">Select standard</option>
-              <option value="lkg1">Lkg1</option>
-              <option value="kg1">kg1</option>
-              <option value="kg2">kg2</option>
-              <option value="1st">1st</option>
-              <option value="2nd">2nd</option>
-              <option value="3rd">3rd</option>
-              <option value="4th">4th</option>
-              <option value="5th">5th</option>
-            </select>
+
+      <label>Standard</label>
+      <select
+        name="standard"
+        value={student.standard}
+        onChange={(e) =>
+          setStudent((v) => ({ ...v, standard: e.target.value }))
+        }
+      >
+        <option value="">Select standard</option>
+        <option value="lkg1">Lkg1</option>
+        <option value="kg1">kg1</option>
+        <option value="kg2">kg2</option>
+        <option value="1st">1st</option>
+        <option value="2nd">2nd</option>
+        <option value="3rd">3rd</option>
+        <option value="4th">4th</option>
+        <option value="5th">5th</option>
+      </select>
 
       <div>
         <label>Adhaar Card No</label>
-        <input type="text" name="adhaarCardNo" value={student.adhaarCardNo} onChange={(e) => (setStudent(v => ({...v, adhaarCardNo:e.target.value})))} />
+        <input
+          type="text"
+          name="adhaarCardNo"
+          value={student.adhaarCardNo}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))
+          }
+        />
+        <div>
+          <form onSubmit={handleSubmitFormAdhar}>
+            <label>Upload adhaar Card photo</label>
+            <input
+              type="file"
+              onChange={handleChangeFormAdhar}
+              accept=".jpg, .png, .jpeg"
+            />
+            <button type="submit">Upload</button>
+          </form>
+          {uploadedImageUrl && (
+            <div>
+              <img
+                src={uploadedImageUrl}
+                alt="Uploaded"
+                style={{ width: "300px", height: "auto" }}
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          <form onSubmit={handleSubmitFormPhoto}>
+            <label>Upload Student photo</label>
+            <input
+              type="file"
+              onChange={handleChangeFormPhoto}
+              accept=".jpg, .png, .jpeg"
+            />
+            <button type="submit">Upload</button>
+          </form>
+          {uploadedImageUrl1 && (
+            <div>
+              <img
+                src={uploadedImageUrl1}
+                alt="Uploaded"
+                style={{ width: "300px", height: "auto" }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div>
         <label>Scholarship Applied</label>
-        <input type="checkbox" name="scholarshipApplied" checked={student.scholarshipApplied} onChange={(e) => (setStudent(v => ({...v, scholarshipApplied:e.target.checked})))} />
+        <input
+          type="checkbox"
+          name="scholarshipApplied"
+          checked={student.scholarshipApplied}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, scholarshipApplied: e.target.checked }))
+          }
+        />
       </div>
       <div>
         <label>Address</label>
-        <textarea name="address" value={student.address} onChange={(e) => (setStudent(v => ({...v, address:e.target.value})))}></textarea>
+        <textarea
+          name="address"
+          value={student.address}
+          onChange={(e) =>
+            setStudent((v) => ({ ...v, address: e.target.value }))
+          }
+        ></textarea>
       </div>
 
       <h3>Parent Information</h3>
@@ -223,31 +403,65 @@ const Student: React.FC = () => {
         <div key={index}>
           <div>
             <label>Father Name</label>
-            <input type="text" name="fatherName" value={parent.fatherName} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="fatherName"
+              value={parent.fatherName}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Father Occupation</label>
-            <input type="text" name="fatherOccupation" value={parent.fatherOccupation} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="fatherOccupation"
+              value={parent.fatherOccupation}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Mother Name</label>
-            <input type="text" name="motherName" value={parent.motherName} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="motherName"
+              value={parent.motherName}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Mother Occupation</label>
-            <input type="text" name="motherOccupation" value={parent.motherOccupation} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="motherOccupation"
+              value={parent.motherOccupation}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Father Contact</label>
-            <input type="text" name="fatherContact" value={parent.fatherContact} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="fatherContact"
+              value={parent.fatherContact}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Mother Contact</label>
-            <input type="text" name="motherContact" value={parent.motherContact} onChange={(e) => handleParentChange(e, index)} />
+            <input
+              type="text"
+              name="motherContact"
+              value={parent.motherContact}
+              onChange={(e) => handleParentChange(e, index)}
+            />
           </div>
           <div>
             <label>Address</label>
-            <textarea name="address" value={parent.address} onChange={(e) => handleParentChange(e, index)}></textarea>
+            <textarea
+              name="address"
+              value={parent.address}
+              onChange={(e) => handleParentChange(e, index)}
+            ></textarea>
           </div>
         </div>
       ))}
@@ -282,11 +496,21 @@ const Student: React.FC = () => {
           </div>
           <div>
             <label>Amount Date</label>
-            <input type="date" name="amountDate" value={fee.amountDate} onChange={(e) => handleFeeChange(e, index)} />
+            <input
+              type="date"
+              name="amountDate"
+              value={fee.amountDate}
+              onChange={(e) => handleFeeChange(e, index)}
+            />
           </div>
           <div>
             <label>Admission Date</label>
-            <input type="date" name="admissionDate" value={fee.admissionDate} onChange={(e) => handleFeeChange(e, index)} />
+            <input
+              type="date"
+              name="admissionDate"
+              value={fee.admissionDate}
+              onChange={(e) => handleFeeChange(e, index)}
+            />
           </div>
         </div>
       ))}
@@ -295,62 +519,116 @@ const Student: React.FC = () => {
 
       <h2>Search Student</h2>
       <div>
-        <input type="number" placeholder="Enter Roll No" value={searchRollNo} onChange={(e) => setSearchRollNo(e.target.value)} />
-            <select className='inputB' onChange={(e) => { setStandard(e.target.value); }}>
-              <option value=''>Select standard</option>
-              <option value='lkg1'>Lkg1</option>
-              <option value='kg1'>kg1</option>
-              <option value='kg2'>kg2</option>
-              <option value='1st'>1st</option>
-              <option value='2nd'>2nd</option>
-              <option value='3rd'>3rd</option>
-              <option value='4th'>4th</option>
-              <option value='5th'>5th</option>
-            </select><br />
+        <input
+          type="number"
+          placeholder="Enter Roll No"
+          value={searchRollNo}
+          onChange={(e) => setSearchRollNo(e.target.value)}
+        />
+        <select
+          className="inputB"
+          onChange={(e) => {
+            setStandard(e.target.value);
+          }}
+        >
+          <option value="">Select standard</option>
+          <option value="lkg1">Lkg1</option>
+          <option value="kg1">kg1</option>
+          <option value="kg2">kg2</option>
+          <option value="1st">1st</option>
+          <option value="2nd">2nd</option>
+          <option value="3rd">3rd</option>
+          <option value="4th">4th</option>
+          <option value="5th">5th</option>
+        </select>
+        <br />
         <button onClick={handleSearch}>Search</button>
       </div>
       {searchResult && (
         <div>
           <h3>Student Profile</h3>
-          
-          <p><strong>Full Name:</strong> {searchResult.fullName}</p>
-          <p><strong>Gender:</strong> {searchResult.gender}</p>
-          <p><strong>Date of Birth:</strong> {searchResult.dateOfBirth}</p>
-          <p><strong>Roll No:</strong> {searchResult.rollNo}</p>
-          <p><strong>Class:</strong> {searchResult.standard}</p>
-          <p><strong>Adhaar Card No:</strong> {searchResult.adhaarCardNo}</p>
-          <p><strong>Scholarship Applied:</strong> {searchResult.scholarshipApplied ? 'Yes' : 'No'}</p>
-          <p><strong>Address:</strong> {searchResult.address}</p>
+
+          <p>
+            <strong>Full Name:</strong> {searchResult.fullName}
+          </p>
+          <p>
+            <strong>Gender:</strong> {searchResult.gender}
+          </p>
+          <p>
+            <strong>Date of Birth:</strong> {searchResult.dateOfBirth}
+          </p>
+          <p>
+            <strong>Roll No:</strong> {searchResult.rollNo}
+          </p>
+          <p>
+            <strong>Class:</strong> {searchResult.standard}
+          </p>
+          <p>
+            <strong>Adhaar Card No:</strong> {searchResult.adhaarCardNo}
+          </p>
+          <p>
+            <strong>Scholarship Applied:</strong>{" "}
+            {searchResult.scholarshipApplied ? "Yes" : "No"}
+          </p>
+          <p>
+            <strong>Address:</strong> {searchResult.address}
+          </p>
 
           <h4>Parents Information</h4>
           {searchResult.parents.map((parent, index) => (
             <div key={index}>
-              <p><strong>Student Id : </strong> {parent.studentId}</p>
-              <p><strong>Father Name:</strong> {parent.fatherName}</p>
-              <p><strong>Father Occupation:</strong> {parent.fatherOccupation}</p>
-              <p><strong>Mother Name:</strong> {parent.motherName}</p>
-              <p><strong>Mother Occupation:</strong> {parent.motherOccupation}</p>
-              <p><strong>Father Contact:</strong> {parent.fatherContact}</p>
-              <p><strong>Mother Contact:</strong> {parent.motherContact}</p>
-              <p><strong>Address:</strong> {parent.address}</p>
+              <p>
+                <strong>Student Id : </strong> {parent.studentId}
+              </p>
+              <p>
+                <strong>Father Name:</strong> {parent.fatherName}
+              </p>
+              <p>
+                <strong>Father Occupation:</strong> {parent.fatherOccupation}
+              </p>
+              <p>
+                <strong>Mother Name:</strong> {parent.motherName}
+              </p>
+              <p>
+                <strong>Mother Occupation:</strong> {parent.motherOccupation}
+              </p>
+              <p>
+                <strong>Father Contact:</strong> {parent.fatherContact}
+              </p>
+              <p>
+                <strong>Mother Contact:</strong> {parent.motherContact}
+              </p>
+              <p>
+                <strong>Address:</strong> {parent.address}
+              </p>
             </div>
           ))}
 
           <h4>Fees Information</h4>
           {searchResult.fees.map((fee, index) => (
             <div key={index}>
-              <p><strong>Title:</strong> {fee.installmentType}</p>
-              <p><strong>Amount:</strong> {fee.amount}</p>
-              <p><strong>Amount Date:</strong> {fee.amountDate}</p>
-              <p><strong>Admission Date:</strong> {fee.admissionDate}</p>
-              <p><strong>Pending Amount:</strong> {fee.pendingAmount}</p>
+              <p>
+                <strong>Title:</strong> {fee.installmentType}
+              </p>
+              <p>
+                <strong>Amount:</strong> {fee.amount}
+              </p>
+              <p>
+                <strong>Amount Date:</strong> {fee.amountDate}
+              </p>
+              <p>
+                <strong>Admission Date:</strong> {fee.admissionDate}
+              </p>
+              <p>
+                <strong>Pending Amount:</strong> {fee.pendingAmount}
+              </p>
             </div>
           ))}
 
           <input
             type="number"
             placeholder="Enter Student ID to delete"
-            value={studentIdToDelete ?? ''}
+            value={studentIdToDelete ?? ""}
             onChange={(e) => setStudentIdToDelete(parseInt(e.target.value))}
           />
           <button onClick={handleDelete}>Delete Student</button>
