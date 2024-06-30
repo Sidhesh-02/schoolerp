@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import axios from "axios";
 import "../styles/student.css";
 interface Student {
@@ -180,6 +180,82 @@ const Student: React.FC = () => {
     }
   };
 
+  const [imageUploaded, setImageUploaded] = useState<File | null>(null);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [uploadedImageUrl1, setUploadedImageUrl1] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const handleChangeFormAdhar = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setImageUploaded(event.target.files[0]);
+    }
+  };
+
+  const handleSubmitFormAdhar = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!imageUploaded) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", imageUploaded);
+
+      const response = await axios.post(
+        "http://localhost:5000/uploads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setSuccessMessage("File uploaded successfully!");
+      setUploadedImageUrl(
+        `http://localhost:5000/student/${response.data.filename}`
+      );
+    } catch (error) {
+      setSuccessMessage("failed to uploaded!");
+    }
+  };
+
+  const handleChangeFormPhoto = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setImageUploaded(event.target.files[0]);
+    }
+  };
+
+  const handleSubmitFormPhoto = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!imageUploaded) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", imageUploaded);
+
+      const response = await axios.post(
+        "http://localhost:5000/uploads",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setSuccessMessage("File uploaded successfully!");
+      setUploadedImageUrl1(
+        `http://localhost:5000/student/${response.data.filename}`
+      );
+    } catch (error) {
+      setSuccessMessage("failed to uploaded!");
+    }
+  };
+
   return (
     <div>
       <h2>Create Student Profile</h2>
@@ -259,6 +335,46 @@ const Student: React.FC = () => {
             setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))
           }
         />
+        <div>
+          <form onSubmit={handleSubmitFormAdhar}>
+            <label>Upload adhaar Card photo</label>
+            <input
+              type="file"
+              onChange={handleChangeFormAdhar}
+              accept=".jpg, .png, .jpeg"
+            />
+            <button type="submit">Upload</button>
+          </form>
+          {uploadedImageUrl && (
+            <div>
+              <img
+                src={uploadedImageUrl}
+                alt="Uploaded"
+                style={{ width: "300px", height: "auto" }}
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          <form onSubmit={handleSubmitFormPhoto}>
+            <label>Upload Student photo</label>
+            <input
+              type="file"
+              onChange={handleChangeFormPhoto}
+              accept=".jpg, .png, .jpeg"
+            />
+            <button type="submit">Upload</button>
+          </form>
+          {uploadedImageUrl1 && (
+            <div>
+              <img
+                src={uploadedImageUrl1}
+                alt="Uploaded"
+                style={{ width: "300px", height: "auto" }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div>
         <label>Scholarship Applied</label>
