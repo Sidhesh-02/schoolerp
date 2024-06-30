@@ -116,13 +116,15 @@ function Hostel() {
                 <p>Searched student:</p>
                 <p>Name: {res.fullName}</p>
                 <p>Gender: {res.gender}</p>
+                <div>
+                  <input className='inputB' type='number' placeholder='Room no.' onChange={(e) => { setRoom(Number(e.target.value)); }} /><br />
+                  <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
+                </div>
               </div>
               : <></>}
           </div>
-          <input className='inputB' type='number' placeholder='Room no.' onChange={(e) => { setRoom(Number(e.target.value)); }} /><br />
-          <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
         </div>
-        <button onClick={submit}>Save</button>
+        {res && <button onClick={submit}>Save</button>}
       </div>
 
       <button onClick={update}>Update</button>
