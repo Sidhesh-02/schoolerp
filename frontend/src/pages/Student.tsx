@@ -183,7 +183,7 @@ const Student: React.FC = () => {
   const [imageUploaded, setImageUploaded] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [uploadedImageUrl1, setUploadedImageUrl1] = useState<string>("");
-  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [ , setSuccessMessage] = useState<string>("");
   const handleChangeFormAdhar = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setImageUploaded(event.target.files[0]);

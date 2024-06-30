@@ -2,7 +2,7 @@
 // <<<<<<< HEAD
 import React, { useState } from "react";
 import axios from "axios";
-import "../styles/feesc.css";
+import "../styles/fee.css";
 // =======
 // import React, { useState } from 'react';
 // import axios from 'axios';

@@ -13,6 +13,7 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 function jsonBigIntReplacer(key, value) {
   if (typeof value === "bigint") {
@@ -81,7 +82,6 @@ app.post("/students", async (req, res) => {
     res.status(500).send("Failed to create student");
   }
 });
-
 
 const deleteStudent = async (studentId) => {
   try {
@@ -347,7 +347,6 @@ app.get("/getstudents" , async(req,res)=>{
     }
 })
 
-
 //Get searched student by rollno.:
 app.get("/students/rollNo", async (req, res) => {
   const { rollno, standard } = req.query;
@@ -551,15 +550,17 @@ app.post("/add", async (req, res) => {
   }
 });
 
-//Hostel
-const available = [];
-
-app.get("/gethosteldata", async (req, res) => {
-// >>>>>>> 2669e3c89cc049ec03b3e3a9869ec2c44639c985
+// Hostel Structure
+app.get('/gethosteldata', async (req, res) => {
   try {
     const result = await prisma.hosteldata.findMany();
-    if (result.length > 0) {
-      console.log(result[0].bed_number); // Log the bed number for debugging
+    // if (result.length > 0) {
+    //   console.log("Bedno used",result[0].bed_number); // Log the bed number for debugging
+    // }
+
+    const available = [];
+    for (let i = 1; i <= 100; i++) {
+      available.push(i);
     }
 
     available.forEach((e) => {
@@ -570,113 +571,78 @@ app.get("/gethosteldata", async (req, res) => {
         }
       });
     });
+    // console.log("Result", result);
+    console.log("Available", available);
 
     res.status(201).json({ result, available });
   } catch (error) {
     console.error("Error fetching hostel data: ", error); // Detailed logging
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching the hostel data." });
+    res.status(500).json({ error: 'An error occurred while fetching the hostel data.' });
   }
 });
 
-app.post("/hosteldata", async (req, res) => {
+app.post("/hosteldata",async (req, res)=>{
+
   const { name, rollNo, standard, gender, room_no, bed_no } = req.body;
 
   try {
-    const result = await prisma.hosteldata.create({
-      data: {
-        name: name,
-        standard: standard,
-        gender: gender,
-        room_number: room_no,
-        bed_number: bed_no,
-        rollNo: rollNo,
-      },
-    });
-
-    res.status(201).json(result);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "An error occurred while creating the hostel data entry.",
-    });
+      const result = await prisma.hosteldata.create({
+          data: {
+              name : name,
+              standard: standard,
+              gender : gender,
+              room_number : room_no,
+              bed_number: bed_no,
+              rollNo : rollNo,
+          },
+      });
+     
+      res.status(201).json(result);
+  }catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "An error occurred while creating the hostel data entry." });
   }
 });
 
-app.post("/updatehostel", async (req, res) => {
-  const { rollNo, standard, room_no, bed_no } = req.body;
+app.post("/updatehostel",async (req, res)=>{
+
+  const { rollNo, standard, room_no, bed_no} = req.body;
   try {
-    const result = await prisma.hosteldata.update({
-      where: {
-        rollNo_Class: {
-          rollNo: rollNo,
-          standard: standard,
-        },
-      },
-      data: {
-        room_number: room_no,
-        bed_number: bed_no,
-      },
-    });
-
-    res.status(201).json(result);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "An error occurred while updating the hostel data entry.",
-    });
+      const result = await prisma.hosteldata.update({
+          where : {
+            rollNo_standard : {
+              rollNo : rollNo,
+              standard : standard
+            }
+          },
+          data: {
+            room_number : room_no,
+            bed_number: bed_no,
+          },
+      });
+     
+      res.status(201).json(result);
+  }catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "An error occurred while updating the hostel data entry." });
   }
 });
 
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "uploads/");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${Date.now()}-${file.originalname}`);
-//   },
-// });
+app.post("/hostel/delete" , async(req, res)=>{
+    const {rollNo, bed_no } = req.body;
 
-app.post("/uploads", upload.single("photo"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send({ message: "No file uploaded" });
-  }
-  res.send({
-    message: "File uploaded successfully",
-    filename: req.file.filename,
-  });
-});
-
-// server.js
-app.get("/uploads/:filename", (req, res) => {
-  const { filename } = req.params;
-  const filepath = path.join(__dirname, "uploads", filename);
-
-  fs.exists(filepath, (exists) => {
-    if (exists) {
-      res.sendFile(filepath);
-    } else {
-      res.status(404).send({ message: "File not found" });
+    try{
+        const result = await prisma.hosteldata.delete({
+          where :{
+            rollNo : rollNo,
+            bed_number : bed_no
+          }
+        })
+        res.status(201).json(result)
+    }catch(error){
+      res.status(404).json({message : error})
     }
-  });
-});
-
-app.post("/hostel/delete", async (req, res) => {
-  const { rollNo, bed_no } = req.body;
-
-  try {
-    const result = await prisma.hosteldata.delete({
-      where: {
-        rollNo: rollNo,
-        bed_number: bed_no,
-      },
-    });
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(404).json({ message: error });
-  }
-});
+})
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -687,10 +653,6 @@ const storage = multer.diskStorage({
     cb(null, `${uniqueSuffix}-${file.originalname}`);
   },
 });
-
-// Express middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Upload endpoint
 app.post("/Student", upload.single("photo"), async (req, res) => {
@@ -711,6 +673,7 @@ app.post("/Student", upload.single("photo"), async (req, res) => {
     res.status(500).json({ error: "Failed to upload photo" });
   }
 });
+
 app.get("/Student/:filename", (req, res) => {
   const { filename } = req.params;
   const filepath = path.join(__dirname, "uploads", filename);
@@ -721,6 +684,7 @@ app.get("/Student/:filename", (req, res) => {
     res.status(404).send({ message: "File not found" });
   }
 });
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

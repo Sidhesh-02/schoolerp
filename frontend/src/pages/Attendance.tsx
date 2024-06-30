@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/DownloadAttendance";
-import "../styles/attendancec.css";
+import "../styles/attendance.css";
 
 interface Student {
   id: number;
@@ -174,10 +174,10 @@ const Attendance: React.FC = () => {
           ))}
         </select>
 
-        <fieldset>
-          <legend>Absent Students:</legend>
+        <div className="AttendanceListContainer">
+          <h4>Absent Students:</h4>
           {students.map((student) => (
-            <div key={student.id}>
+            <div className="AttendanceList" key={student.id}>
               <input
                 type="checkbox"
                 id={`student-${student.rollNo}`}
@@ -190,7 +190,7 @@ const Attendance: React.FC = () => {
               </label>
             </div>
           ))}
-        </fieldset>
+        </div>
 
         <button type="submit">Submit Attendance</button>
       </form>
