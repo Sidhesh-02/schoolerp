@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FeeReicpts from '../components/FeeReicpts';
 
 interface Fee {
   title: string;
@@ -18,8 +19,10 @@ interface Student {
 const Fees: React.FC = () => {
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState('');
-  const [student, setStudent] = useState<Student | null>(null);
+  const [student, setStudent] = useState<Student | null>();
   const [loading, setLoading] = useState(false);
+  
+ 
 
   const [newInstallment, setNewInstallment] = useState<Fee>({
     title: '',
@@ -28,6 +31,7 @@ const Fees: React.FC = () => {
     admissionDate: '',
     pendingAmount: 0,
   });
+
 
   const search = async () => {
     try {
@@ -40,11 +44,11 @@ const Fees: React.FC = () => {
 
       const res = await axios.get('http://localhost:5000/fees/details', {
         params: {
-          name: name,
-          roll_no: rollNo,
+          name: name.trim(), // Trim any leading/trailing spaces
+          roll_no: rollNo.trim(), // Ensure roll_no is trimmed as well
         }
       });
-
+      
       if (res.data && !res.data.error) {
         setStudent(res.data);
       } else {
@@ -87,10 +91,10 @@ const Fees: React.FC = () => {
 
     if (name === 'title') {
       switch (value) {
-        case '2nd':
+        case '2nd Installment':
           amount = 3500;
           break;
-        case '3rd':
+        case '3rd Installment':
           amount = 2000;
           break;
         default:
@@ -132,6 +136,7 @@ const Fees: React.FC = () => {
         ...newInstallment,
         admissionDate: student.fees[0].admissionDate,
         pendingAmount: pendingAmount - newInstallment.amount,
+        // @ts-ignore
         studentId: student.id, // assuming student ID is available
       };
 
@@ -213,8 +218,8 @@ const Fees: React.FC = () => {
               onChange={handleAddInstallmentChange}
             >
               <option value="">Select installment type</option>
-              <option value="2nd">2nd Installment</option>
-              <option value="3rd">3rd Installment</option>
+              <option value="2nd Installment">2nd Installment</option>
+              <option value="3rd Installment">3rd Installment</option>
             </select>
           </div>
           <div>
@@ -239,6 +244,8 @@ const Fees: React.FC = () => {
           <button onClick={addInstallment}>Add Installment</button>
         </div>
       )}
+      {/* @ts-ignore */}
+      <FeeReicpts  id={student? student.id : null}  name={student? student.fullName : null}/>
     </div>
   );
 };

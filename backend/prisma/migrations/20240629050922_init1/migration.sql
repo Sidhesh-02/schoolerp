@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "ExaminationType" AS ENUM ('UnitTest', 'MidTerm', 'Final');
+
+-- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('Male', 'Female');
 
 -- CreateTable
@@ -26,6 +29,7 @@ CREATE TABLE "Parent" (
     "fatherContact" BIGINT NOT NULL,
     "motherContact" BIGINT NOT NULL,
     "address" TEXT NOT NULL,
+    "studentId" INTEGER NOT NULL,
 
     CONSTRAINT "Parent_pkey" PRIMARY KEY ("id")
 );
@@ -38,6 +42,7 @@ CREATE TABLE "Fee" (
     "amountDate" TIMESTAMP(3) NOT NULL,
     "admissionDate" TIMESTAMP(3) NOT NULL,
     "pendingAmount" DOUBLE PRECISION NOT NULL,
+    "studentId" INTEGER NOT NULL,
 
     CONSTRAINT "Fee_pkey" PRIMARY KEY ("id")
 );
@@ -65,17 +70,59 @@ CREATE TABLE "Subject" (
     CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Marks" (
+    "id" SERIAL NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "subjectId" INTEGER NOT NULL,
+    "subjectName" TEXT NOT NULL,
+    "examinationType" TEXT NOT NULL,
+    "obtainedMarks" DOUBLE PRECISION NOT NULL,
+    "totalMarks" DOUBLE PRECISION NOT NULL,
+    "percentage" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "Marks_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Hosteldata" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "rollNo" INTEGER NOT NULL,
+    "standard" TEXT NOT NULL,
+    "gender" TEXT NOT NULL,
+    "room_number" INTEGER NOT NULL,
+    "bed_number" INTEGER NOT NULL,
+
+    CONSTRAINT "Hosteldata_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_adhaarCardNo_key" ON "Student"("adhaarCardNo");
 
--- AddForeignKey
-ALTER TABLE "Parent" ADD CONSTRAINT "Parent_id_fkey" FOREIGN KEY ("id") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "Hosteldata_id_key" ON "Hosteldata"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Hosteldata_bed_number_key" ON "Hosteldata"("bed_number");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Hosteldata_rollNo_standard_key" ON "Hosteldata"("rollNo", "standard");
 
 -- AddForeignKey
-ALTER TABLE "Fee" ADD CONSTRAINT "Fee_id_fkey" FOREIGN KEY ("id") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Parent" ADD CONSTRAINT "Parent_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Fee" ADD CONSTRAINT "Fee_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Attendance" ADD CONSTRAINT "Attendance_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Attendance" ADD CONSTRAINT "Attendance_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Marks" ADD CONSTRAINT "Marks_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Marks" ADD CONSTRAINT "Marks_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

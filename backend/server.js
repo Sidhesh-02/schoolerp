@@ -303,6 +303,24 @@ app.get('/downloadattendance', async (req, res) => {
   }
 });
 
+// get all students in database 29 june 2024
+app.get("/getstudents" , async(req,res)=>{
+    try{
+        const result = await prisma.student.findMany({
+          include:{
+            fees : true,
+            attendanceRecords : true,
+          }
+        });
+        // console.log(result)
+        res.status(200).json(JSON.parse(JSON.stringify(result, jsonBigIntReplacer)));
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message : "error"});
+    }
+})
+
+
 //Get searched student by rollno.:
 app.get("/students/rollNo", async (req, res) => {
   const {rollno,standard}= req.query;
@@ -356,6 +374,7 @@ app.get("/fees/details", async (req, res) => {
         id: true,
         fullName: true,
         rollNo: true,
+        standard : true,
         fees: {
           select: {
             title: true,
@@ -417,6 +436,21 @@ app.get("/fees/details", async (req, res) => {
     res.status(500).json({ error: "An error occurred" });
   }
 });
+
+app.get("/feetable", async(req,res)=>{
+  const {title, id} = req.query;
+  try{
+    const result = await prisma.fee.findMany({
+      where :{
+        title,
+        studentId : parseInt(id)
+      }
+    });
+    res.status(200).json(result);
+  }catch(error){
+    console.log(error);
+  }
+})
 
 app.post("/fees/add", async (req, res) => {
   const { title, amount, amountDate, admissionDate, pendingAmount, studentId } = req.body;
@@ -503,7 +537,7 @@ app.get('/gethosteldata', async (req, res) => {
       });
     });
     // console.log("Result", result);
-    console.log("Available", available);
+    // console.log("Available", available);
 
     res.status(201).json({ result, available });
   } catch (error) {

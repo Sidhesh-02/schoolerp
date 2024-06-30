@@ -1,6 +1,7 @@
 // Navbar.tsx
 import { Link } from "react-router-dom";
-import "../styles/Navbar.css";
+import "../styles/navbar.css";
+
 
 interface NavbarProps {
   auth: { username: string; role: 'teacher' | 'admin' } | null;
