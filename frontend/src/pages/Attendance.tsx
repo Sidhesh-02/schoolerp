@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/DownloadAttendance";
 import "../styles/attendance.css";
@@ -39,8 +40,6 @@ const Attendance: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setStandards(data.standards);
-        setSelectedStandard(data.standards[0]);
-        fetchStudents(data.standards[0]);
       } else {
         console.error("Failed to fetch standards");
       }
@@ -80,8 +79,13 @@ const Attendance: React.FC = () => {
   };
 
   const handleStandardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedStandard(e.target.value);
-    fetchStudents(e.target.value);
+    const value = e.target.value;
+    setSelectedStandard(value);
+    if (value) {
+      fetchStudents(value);
+    } else {
+      setStudents([]);
+    }
   };
 
   const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -133,7 +137,7 @@ const Attendance: React.FC = () => {
   };
 
   return (
-    <div className="Attendance">
+    <div>
       <h1>Attendance System</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="standard">Select Standard:</label>
@@ -143,6 +147,9 @@ const Attendance: React.FC = () => {
           value={selectedStandard}
           onChange={handleStandardChange}
         >
+          <option value="" disabled>
+            Select standard
+          </option>
           {standards.map((standard) => (
             <option key={standard} value={standard}>
               {standard}
@@ -159,7 +166,7 @@ const Attendance: React.FC = () => {
           onChange={handleDateChange}
         />
 
-        <label htmlFor="subject">Select Subject : </label>
+        <label htmlFor="subject">Select Subject:</label>
         <select
           id="subject"
           name="subject"
@@ -174,8 +181,8 @@ const Attendance: React.FC = () => {
           ))}
         </select>
 
-        <div className="AttendanceListContainer">
-          <h4>Absent Students:</h4>
+        <div>
+          <h4>Mark Absent Students:</h4>
           {students.map((student) => (
             <div className="AttendanceList" key={student.id}>
               <input
@@ -192,7 +199,9 @@ const Attendance: React.FC = () => {
           ))}
         </div>
 
-        <button type="submit">Submit Attendance</button>
+        <button className="CustomButton" type="submit">
+          Submit Attendance
+        </button>
       </form>
 
       <DownloadAttendance />

@@ -1,11 +1,10 @@
 .navbar {
   display: flex;
   flex-direction: column;
-  width: 200px;
   
-  background-color: #f4f4f4;
+  width: 200px;
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  background-color: #f4f4f4;
 }
 
 .navbar ul {

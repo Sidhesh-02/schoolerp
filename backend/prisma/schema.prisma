@@ -19,6 +19,7 @@ model Student {
   adhaarCardNo      BigInt     @unique
   scholarshipApplied Boolean
   address           String
+  photoUrl          String?
   parents           Parent[]
   fees              Fee[]
   attendanceRecords Attendance[]

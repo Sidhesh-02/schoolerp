@@ -6,7 +6,6 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 
-const PORT = 5000;
 const app = express();
 const prisma = new PrismaClient();
 const upload = multer({ dest: "uploads/" });
@@ -14,6 +13,7 @@ const upload = multer({ dest: "uploads/" });
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 function jsonBigIntReplacer(key, value) {
   if (typeof value === "bigint") {
@@ -22,95 +22,24 @@ function jsonBigIntReplacer(key, value) {
   return value;
 }
 
-// Create Student
-app.post("/students", async (req, res) => {
-  const {
-    fullName,
-    gender,
-    dateOfBirth,
-    rollNo,
-    standard,
-    adhaarCardNo,
-    scholarshipApplied,
-    address,
-    parents,
-    fees,
-  } = req.body;
-
-  try {
-    const student = await prisma.student.create({
-      data: {
-        fullName,
-        gender,
-        dateOfBirth: new Date(dateOfBirth),
-        rollNo: parseInt(rollNo),
-        standard,
-        adhaarCardNo: parseInt(adhaarCardNo),
-        scholarshipApplied,
-        address,
-        parents: {
-          create: parents.map((parent) => ({
-            fatherName: parent.fatherName,
-            fatherOccupation: parent.fatherOccupation,
-            motherName: parent.motherName,
-            motherOccupation: parent.motherOccupation,
-            fatherContact: parseInt(parent.fatherContact),
-            motherContact: parseInt(parent.motherContact),
-            address: parent.address,
-          })),
-        },
-        fees: {
-          create: fees.map((fee) => ({
-            title: fee.installmentType,
-            amount: parseFloat(fee.amount),
-            amountDate: new Date(fee.amountDate),
-            admissionDate: new Date(fee.admissionDate),
-            pendingAmount: 10500 - parseFloat(fee.amount),
-          })),
-        },
-      },
-      include: {
-        parents: true,
-        fees: true,
-        attendanceRecords: true,
-      },
-    });
-
-    res.status(201).json(JSON.stringify(student, jsonBigIntReplacer));
-  } catch (error) {
-    console.error("Error creating student:", error);
-    res.status(500).send("Failed to create student");
+//Photo
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/uploads'); 
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-const deleteStudent = async (studentId) => {
+app.post('/uploadPhoto', upload.single('file'), async (req, res) => {
   try {
-    // Delete related records
-    await prisma.parent.deleteMany({ where: { studentId: studentId } });
-    await prisma.fee.deleteMany({ where: { studentId: studentId } });
-    await prisma.attendance.deleteMany({ where: { studentId: studentId } });
-    // await prisma.mark.deleteMany({ where: { studentId: studentId, } });
-
-    // Delete the student record
-    await prisma.student.delete({ where: { id: parseInt(studentId) } });
-
-    return {
-      success: true,
-      message: "Student and related records deleted successfully",
-    };
+    const fileUrl = 'http://localhost:5000/' + req.file.path; 
+    res.status(200).send(fileUrl);
   } catch (error) {
-    console.error("Error deleting student:", error);
-    throw new Error("Failed to delete student");
-  }
-};
-
-app.delete("/delete/students", async (req, res) => {
-  const { studentId } = req.query;
-  try {
-    await deleteStudent(parseInt(studentId));
-    res.status(200).send({ message: "Student deleted successfully" });
-  } catch (error) {
-    res.status(500).send({ error: "Failed to delete student" });
+    console.error('Error uploading file:', error);
+    res.status(500).send('Error uploading file');
   }
 });
 
@@ -191,6 +120,101 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     res.status(500).send("Failed to import data");
   }
 });
+
+// Create Student
+app.post("/students", async (req, res) => {
+  const {
+    fullName,
+    gender,
+    dateOfBirth,
+    rollNo,
+    standard,
+    adhaarCardNo,
+    scholarshipApplied,
+    address,
+    parents,
+    fees,
+    photoUrl
+  } = req.body;
+
+  try {
+    const student = await prisma.student.create({
+      data: {
+        fullName,
+        gender,
+        dateOfBirth: new Date(dateOfBirth),
+        rollNo: parseInt(rollNo),
+        standard,
+        adhaarCardNo: parseInt(adhaarCardNo),
+        scholarshipApplied,
+        address,
+        photoUrl,
+        parents: {
+          create: parents.map((parent) => ({
+            fatherName: parent.fatherName,
+            fatherOccupation: parent.fatherOccupation,
+            motherName: parent.motherName,
+            motherOccupation: parent.motherOccupation,
+            fatherContact: parseInt(parent.fatherContact),
+            motherContact: parseInt(parent.motherContact),
+            address: parent.address,
+          })),
+        },
+        fees: {
+          create: fees.map((fee) => ({
+            title: fee.installmentType,
+            amount: parseFloat(fee.amount),
+            amountDate: new Date(fee.amountDate),
+            admissionDate: new Date(fee.admissionDate),
+            pendingAmount: 10500 - parseFloat(fee.amount),
+          })),
+        },
+      },
+      include: {
+        parents: true,
+        fees: true,
+        attendanceRecords: true,
+      },
+    });
+
+    res.status(201).json(JSON.stringify(student, jsonBigIntReplacer));
+  } catch (error) {
+    console.error("Error creating student:", error);
+    res.status(500).send("Failed to create student");
+  }
+});
+
+const deleteStudent = async (studentId) => {
+  try {
+    // Delete related records
+    await prisma.parent.deleteMany({ where: { studentId: studentId } });
+    await prisma.fee.deleteMany({ where: { studentId: studentId } });
+    await prisma.attendance.deleteMany({ where: { studentId: studentId } });
+    // await prisma.mark.deleteMany({ where: { studentId: studentId, } });
+
+    // Delete the student record
+    await prisma.student.delete({ where: { id: parseInt(studentId) } });
+
+    return {
+      success: true,
+      message: "Student and related records deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    throw new Error("Failed to delete student");
+  }
+};
+app.delete("/delete/students", async (req, res) => {
+  const { studentId } = req.query;
+  try {
+    await deleteStudent(parseInt(studentId));
+    res.status(200).send({ message: "Student deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ error: "Failed to delete student" });
+  }
+});
+
+
 
 //Attendance
 // Get Student by Standards
@@ -644,47 +668,6 @@ app.post("/hostel/delete" , async(req, res)=>{
     }
 })
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "uploads"));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
-  },
-});
-
-// Upload endpoint
-app.post("/Student", upload.single("photo"), async (req, res) => {
-  try {
-    const { studentId } = req.body; // Example: Retrieve studentId from request if needed
-    const photoFilename = req.file.filename;
-
-    // Save photoFilename to database using Prisma
-    const updatedStudent = await prisma.student.update({
-      where: { id: Number(studentId) },
-      data: { photoFilename },
-    });
-
-    console.log("Photo uploaded for student:", updatedStudent);
-    res.status(200).json({ message: "Photo uploaded successfully" });
-  } catch (error) {
-    console.error("Error uploading photo:", error);
-    res.status(500).json({ error: "Failed to upload photo" });
-  }
-});
-
-app.get("/Student/:filename", (req, res) => {
-  const { filename } = req.params;
-  const filepath = path.join(__dirname, "uploads", filename);
-
-  if (fs.existsSync(filepath)) {
-    res.sendFile(filepath);
-  } else {
-    res.status(404).send({ message: "File not found" });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log(`Server is running on http://localhost:${5000}`);
 });

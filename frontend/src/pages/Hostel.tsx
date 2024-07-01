@@ -1,12 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "../styles/hostel.css";
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Hostel() {
-  
   const nav = useNavigate();
   const [rollNo, setRollNo] = useState<number>();
   const [standard, setStandard] = useState<string | undefined>();
@@ -73,7 +71,7 @@ function Hostel() {
     data.result.forEach((e: any) => {
       if (e.bed_number === ele) {
         setData(e);
-        setShow(true);
+        setShow(!show); // Toggle show state
       }
     });
   };
@@ -131,16 +129,22 @@ function Hostel() {
 
       <button onClick={update}>Update</button>
 
-      <div className=''>
+      <div>
         {show ?
           <div>
-            <p>Occupied By:</p>
-            name: {data.name}<br />
-            rollNo: {data.rollNo}<br />
-            gender: {data.gender}<br />
-            standard: {data.standard}<br />
-            bed_number: {data.bed_number}<br />
-            room_number: {data.room_number}<br />
+            <h4>Occupied By:</h4>
+            <div>Name: {data.name}</div>
+            <div>Roll No: {data.rollNo}</div>
+            <div>Gender: {data.gender}</div>
+            <div>
+              Standard: {data.standard}
+            </div>
+            <div>
+              Bed Number: {data.bed_number}
+            </div>
+            <div>
+              Room Number: {data.room_number}
+            </div>
             <button onClick={() => { setShow(false); }}>Back</button>
           </div> : <> </>}
         <div className='row'>
@@ -149,7 +153,7 @@ function Hostel() {
             {occupied.map((ele, index) => {
               return (
                 <>
-                  <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#0056b3' : '#DC143C', marginLeft:'10px' }}>
+                  <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#76e57a' : '#DC143C', marginLeft:'10px' }}>
                     {ele}
                   </button>
                 </>

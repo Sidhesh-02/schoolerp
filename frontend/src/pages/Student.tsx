@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import "../styles/student.css";
 interface Student {
@@ -10,6 +10,7 @@ interface Student {
   standard: string;
   adhaarCardNo: string;
   scholarshipApplied: boolean;
+  photoUrl?: string;
   address: string;
   parents: Parent[];
   fees: Fee[];
@@ -44,6 +45,7 @@ const Student: React.FC = () => {
     adhaarCardNo: "",
     scholarshipApplied: false,
     address: "",
+    photoUrl: "",
     parents: [
       {
         fatherName: "",
@@ -69,9 +71,7 @@ const Student: React.FC = () => {
   const [searchRollNo, setSearchRollNo] = useState("");
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [standard, setStandard] = useState<string | undefined>();
-  const [studentIdToDelete, setStudentIdToDelete] = useState<number | null>(
-    null
-  );
+  const [studentIdToDelete, setStudentIdToDelete] = useState<number | null>(null);
 
   const handleSubmit = async () => {
     try {
@@ -79,7 +79,7 @@ const Student: React.FC = () => {
         "http://localhost:5000/students",
         student
       );
-      console.log(response);
+      console.log(response.data);
       alert("Student created successfully");
     } catch (error) {
       console.error("Error creating student:", error);
@@ -180,85 +180,37 @@ const Student: React.FC = () => {
     }
   };
 
-  const [imageUploaded, setImageUploaded] = useState<File | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
-  const [uploadedImageUrl1, setUploadedImageUrl1] = useState<string>("");
-  const [ , setSuccessMessage] = useState<string>("");
-  const handleChangeFormAdhar = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setImageUploaded(event.target.files[0]);
-    }
-  };
-
-  const handleSubmitFormAdhar = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!imageUploaded) {
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("photo", imageUploaded);
-
-      const response = await axios.post(
-        "http://localhost:5000/uploads",
-        formData,
-        {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await axios.post<string>('http://localhost:5000/uploadPhoto', formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setSuccessMessage("File uploaded successfully!");
-      setUploadedImageUrl(
-        `http://localhost:5000/student/${response.data.filename}`
-      );
-    } catch (error) {
-      setSuccessMessage("failed to uploaded!");
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        setStudent((prev) => ({ ...prev, photoUrl: response.data }));
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image');
+      }
     }
   };
-
-  const handleChangeFormPhoto = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setImageUploaded(event.target.files[0]);
-    }
-  };
-
-  const handleSubmitFormPhoto = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!imageUploaded) {
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("photo", imageUploaded);
-
-      const response = await axios.post(
-        "http://localhost:5000/uploads",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setSuccessMessage("File uploaded successfully!");
-      setUploadedImageUrl1(
-        `http://localhost:5000/student/${response.data.filename}`
-      );
-    } catch (error) {
-      setSuccessMessage("failed to uploaded!");
-    }
-  };
-
+  
+  
   return (
     <div>
       <h2>Create Student Profile</h2>
+      <div>
+        <label>Upload Photo</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageUpload(e)}
+        />
+      </div>
       <div>
         <label>Full Name</label>
         <input
@@ -335,46 +287,6 @@ const Student: React.FC = () => {
             setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))
           }
         />
-        <div>
-          <form onSubmit={handleSubmitFormAdhar}>
-            <label>Upload adhaar Card photo</label>
-            <input
-              type="file"
-              onChange={handleChangeFormAdhar}
-              accept=".jpg, .png, .jpeg"
-            />
-            <button type="submit">Upload</button>
-          </form>
-          {uploadedImageUrl && (
-            <div>
-              <img
-                src={uploadedImageUrl}
-                alt="Uploaded"
-                style={{ width: "300px", height: "auto" }}
-              />
-            </div>
-          )}
-        </div>
-        <div>
-          <form onSubmit={handleSubmitFormPhoto}>
-            <label>Upload Student photo</label>
-            <input
-              type="file"
-              onChange={handleChangeFormPhoto}
-              accept=".jpg, .png, .jpeg"
-            />
-            <button type="submit">Upload</button>
-          </form>
-          {uploadedImageUrl1 && (
-            <div>
-              <img
-                src={uploadedImageUrl1}
-                alt="Uploaded"
-                style={{ width: "300px", height: "auto" }}
-              />
-            </div>
-          )}
-        </div>
       </div>
       <div>
         <label>Scholarship Applied</label>
@@ -491,7 +403,7 @@ const Student: React.FC = () => {
               name="amount"
               value={fee.amount}
               onChange={(e) => handleFeeChange(e, index)}
-              disabled // disable user input since it's calculated
+              disabled
             />
           </div>
           <div>
@@ -547,7 +459,12 @@ const Student: React.FC = () => {
       {searchResult && (
         <div>
           <h3>Student Profile</h3>
-
+          <div>
+            <h3>Student Profile</h3>
+            {searchResult.photoUrl && (
+              <img src={searchResult.photoUrl} alt="Student Photo" style={{ maxWidth: '200px' }} />
+            )}
+          </div>
           <p>
             <strong>Full Name:</strong> {searchResult.fullName}
           </p>

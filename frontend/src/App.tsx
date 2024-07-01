@@ -1,3 +1,4 @@
+import "./styles/App.css";
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -9,7 +10,7 @@ import Hostel from "./pages/Hostel";
 import Marks from "./pages/Marks";
 import UploadStudent from "./pages/UploadStudents";
 import ProtectedRoute from "./components/ProtectedRoute";
-import "./styles/App.css";
+import UpdateHostel from "./components/UpdateHostel";
 
 interface Auth {
   username: string;
@@ -47,20 +48,22 @@ const App: React.FC = () => {
 
   if (!auth) {
     return (
-      <div className="login">
-        <input type="text" placeholder="Username" id="username" />
-        <input type="password" placeholder="Password" id="password" />
-        <button
-          onClick={() =>
-            login(
-              (document.getElementById("username") as HTMLInputElement).value,
-              (document.getElementById("password") as HTMLInputElement).value
-            )
-          }
-        >
-          Login
-        </button>
-      </div>
+      <form className="login"action="">
+        <div>
+          <input className="credential" type="text" placeholder="Username" id="username" /><br/>
+          <input className="credential" type="password" placeholder="Password" id="password" /><br/>
+          <button
+            onClick={() =>
+              login(
+                (document.getElementById("username") as HTMLInputElement).value,
+                (document.getElementById("password") as HTMLInputElement).value
+              )
+            }
+          >
+            Login
+          </button>
+        </div>
+      </form>
     );
   }
 
@@ -126,6 +129,12 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route 
+            path="/Hostel/update"  
+            element={
+              <ProtectedRoute auth={auth} allowedRoles={['admin']}>
+                <UpdateHostel/>
+              </ProtectedRoute>}/>
         </Routes>
       </div>
     </div>

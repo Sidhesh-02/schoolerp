@@ -1,5 +1,3 @@
-/* marks.css */
-
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -10,7 +8,6 @@
 }
 
 h1 {
-  text-align: center;
   color: #333;
   margin-bottom: 20px;
 }

@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import axios from "axios";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
+    console.log("Id and Name", id,name)
 
   const [title ,setTitle] = useState<string>('');
   const [, setFeedata] = useState<any>();
@@ -29,7 +30,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
    
     const date = new Date();
     const year = date.getFullYear();
-    const month = date.getMonth(); // Note: Month is zero-based
+    const month = date.getMonth(); 
     const dayOfMonth = date.getDate();
 
     const doc = new Document({
@@ -129,12 +130,12 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
               onChange={handlecange}
             >
               <option value="">Select installment type</option>
-              <option value="1st Installment">1st Installment</option>
-              <option value="2nd Installment">2nd Installment</option>
-              <option value="3rd Installment">3rd Installment</option>
+              <option value="1st">1st Installment</option>
+              <option value="2nd">2nd Installment</option>
+              <option value="3rd">3rd Installment</option>
             </select>
       </div>
-      <button onClick={fetchFeeData}>Generate fees Receipt</button>
+      <button onClick={fetchFeeData}>Generate Receipt</button>
     </div>
   );
 };

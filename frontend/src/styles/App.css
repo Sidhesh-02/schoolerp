@@ -1,4 +1,11 @@
+body{
+  margin: 0;
+  padding: 0;
+  
+}
+
 .App {
+  min-height: 100vh;
   display: flex;
 }
 
@@ -36,12 +43,46 @@ button:hover {
   margin: 0px 10px;
 }
 
-.Dashboard {
-  background-color: #f4f4f4;
-  padding: 10px;
-  margin-top: 20px;
-}
-
 input {
   margin: 10px 0px;
 }
+
+.CustomButton{
+  width: max-content;
+}
+
+/* Login Page */
+
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+input.credential[type="text"],
+input.credential[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login button {
+  width: 270px;
+  padding: 10px;
+  background-color: #87ff89;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.login button:hover {
+  background-color: #76e57a;
+}
+

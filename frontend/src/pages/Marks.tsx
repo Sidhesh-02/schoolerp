@@ -130,7 +130,6 @@ const Marks: React.FC = () => {
       console.log("Marks added:", response.data);
       setSuccessMessage("Marks added successfully!");
 
-      // Optionally reset form
       setFormData({
         standard: "",
         studentName: "",

@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-// <<<<<<< HEAD
 import React, { useState } from "react";
-import axios from "axios";
 import "../styles/fee.css";
-// =======
-// import React, { useState } from 'react';
-// import axios from 'axios';
+import axios from "axios";
 import FeeReicpts from '../components/FeeReicpts';
-
-// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
 interface Fee {
   title: string;
   amount: number;
@@ -24,15 +18,9 @@ interface Student {
 }
 
 const Fees: React.FC = () => {
-// <<<<<<< HEAD
-//   const [name, setName] = useState("");
-//   const [rollNo, setRollNo] = useState("");
-//   const [student, setStudent] = useState<Student | null>(null);
-// =======
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState('');
   const [student, setStudent] = useState<Student | null>();
-// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
   const [loading, setLoading] = useState(false);
   
  
@@ -57,15 +45,9 @@ const Fees: React.FC = () => {
 
       const res = await axios.get("http://localhost:5000/fees/details", {
         params: {
-// <<<<<<< HEAD
-//           name: name,
-//           roll_no: rollNo,
-//         },
-// =======
-          name: name.trim(), // Trim any leading/trailing spaces
-          roll_no: rollNo.trim(), // Ensure roll_no is trimmed as well
+          name: name.trim(), 
+          roll_no: rollNo.trim(),
         }
-// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
       });
       
       if (res.data && !res.data.error) {
@@ -118,17 +100,10 @@ const Fees: React.FC = () => {
 
     if (name === "title") {
       switch (value) {
-// <<<<<<< HEAD
-//         case "2nd":
-//           amount = 3500;
-//           break;
-//         case "3rd":
-// =======
-        case '2nd Installment':
+        case '2nd':
           amount = 3500;
           break;
-        case '3rd Installment':
-// >>>>>>> 0a19aca937d08b47eed865aa9b2613762baf5c18
+        case '3rd':
           amount = 2000;
           break;
         default:
@@ -209,7 +184,8 @@ const Fees: React.FC = () => {
 
   return (
     <div>
-      <div>
+      <h1>Fee System</h1>
+      <div className="FeeInput">
         <input
           type="text"
           placeholder="Full Name"
@@ -228,10 +204,10 @@ const Fees: React.FC = () => {
           disabled={loading}
         />
         <br />
-        <button onClick={search} disabled={loading}>
+        <button onClick={search} style={{marginRight: '20px'}} disabled={loading}>
           Search
         </button>
-        <button onClick={clearForm} disabled={loading}>
+        <button onClick={clearForm} style={{marginRight: '20px'}} disabled={loading}>
           Clear
         </button>
         {student && (
@@ -265,8 +241,8 @@ const Fees: React.FC = () => {
               onChange={handleAddInstallmentChange}
             >
               <option value="">Select installment type</option>
-              <option value="2nd Installment">2nd Installment</option>
-              <option value="3rd Installment">3rd Installment</option>
+              <option value="2nd">2nd Installment</option>
+              <option value="3rd">3rd Installment</option>
             </select>
           </div>
           <div>
