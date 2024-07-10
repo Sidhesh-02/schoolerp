@@ -22,6 +22,146 @@ function jsonBigIntReplacer(key, value) {
   return value;
 }
 
+// Update student route
+app.put("/update/student/:id", async (req, res) => {
+  const studentId = parseInt(req.params.id);
+  const {
+    fullName,
+    gender,
+    dateOfBirth,
+    rollNo,
+    standard,
+    adhaarCardNo,
+    scholarshipApplied,
+    address,
+    photoUrl,
+    parents,
+  } = req.body;
+
+  try {
+    // Update student details
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        fullName,
+        gender,
+        dateOfBirth: new Date(dateOfBirth),
+        rollNo,
+        standard,
+        adhaarCardNo,
+        scholarshipApplied,
+        address,
+        photoUrl,
+      },
+    });
+
+    // Update parent details
+    const updatedParents = await Promise.all(
+      parents.map((parent) =>
+        prisma.parent.update({
+          where: { id: parent.id },
+          data: {
+            fatherName: parent.fatherName,
+            fatherOccupation: parent.fatherOccupation,
+            motherName: parent.motherName,
+            motherOccupation: parent.motherOccupation,
+            fatherContact: parent.fatherContact,
+            motherContact: parent.motherContact,
+            address: parent.address,
+          },
+        })
+      )
+    );
+    
+    const response = {
+      message: "Student updated successfully",
+      student: updatedStudent,
+      parents: updatedParents,
+    };
+    res.status(201).json(JSON.stringify(response, jsonBigIntReplacer));
+  } catch (error) {
+    console.error("Error updating student:", error);
+    res.status(500).json({ error: "Failed to update student" });
+  }
+});
+
+//Get all student information in excel file 
+app.get('/excelstudents', async (req, res) => {
+  try {
+    const studentsInfo = await prisma.student.findMany({
+      include: {
+        parents: true,
+        fees: true,
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Students');
+
+    // Define columns for the worksheet
+    worksheet.columns = [
+      { header: 'StudentId', key: 'sid', width: 10 },
+      { header: 'Full Name', key: 'fullName', width: 30 },
+      { header: 'Gender', key: 'gender', width: 10 },
+      { header: 'Date of Birth', key: 'dateOfBirth', width: 15 },
+      { header: 'Roll No', key: 'rollNo', width: 10 },
+      { header: 'Standard', key: 'standard', width: 10 },
+      { header: 'Adhaar Card No', key: 'adhaarCardNo', width: 20 },
+      { header: 'Scholarship Applied', key: 'scholarshipApplied', width: 15 },
+      { header: 'Address', key: 'address', width: 30 },
+      { header: 'Photo URL', key: 'photoUrl', width: 30 },
+      { header: 'Father Name', key: 'fatherName', width: 20 },
+      { header: 'Mother Name', key: 'motherName', width: 20 },
+      { header: 'Father Contact', key: 'fatherContact', width: 15 },
+      { header: 'Mother Contact', key: 'motherContact', width: 15 },
+      { header: 'Fees Pending', key: 'feesPending', width: 15 },
+      { header: 'Fees Paid', key: 'feesPaid', width: 15 },
+    ];
+
+    // Add student data to worksheet
+    studentsInfo.forEach((student) => {
+      const feesPaid = student.fees.reduce((sum, fee) => sum + fee.amount, 0);
+      const totalFees = 10500; // Assuming total fees is 10500
+      const feesPending = totalFees - feesPaid;
+
+      worksheet.addRow({
+        sid: student.id,
+        fullName: student.fullName,
+        gender: student.gender,
+        dateOfBirth: student.dateOfBirth.toISOString().split('T')[0],
+        rollNo: student.rollNo,
+        standard: student.standard,
+        adhaarCardNo: student.adhaarCardNo.toString(),
+        scholarshipApplied: student.scholarshipApplied ? 'Yes' : 'No',
+        address: student.address,
+        photoUrl: student.photoUrl,
+        fatherName: student.parents[0]?.fatherName || '',
+        motherName: student.parents[0]?.motherName || '',
+        fatherContact: student.parents[0]?.fatherContact?.toString() || '',
+        motherContact: student.parents[0]?.motherContact?.toString() || '',
+        feesPending: feesPending,
+        feesPaid: feesPaid,
+      });
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="students_data.xlsx"'
+    );
+
+    // Send Excel file as response
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error('Error fetching students data:', error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
+});
+
 //Photo
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -354,23 +494,6 @@ app.get("/downloadattendance", async (req, res) => {
   }
 });
 
-// get all students in database 29 june 2024
-app.get("/getstudents" , async(req,res)=>{
-    try{
-        const result = await prisma.student.findMany({
-          include:{
-            fees : true,
-            attendanceRecords : true,
-          }
-        });
-        // console.log(result)
-        res.status(200).json(JSON.parse(JSON.stringify(result, jsonBigIntReplacer)));
-    }catch(error){
-        console.log(error);
-        res.status(500).json({message : "error"});
-    }
-})
-
 //Get searched student by rollno.:
 app.get("/students/rollNo", async (req, res) => {
   const { rollno, standard } = req.query;
@@ -393,7 +516,7 @@ app.get("/students/rollNo", async (req, res) => {
     });
 
     if (student) {
-      console.log("Backend data from postgress ", student);
+      // console.log("Backend data from postgress ", student);
       res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
     } else {
       res.status(404).json({ message: "Student not found" });
@@ -409,23 +532,23 @@ app.get("/students/rollNo", async (req, res) => {
 
 // Fees Structure
 app.get("/fees/details", async (req, res) => {
-  const { name, roll_no, download } = req.query;
+  const { standard, roll_no, download } = req.query;
 
-  if (!name || isNaN(parseInt(roll_no))) {
+  if (!standard || isNaN(parseInt(roll_no))) {
     return res.status(400).json({ error: "Invalid query parameters" });
   }
 
   try {
     const result = await prisma.student.findFirst({
       where: {
-        fullName: name.toString(),
+        standard: standard.toString(),
         rollNo: parseInt(roll_no),
       },
       select: {
         id: true,
         fullName: true,
         rollNo: true,
-        standard : true,
+        standard: true,
         fees: {
           select: {
             title: true,
@@ -447,6 +570,7 @@ app.get("/fees/details", async (req, res) => {
       const jsonResult = JSON.stringify(result, jsonBigIntReplacer);
 
       // Prepare data for Excel using exceljs
+      const ExcelJS = require("exceljs");
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("FeesDetails");
 
@@ -492,6 +616,7 @@ app.get("/fees/details", async (req, res) => {
     res.status(500).json({ error: "An error occurred" });
   }
 });
+
 
 app.get("/feetable", async(req,res)=>{
   const {title, id} = req.query;
@@ -578,9 +703,6 @@ app.post("/add", async (req, res) => {
 app.get('/gethosteldata', async (req, res) => {
   try {
     const result = await prisma.hosteldata.findMany();
-    // if (result.length > 0) {
-    //   console.log("Bedno used",result[0].bed_number); // Log the bed number for debugging
-    // }
 
     const available = [];
     for (let i = 1; i <= 100; i++) {
@@ -595,8 +717,6 @@ app.get('/gethosteldata', async (req, res) => {
         }
       });
     });
-    // console.log("Result", result);
-    console.log("Available", available);
 
     res.status(201).json({ result, available });
   } catch (error) {

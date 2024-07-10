@@ -8,9 +8,9 @@ import Attendance from "./pages/Attendance";
 import Fees from "./pages/Fees";
 import Hostel from "./pages/Hostel";
 import Marks from "./pages/Marks";
-import UploadStudent from "./pages/UploadStudents";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UpdateHostel from "./components/UpdateHostel";
+import Search from "./pages/Search";
 
 interface Auth {
   username: string;
@@ -82,18 +82,18 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/Upload"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <UploadStudent />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/Student"
             element={
               <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
                 <Student />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Search"
+            element={
+              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                <Search />
               </ProtectedRoute>
             }
           />

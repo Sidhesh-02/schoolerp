@@ -248,7 +248,7 @@ const Marks: React.FC = () => {
             </tbody>
           </table>
         )}
-        <button type="submit">Add Marks</button>
+        <button className="CustomButton" type="submit">Add Marks</button>
       </form>
     </div>
   );

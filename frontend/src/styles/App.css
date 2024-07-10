@@ -1,7 +1,6 @@
 body{
   margin: 0;
   padding: 0;
-  
 }
 
 .App {
@@ -62,7 +61,7 @@ input {
 
 input.credential[type="text"],
 input.credential[type="password"] {
-  width: 100%;
+  width: 92%;
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;

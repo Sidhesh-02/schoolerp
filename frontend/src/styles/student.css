@@ -15,7 +15,7 @@ label {
   color: #555;
 }
 
-input[type="text"],
+input.StudentInput[type="text"],
 input[type="date"],
 input[type="number"],
 select,

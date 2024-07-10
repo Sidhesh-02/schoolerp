@@ -1,5 +1,3 @@
-// schema.prisma
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -13,7 +11,7 @@ model Student {
   id                Int        @id @default(autoincrement())
   fullName          String
   gender            Gender
-  dateOfBirth       DateTime
+  dateOfBirth       DateTime @default(now()) @db.Date
   rollNo            Int        
   standard          String     
   adhaarCardNo      BigInt     @unique
@@ -43,8 +41,8 @@ model Fee {
   id                Int        @id @default(autoincrement())
   title             String
   amount            Float
-  amountDate        DateTime
-  admissionDate     DateTime
+  amountDate        DateTime @default(now()) @db.Date
+  admissionDate     DateTime @default(now()) @db.Date
   pendingAmount     Float
   studentId         Int
   student           Student    @relation(fields: [studentId], references: [id])
@@ -54,7 +52,7 @@ model Fee {
 model Attendance {
   id                Int        @id @default(autoincrement())
   studentName       String
-  date              DateTime
+  date              DateTime @default(now()) 
   status            Boolean
   rollNo            Int
   studentId         Int

@@ -58,7 +58,7 @@ const UpdateHostel = () => {
     <div >
         <h2>Hostel Page</h2>
     
-        <input className='inputB' type="number"  placeholder='roll number' onChange={(e) =>{setrollNo(Number(e.target.value))}}/>
+        <input className='inputB' type="number"  placeholder='Roll no.' onChange={(e) =>{setrollNo(Number(e.target.value))}}/>
         <select className='inputB' onChange={(e) => { setStandard(e.target.value); }}>
               <option value=''>Select standard</option>
               <option value='lkg1'>Lkg1</option>

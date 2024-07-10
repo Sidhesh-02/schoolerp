@@ -9,8 +9,8 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
   const links = [
     { name: "Report", roles: ["admin"] },
-    { name: "Upload", roles: ["admin"] },
     { name: "Student", roles: ["admin"] },
+    { name: "Search", roles: ["admin"] },
     { name: "Attendance", roles: ["teacher", "admin"] },
     { name: "Fees", roles: ["admin"] },
     { name: "Hostel", roles: ["admin"] },

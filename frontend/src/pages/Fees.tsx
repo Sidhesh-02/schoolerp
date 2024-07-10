@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import "../styles/fee.css";
 import axios from "axios";
 import FeeReicpts from '../components/FeeReicpts';
+
 interface Fee {
   title: string;
   amount: number;
@@ -14,16 +15,15 @@ interface Fee {
 interface Student {
   fullName: string;
   rollNo: number;
+  standard: string;
   fees: Fee[];
 }
 
 const Fees: React.FC = () => {
-  const [name, setName] = useState('');
+  const [standard, setStandard] = useState('');
   const [rollNo, setRollNo] = useState('');
   const [student, setStudent] = useState<Student | null>();
   const [loading, setLoading] = useState(false);
-  
- 
 
   const [newInstallment, setNewInstallment] = useState<Fee>({
     title: "",
@@ -33,11 +33,10 @@ const Fees: React.FC = () => {
     pendingAmount: 0,
   });
 
-
   const search = async () => {
     try {
-      if (!name || !rollNo) {
-        alert("Please enter both Full Name and Roll_no.");
+      if (!standard || !rollNo) {
+        alert("Please enter both Standard and Roll_no.");
         return;
       }
 
@@ -45,11 +44,11 @@ const Fees: React.FC = () => {
 
       const res = await axios.get("http://localhost:5000/fees/details", {
         params: {
-          name: name.trim(), 
+          standard: standard.trim(),
           roll_no: rollNo.trim(),
         }
       });
-      
+
       if (res.data && !res.data.error) {
         setStudent(res.data);
       } else {
@@ -67,7 +66,7 @@ const Fees: React.FC = () => {
   };
 
   const clearForm = () => {
-    setName("");
+    setStandard("");
     setRollNo("");
     setStudent(null);
   };
@@ -79,8 +78,8 @@ const Fees: React.FC = () => {
         return;
       }
 
-      const downloadUrl = `http://localhost:5000/fees/details?name=${encodeURIComponent(
-        name
+      const downloadUrl = `http://localhost:5000/fees/details?standard=${encodeURIComponent(
+        standard
       )}&roll_no=${encodeURIComponent(rollNo)}&download=true`;
       window.open(downloadUrl, "_blank");
     } catch (error) {
@@ -185,19 +184,21 @@ const Fees: React.FC = () => {
   return (
     <div>
       <h1>Fee System</h1>
-      <div className="FeeInput">
+      <div>
         <input
           type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Standard"
+          className="FeeInput"
+          value={standard}
+          onChange={(e) => setStandard(e.target.value)}
           required
           disabled={loading}
         />
         <br />
         <input
           type="text"
-          placeholder="Roll_no"
+          placeholder="Roll No"
+          className="FeeInput"
           value={rollNo}
           onChange={(e) => setRollNo(e.target.value)}
           required
@@ -221,6 +222,7 @@ const Fees: React.FC = () => {
         <div>
           <h3>Name: {student.fullName}</h3>
           <h3>Roll no.: {student.rollNo}</h3>
+          <h3>Standard: {student.standard}</h3>
           <h3>Fees:</h3>
           {student.fees.map((fee, index) => (
             <div key={index}>
@@ -250,6 +252,7 @@ const Fees: React.FC = () => {
             <input
               type="number"
               name="amount"
+              className="FeeInput"
               value={newInstallment.amount}
               onChange={handleAddInstallmentChange}
               disabled
@@ -260,6 +263,7 @@ const Fees: React.FC = () => {
             <input
               type="date"
               name="amountDate"
+              className="FeeInput"
               value={newInstallment.amountDate}
               onChange={handleAddInstallmentChange}
             />
@@ -268,7 +272,7 @@ const Fees: React.FC = () => {
         </div>
       )}
       {/* @ts-ignore */}
-      <FeeReicpts  id={student? student.id : null}  name={student? student.fullName : null}/>
+      <FeeReicpts id={student ? student.id : null} name={student ? student.fullName : null} />
     </div>
   );
 };
