@@ -223,6 +223,17 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+app.get('/studentcount', async (req, res) => {
+  try {
+      const count = await prisma.student.findMany(); 
+      const len = count.length;
+      res.send({len}); 
+  } catch (error) {
+      console.log(error);
+      res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
+
 
 /* Student Model */
 
