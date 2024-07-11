@@ -22,68 +22,40 @@ function jsonBigIntReplacer(key, value) {
   return value;
 }
 
-// Update student route
-app.put("/update/student/:id", async (req, res) => {
-  const studentId = parseInt(req.params.id);
-  const {
-    fullName,
-    gender,
-    dateOfBirth,
-    rollNo,
-    standard,
-    adhaarCardNo,
-    scholarshipApplied,
-    address,
-    photoUrl,
-    parents,
-  } = req.body;
-
-  try {
-    // Update student details
-    const updatedStudent = await prisma.student.update({
-      where: { id: studentId },
-      data: {
-        fullName,
-        gender,
-        dateOfBirth: new Date(dateOfBirth),
-        rollNo,
-        standard,
-        adhaarCardNo,
-        scholarshipApplied,
-        address,
-        photoUrl,
-      },
-    });
-
-    // Update parent details
-    const updatedParents = await Promise.all(
-      parents.map((parent) =>
-        prisma.parent.update({
-          where: { id: parent.id },
-          data: {
-            fatherName: parent.fatherName,
-            fatherOccupation: parent.fatherOccupation,
-            motherName: parent.motherName,
-            motherOccupation: parent.motherOccupation,
-            fatherContact: parent.fatherContact,
-            motherContact: parent.motherContact,
-            address: parent.address,
-          },
-        })
-      )
-    );
-    
-    const response = {
-      message: "Student updated successfully",
-      student: updatedStudent,
-      parents: updatedParents,
-    };
-    res.status(201).json(JSON.stringify(response, jsonBigIntReplacer));
-  } catch (error) {
-    console.error("Error updating student:", error);
-    res.status(500).json({ error: "Failed to update student" });
+//Photo 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/uploads'); 
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
+
+//Delete Function
+const deleteStudent = async (studentId) => {
+  try {
+    // Delete related records
+    await prisma.parent.deleteMany({ where: { studentId: studentId } });
+    await prisma.fee.deleteMany({ where: { studentId: studentId } });
+    await prisma.attendance.deleteMany({ where: { studentId: studentId } });
+    // await prisma.mark.deleteMany({ where: { studentId: studentId, } });
+
+    // Delete the student record
+    await prisma.student.delete({ where: { id: parseInt(studentId) } });
+
+    return {
+      success: true,
+      message: "Student and related records deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    throw new Error("Failed to delete student");
+  }
+};
+
+/* Other Routes */
 
 //Get all student information in excel file 
 app.get('/excelstudents', async (req, res) => {
@@ -162,17 +134,7 @@ app.get('/excelstudents', async (req, res) => {
   }
 });
 
-//Photo
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, '/uploads'); 
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
+//Upload Photo
 app.post('/uploadPhoto', upload.single('file'), async (req, res) => {
   try {
     const fileUrl = 'http://localhost:5000/' + req.file.path; 
@@ -261,6 +223,9 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+
+/* Student Model */
+
 // Create Student
 app.post("/students", async (req, res) => {
   const {
@@ -324,26 +289,7 @@ app.post("/students", async (req, res) => {
   }
 });
 
-const deleteStudent = async (studentId) => {
-  try {
-    // Delete related records
-    await prisma.parent.deleteMany({ where: { studentId: studentId } });
-    await prisma.fee.deleteMany({ where: { studentId: studentId } });
-    await prisma.attendance.deleteMany({ where: { studentId: studentId } });
-    // await prisma.mark.deleteMany({ where: { studentId: studentId, } });
-
-    // Delete the student record
-    await prisma.student.delete({ where: { id: parseInt(studentId) } });
-
-    return {
-      success: true,
-      message: "Student and related records deleted successfully",
-    };
-  } catch (error) {
-    console.error("Error deleting student:", error);
-    throw new Error("Failed to delete student");
-  }
-};
+//Delete Student
 app.delete("/delete/students", async (req, res) => {
   const { studentId } = req.query;
   try {
@@ -354,10 +300,109 @@ app.delete("/delete/students", async (req, res) => {
   }
 });
 
+//Get searched student by rollno.:
+app.get("/students/rollNo", async (req, res) => {
+  const { rollno, standard } = req.query;
 
+  if (!rollno || isNaN(rollno) || !standard) {
+    return res.status(400).json({ message: "Invalid roll number or standard" });
+  }
 
-//Attendance
-// Get Student by Standards
+  try {
+    const student = await prisma.student.findFirst({
+      where: {
+        rollNo: parseInt(rollno),
+        standard: standard,
+      },
+      include: {
+        parents: true,
+        fees: true,
+        attendanceRecords: true,
+      },
+    });
+
+    if (student) {
+      // console.log("Backend data from postgress ", student);
+      res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
+    } else {
+      res.status(404).json({ message: "Student not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching student:", error.message);
+    console.error("Stack trace:", error.stack);
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the student" });
+  }
+});
+
+// Update student route
+app.put("/update/student/:id", async (req, res) => {
+  const studentId = parseInt(req.params.id);
+  const {
+    fullName,
+    gender,
+    dateOfBirth,
+    rollNo,
+    standard,
+    adhaarCardNo,
+    scholarshipApplied,
+    address,
+    photoUrl,
+    parents,
+  } = req.body;
+
+  try {
+    
+    // Update student details
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        fullName,
+        gender,
+        dateOfBirth: new Date(dateOfBirth),
+        rollNo : parseInt(rollNo) ,
+        standard,
+        adhaarCardNo,
+        scholarshipApplied,
+        address,
+        photoUrl,
+      },
+    });
+
+    // Update parent details
+    const updatedParents = await Promise.all(
+      parents.map((parent) =>
+        prisma.parent.update({
+          where: { id: parent.id },
+          data: {
+            fatherName: parent.fatherName,
+            fatherOccupation: parent.fatherOccupation,
+            motherName: parent.motherName,
+            motherOccupation: parent.motherOccupation,
+            fatherContact: parent.fatherContact,
+            motherContact: parent.motherContact,
+            address: parent.address,
+          },
+        })
+      )
+    );
+    
+    const response = {
+      message: "Student updated successfully",
+      student: updatedStudent,
+      parents: updatedParents,
+    };
+    res.status(201).json(JSON.stringify(response, jsonBigIntReplacer));
+  } catch (error) {
+    console.error("Error updating student:", error);
+    res.status(500).json({ error: "Failed to update student" });
+  }
+});
+
+/* Attendance Model */
+
+// Get Student by Standards For Attendance
 app.get("/getstandards", async (req, res) => {
   try {
     const standards = await prisma.student.findMany({
@@ -377,7 +422,7 @@ app.get("/getstandards", async (req, res) => {
   }
 });
 
-// Get Student List according to standard for Attendance
+// Get Student List wrt Standard for Attendance
 app.get("/getattendancelist", async (req, res) => {
   const { standard, subjectId } = req.query;
 
@@ -396,6 +441,7 @@ app.get("/getattendancelist", async (req, res) => {
   }
 });
 
+// Get Subject List for Attendance
 app.get("/getsubjects", async (req, res) => {
   try {
     const subjects = await prisma.subject.findMany();
@@ -406,6 +452,7 @@ app.get("/getsubjects", async (req, res) => {
   }
 });
 
+// Submit Attendance
 app.post("/submitattendance", async (req, res) => {
   const { standard, date, absentStudents, subjectId } = req.body;
 
@@ -494,43 +541,10 @@ app.get("/downloadattendance", async (req, res) => {
   }
 });
 
-//Get searched student by rollno.:
-app.get("/students/rollNo", async (req, res) => {
-  const { rollno, standard } = req.query;
 
-  if (!rollno || isNaN(rollno) || !standard) {
-    return res.status(400).json({ message: "Invalid roll number or standard" });
-  }
+/* Fees Model */
 
-  try {
-    const student = await prisma.student.findFirst({
-      where: {
-        rollNo: parseInt(rollno),
-        standard: standard,
-      },
-      include: {
-        parents: true,
-        fees: true,
-        attendanceRecords: true,
-      },
-    });
-
-    if (student) {
-      // console.log("Backend data from postgress ", student);
-      res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
-    } else {
-      res.status(404).json({ message: "Student not found" });
-    }
-  } catch (error) {
-    console.error("Error fetching student:", error.message);
-    console.error("Stack trace:", error.stack);
-    res
-      .status(500)
-      .json({ message: "An error occurred while fetching the student" });
-  }
-});
-
-// Fees Structure
+// Get Fees Details
 app.get("/fees/details", async (req, res) => {
   const { standard, roll_no, download } = req.query;
 
@@ -617,7 +631,7 @@ app.get("/fees/details", async (req, res) => {
   }
 });
 
-
+// Redundant Route to Get Fees Details
 app.get("/feetable", async(req,res)=>{
   const {title, id} = req.query;
   try{
@@ -633,6 +647,7 @@ app.get("/feetable", async(req,res)=>{
   }
 })
 
+//Add Fees Details
 app.post("/fees/add", async (req, res) => {
   const { title, amount, amountDate, admissionDate, pendingAmount, studentId } =
     req.body;
@@ -660,7 +675,10 @@ app.post("/fees/add", async (req, res) => {
   }
 });
 
-// Marks Structure
+
+/* Marks Model */
+
+// Marks Add
 app.post("/add", async (req, res) => {
   const { studentName, standard, examinationType, marks } = req.body;
 
@@ -699,7 +717,10 @@ app.post("/add", async (req, res) => {
   }
 });
 
-// Hostel Structure
+
+/* Hostel Model */
+
+// Get Hostel Data
 app.get('/gethosteldata', async (req, res) => {
   try {
     const result = await prisma.hosteldata.findMany();
@@ -725,6 +746,7 @@ app.get('/gethosteldata', async (req, res) => {
   }
 });
 
+// Posting Hostel Data
 app.post("/hosteldata",async (req, res)=>{
 
   const { name, rollNo, standard, gender, room_no, bed_no } = req.body;
@@ -748,6 +770,7 @@ app.post("/hosteldata",async (req, res)=>{
   }
 });
 
+// Update Hostel Data
 app.post("/updatehostel",async (req, res)=>{
 
   const { rollNo, standard, room_no, bed_no} = req.body;
@@ -772,6 +795,7 @@ app.post("/updatehostel",async (req, res)=>{
   }
 });
 
+// Delete Route for Hostel Data
 app.post("/hostel/delete" , async(req, res)=>{
     const {rollNo, bed_no } = req.body;
 

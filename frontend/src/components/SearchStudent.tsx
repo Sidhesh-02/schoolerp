@@ -33,6 +33,14 @@ const SearchStudent: React.FC = () => {
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [editableStudent, setEditableStudent] = useState<Student | null>(null);
 
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSearch = async () => {
     try {
       const response = await axios.get<Student>(
@@ -44,8 +52,12 @@ const SearchStudent: React.FC = () => {
           },
         }
       );
+      console.log("Response",response.data);
       setSearchResult(response.data);
-      setEditableStudent(response.data);
+      setEditableStudent({
+        ...response.data,
+        dateOfBirth: formatDateForInput(response.data.dateOfBirth),
+      });
     } catch (error) {
       console.error("Error fetching student:", error);
       alert("Failed to fetch student");
@@ -78,8 +90,11 @@ const SearchStudent: React.FC = () => {
         alert("No student data to update.");
         return;
       }
+      console.log("ES",editableStudent);
       await axios.put(`http://localhost:5000/update/student/${editableStudent.id}`, editableStudent);
       alert("Student updated successfully");
+      setSearchResult(null);
+      setEditableStudent(null);
     } catch (error) {
       console.error("Error updating student:", error);
       alert("Failed to update student");
