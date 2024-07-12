@@ -101,6 +101,16 @@ const Student: React.FC = () => {
     setStudent((prev) => ({ ...prev, fees: newFees }));
   };
 
+  const calculatePendingAmount = () => {
+    if (student) {
+      const totalPaid = student.fees.reduce((acc, fee) => acc + fee.amount, 0);
+      const totalAmount = 10500; // assuming the total fee is 10500
+      const pendingAmount = totalAmount - totalPaid;
+      return pendingAmount;
+    }
+    return 0;
+  };
+
   const handleFeeChange2 = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     index: number
@@ -126,8 +136,15 @@ const Student: React.FC = () => {
           amount = 0;
           break;
       }
+
+      const pendingAmount = calculatePendingAmount();
+      if (pendingAmount <= 0) {
+        alert("No pending fees. The student has completed all payments.");
+        return;
+      }
+
       const newFees = [...student.fees];
-      newFees[index] = { ...newFees[index], [name]: value, amount };
+      newFees[index] = { ...newFees[index], [name]: value, amount, pendingAmount : pendingAmount-amount };
       setStudent((prev) => ({ ...prev, fees: newFees }));
     } else {
       const { name, value } = e.target;
