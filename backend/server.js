@@ -223,11 +223,28 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+
 app.get('/studentcount', async (req, res) => {
   try {
       const count = await prisma.student.findMany(); 
       const len = count.length;
-      res.send({len}); 
+      const feeData = await prisma.fee.findMany();
+      const hostelData = await prisma.hosteldata.findMany();
+      
+      let sumFee = 0;
+      let sumPen = 0;
+      let sumBed = 100;
+      feeData.map((key)=>{
+        sumFee = sumFee + key.amount;
+        sumPen = sumPen + key.pendingAmount;
+      })
+      hostelData.map((key)=>{
+        sumBed = sumBed - key.bed_number;
+      })
+      // console.log("Total Bed",sumBed)
+      // console.log("Total Amount",sumFee);
+      // console.log("Pending Fees",sumPen);
+      res.send({len,sumFee,sumPen,sumBed}); 
   } catch (error) {
       console.log(error);
       res.status(500).send({ error: 'Internal Server Error' });
@@ -435,7 +452,7 @@ app.get("/getstandards", async (req, res) => {
 
 // Get Student List wrt Standard for Attendance
 app.get("/getattendancelist", async (req, res) => {
-  const { standard, subjectId } = req.query;
+  const { standard } = req.query;
 
   try {
     const students = await prisma.student.findMany({
