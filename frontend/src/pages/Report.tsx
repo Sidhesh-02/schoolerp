@@ -11,7 +11,6 @@ const Report = () => {
     const studentCount = async () => {
         try {
             const gotCount = await axios.get("http://localhost:5000/studentcount");
-            // console.log(gotCount.data);
             setCount(gotCount.data.len);
             setFee(gotCount.data.sumFee);
             setPenFee(gotCount.data.sumPen);

@@ -9,7 +9,6 @@ import Fees from "./pages/Fees";
 import Hostel from "./pages/Hostel";
 import Marks from "./pages/Marks";
 import ProtectedRoute from "./components/ProtectedRoute";
-import UpdateHostel from "./components/UpdateHostel";
 import Search from "./pages/Search";
 
 interface Auth {
@@ -129,12 +128,6 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route 
-            path="/Hostel/update"  
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={['admin']}>
-                <UpdateHostel/>
-              </ProtectedRoute>}/>
         </Routes>
       </div>
     </div>

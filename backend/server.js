@@ -229,21 +229,24 @@ app.get('/studentcount', async (req, res) => {
       const count = await prisma.student.findMany(); 
       const len = count.length;
       const feeData = await prisma.fee.findMany();
-      const hostelData = await prisma.hosteldata.findMany();
+      const hostelData = await prisma.hosteldata.count();
       
       let sumFee = 0;
       let sumPen = 0;
-      let sumBed = 100;
+      let sumBed = 0;
+      let totalBed = 100;
       feeData.map((key)=>{
         sumFee = sumFee + key.amount;
         sumPen = sumPen + key.pendingAmount;
       })
-      hostelData.map((key)=>{
-        sumBed = sumBed - key.bed_number;
-      })
+      if(hostelData){
+        sumBed = totalBed - hostelData;
+      }
+      // console.log(hostelData);
       // console.log("Total Bed",sumBed)
       // console.log("Total Amount",sumFee);
       // console.log("Pending Fees",sumPen);
+      // console.log("sumbed",sumBed);
       res.send({len,sumFee,sumPen,sumBed}); 
   } catch (error) {
       console.log(error);
@@ -574,7 +577,7 @@ app.get("/downloadattendance", async (req, res) => {
 
 // Get Fees Details
 app.get("/fees/details", async (req, res) => {
-  const { standard, roll_no, download } = req.query;
+  const { standard, roll_no } = req.query;
 
   if (!standard || isNaN(parseInt(roll_no))) {
     return res.status(400).json({ error: "Invalid query parameters" });
@@ -606,53 +609,7 @@ app.get("/fees/details", async (req, res) => {
     if (!result) {
       return res.status(404).json({ error: "Student not found" });
     }
-
-    if (download === "true") {
-      // Convert BigInt fields using jsonBigIntReplacer function
-      const jsonResult = JSON.stringify(result, jsonBigIntReplacer);
-
-      // Prepare data for Excel using exceljs
-      const ExcelJS = require("exceljs");
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet("FeesDetails");
-
-      // Define columns for the worksheet
-      worksheet.columns = [
-        { header: "Title", key: "title", width: 20 },
-        { header: "Amount", key: "amount", width: 15 },
-        { header: "Amount Date", key: "amountDate", width: 15 },
-        { header: "Admission Date", key: "admissionDate", width: 15 },
-        { header: "Pending Amount", key: "pendingAmount", width: 15 },
-      ];
-
-      // Add rows to the worksheet
-      result.fees.forEach((fee) => {
-        worksheet.addRow({
-          title: fee.title,
-          amount: fee.amount,
-          amountDate: fee.amountDate,
-          admissionDate: fee.admissionDate,
-          pendingAmount: fee.pendingAmount,
-        });
-      });
-
-      // Set headers for download
-      res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="fees_details_roll_${roll_no}.xlsx"`
-      );
-
-      // Send Excel file as response
-      await workbook.xlsx.write(res);
-      res.end();
-    } else {
-      // Return JSON response if download is not requested
-      res.status(200).json(result);
-    }
+    res.status(200).json(result);
   } catch (error) {
     console.error("Error fetching fees details:", error);
     res.status(500).json({ error: "An error occurred" });

@@ -1,6 +1,6 @@
 # Student ERP System
 
-![Screenshot 2024-06-28 224156](https://github.com/Aryanryn09/schoolerp/assets/105795148/1513b128-bccb-4f6a-9e86-6dc05cdf7f0f)
+![Screenshot 2024-06-28 224156](C:\Users\sidhe\Pictures\Screenshots\Screenshot 2024-07-12 094449.png)
 
 # ER View
 Student ---< Parent

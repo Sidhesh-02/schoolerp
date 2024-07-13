@@ -122,6 +122,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   return (
     <div>
+      <h2>Get Receipt</h2>
       <div>
             <label>Installment Type</label>
             <select

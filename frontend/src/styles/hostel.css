@@ -1,4 +1,4 @@
-.hostelsec {
+.hostelContainer {
   padding: 20px;
   background-color: #f5f5f5;
   border-radius: 8px;
@@ -9,6 +9,10 @@
 .heading {
   margin-bottom: 20px;
   color: #333;
+}
+
+.selectB{
+  margin-bottom: 6px;
 }
 
 .row {
