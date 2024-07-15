@@ -1,6 +1,11 @@
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import "../styles/marks.css";
+import PerformanceChart from "../components/PerformanceChart";
+import BarChart from "../components/BarChart";
+
 interface FormData {
   standard: string;
   studentName: string;
@@ -143,8 +148,54 @@ const Marks: React.FC = () => {
     }
   };
 
+  const [rollNo, setRollNo] = useState<number>(0);
+  const [std,setStd] = useState<string>('');
+  const [search , setSearch] = useState<any>();
+  const [Exam,setExam] = useState<string>();
+  const [TotalPercentage, setTotalPercentage] = useState<number>(0);
+  
+
+  const calculation  = ()=>{
+    let marks:number = 0;
+    let tmarks:number = 0;
+    search.marks.forEach((e  :any ) => {
+      if(Exam === e.examinationType){
+        marks = marks + e.obtainedMarks;
+        tmarks = tmarks + e.totalMarks;
+      }
+    })
+    const finalmarks : number = (marks/tmarks)*100;
+    setTotalPercentage(finalmarks);
+    
+  }
+  useEffect(() => {
+    if (search && search.marks.length > 0) {
+      calculation();
+    }
+  }, [search, Exam]);
+
+  const submitChange = async()=>{
+    console.log(std)
+    try{
+      const res = await axios.get("http://localhost:5000/marks/search", {
+        params:{
+          rollNo: rollNo,
+          standard : std
+        }
+      })
+      console.log("result: ",JSON.parse(res.data).results);
+      setSearch(JSON.parse(res.data).result)
+      console.log("search : ",search);
+
+    }catch(error){
+        console.log(error)
+    }
+      
+  }
+
+
   return (
-    <div>
+    <div className="global-container">
       <h1>Add Marks</h1>
       {successMessage && <div className="alert">{successMessage}</div>}
       <form onSubmit={handleSubmit}>
@@ -250,6 +301,81 @@ const Marks: React.FC = () => {
         )}
         <button className="CustomButton" type="submit">Add Marks</button>
       </form>
+
+      <br></br>
+      <hr></hr>
+      <h1>Search student Marks </h1>
+      <input type="number" placeholder="Roll no." onChange={(e)=>{setRollNo(Number(e.target.value))}}/>
+      <select
+          name="standard"
+          onChange={(e) =>{setStd(e.target.value)}}
+          required
+        >
+          <option value="">Select Standard</option>
+          {standards.map((standard, index) => (
+            <option key={index} value={standard}>
+              {standard}
+            </option>
+          ))}
+      </select>
+      <select
+            name=""
+            onChange={(e) =>(setExam(e.target.value))}
+            required
+          >
+            <option value="">Select Examination Type</option>
+            <option value="UnitTest">Unit Test</option>
+            <option value="MidTerm">Mid Term</option>
+            <option value="Final">Final</option>
+      </select>
+      <button onClick={submitChange} type="submit">Search</button>
+      <div>
+          {search != null? 
+            <div>
+              <h3>Marks : </h3>
+              <p>{search.fullName}</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th>subjectId</th>
+                    <th>subjectName</th>
+                    <th>obtainedMarks</th>
+                    <th>totalMarks</th>
+                  </tr>
+                </thead>
+                
+              {search.marks.map((e : any)=>{
+                  return(
+                    Exam === e.examinationType ? (
+                      <tbody>
+                      <tr>
+                        <td>{e.subjectId}</td>
+                        <td>{e.subjectName}</td>
+                        <td>{e.obtainedMarks}</td>
+                        <td>{e.totalMarks}</td>
+                      </tr>
+                    </tbody> ) :  (<></>)
+
+                  )
+              })}
+              </table>
+              <br></br>
+              <h3>Total Percentage - {TotalPercentage}%</h3>
+              
+              {search.marks.length > 0 && (
+                <>
+                  <PerformanceChart marks={search.marks} examType={Exam} /> <br/><br/>
+                  <BarChart marks={search.marks} examType={Exam} />
+                </>
+                
+              )}
+
+            </div>
+            
+          
+          :<></>}
+      </div>
+
     </div>
   );
 };

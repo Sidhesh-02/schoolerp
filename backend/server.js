@@ -702,6 +702,31 @@ app.post("/add", async (req, res) => {
   }
 });
 
+app.get("/marks/search", async(req,res)=>{
+  const{rollNo , standard } = req.query;
+  console.log("roll :" , typeof(rollNo), " standard : " , typeof(standard))
+  try{
+    const result = await prisma.student.findFirst({
+      where:{
+        rollNo : parseInt(rollNo),
+        standard : standard
+      },
+      include:{
+        marks : true,
+      }
+    });
+    if (!result) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    // console.log(JSON.stringify({result}, jsonBigIntReplacer))
+    res.status(200).json(JSON.stringify({result}, jsonBigIntReplacer))
+  }catch(error){
+    console.error("Error fetching student marks:", error);
+    res.status(500).json({error : error})
+  }
+})
+
+
 
 /* Hostel Model */
 
