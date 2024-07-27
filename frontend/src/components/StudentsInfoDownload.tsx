@@ -23,7 +23,7 @@ const StudentsInfoDownload: React.FC = () => {
   return (
     <div>
       <h2>Download All Student Data</h2>
-      <button onClick={downloadExcel}>Download Excel</button>
+      <button style={{marginTop:"-2px"}} onClick={downloadExcel}>Download Excel</button>
     </div>
   );
 };

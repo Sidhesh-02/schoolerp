@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "../styles/hostel.css";
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData } from "../utils/api";
 
 const Hostel = () => {
-  
   const [rollNo, setRollNo] = useState<number>();
   const [standard, setStandard] = useState<string | undefined>();
   const [room_no, setRoom] = useState<number | undefined>();
@@ -14,24 +13,20 @@ const Hostel = () => {
   const [show, setShow] = useState<boolean>(false);
   const [data, setData] = useState<any>(null);
   const [res, setRes] = useState<any>(null);
-  const [isUpdating, setIsUpdating] = useState<boolean>(false); 
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   const submit = async () => {
     try {
-      const { data } = await axios.post('http://localhost:5000/hosteldata', {
+      const response = await submitHostelData({
         name: res.fullName,
         rollNo,
         standard,
         gender: res.gender,
         room_no,
         bed_no,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
-      if (data) {
+      if (response.data) {
         alert('Data added successfully');
         window.location.reload();
       }
@@ -48,29 +43,28 @@ const Hostel = () => {
     }
     setOccupied(newOccupied);
 
-    const fetchHostelData = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/gethosteldata');
-        setAvailable(data.available);
+        const response = await fetchHostelData();
+        setAvailable(response.data.available);
       } catch (error) {
         console.log('Error fetching hostel data', error);
       }
     };
 
-    fetchHostelData();
+    fetchData();
   }, []);
 
   const update = () => {
     setIsUpdating(true);
-    setRollNo(data.rollNo); // Set rollNo from data
-    setStandard(data.standard); // Set standard from data
+    setRollNo(data.rollNo);
+    setStandard(data.standard);
   };
-  
 
   const details = async (ele: number) => {
     try {
-      const { data } = await axios.get('http://localhost:5000/gethosteldata');
-      data.result.forEach((e: any) => {
+      const response = await fetchHostelData();
+      response.data.result.forEach((e: any) => {
         if (e.bed_number === ele) {
           setData(e);
           setRoom(e.room_number);
@@ -87,13 +81,8 @@ const Hostel = () => {
 
   const search = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/students/rollNo', {
-        params: {
-          rollno: rollNo,
-          standard,
-        },
-      });
-      setRes(data);
+      const response = await searchStudent(rollNo!, standard);
+      setRes(response.data);
     } catch (error) {
       console.log('Error searching student', error);
     }
@@ -101,15 +90,11 @@ const Hostel = () => {
 
   const Delete = async () => {
     try {
-      await axios.post("http://localhost:5000/hostel/delete", {
+      await deleteHostelData({
         rollNo,
         standard,
         room_no,
         bed_no,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-        }
       });
       alert("Student removed successfully!");
       window.location.reload();
@@ -128,15 +113,11 @@ const Hostel = () => {
 
   const updateHostel = async () => {
     try {
-      await axios.post("http://localhost:5000/updatehostel", {
+      await updateHostelData({
         rollNo,
         standard,
         room_no,
         bed_no,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-        }
       });
       alert("Successfully updated");
       window.location.reload();
@@ -147,17 +128,18 @@ const Hostel = () => {
   };
 
   const goBack = () => {
-    setIsUpdating(false); 
+    setIsUpdating(false);
   };
 
   return (
     <div>
-      <div className='containerA'>
+      <div className="global-container">
         <div>
-          <div className='containerB'>
+          <div>
             <div>
-              <div className='hostelContainer'>
-                <h2 className='heading'>Hostel Accommodation</h2>
+              <div>
+                <h2>Hostel Accommodation</h2>
+                <label>Roll No</label>
                 <input
                   className='inputB'
                   type='number'
@@ -165,6 +147,8 @@ const Hostel = () => {
                   value={rollNo ?? ''}
                   onChange={(e) => { setRollNo(Number(e.target.value)); }}
                 />
+
+                <label>Standard</label>
                 <select
                   className="selectB"
                   value={standard ?? ''}
@@ -184,8 +168,8 @@ const Hostel = () => {
               </div>
 
               {res && (
-                <div className='hostelContainer' >
-                  <h2 className='heading'>Searched Student</h2>
+                <div>
+                  <h2>Searched Student</h2>
                   <div style={{ paddingLeft: "10px" }}>
                     <p>Name: {res.fullName}</p>
                     <p>Gender: {res.gender}</p>
@@ -196,19 +180,16 @@ const Hostel = () => {
                     <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
                   </div>
                   <button onClick={submit}>Save</button>
-                  
                 </div>
               )}
-
             </div>
           </div>
         </div>
       </div>
 
-      <div>
-        
+      <div className="global-container">
         {show ? (
-          <div className="hostelContainer">
+          <div>
             <h2>Occupied By:</h2>
             <div><strong>Name:</strong> {data.name}</div>
             <div><strong>Roll No:</strong> {data.rollNo}</div>
@@ -218,16 +199,14 @@ const Hostel = () => {
             <div><strong>Room Number:</strong> {data.room_number}</div>
             <button onClick={Delete} style={{ background: "#F88379" }}>Delete</button>
             <button style={{ marginLeft: "10px" }} onClick={update}>Update</button>
-            <button style={{marginLeft:"10px"}} onClick={() => { setShow(false); }}>Back</button>
+            <button style={{ marginLeft: "10px" }} onClick={() => { setShow(false); }}>Back</button>
           </div>
         ) : (
           <> </>
         )}
 
-        {/* Update Hostel Section */}
-        {/* Update Hostel Section */}
         {isUpdating && (
-          <div className="hostelContainer">
+          <div>
             <h2>Update Hostel Details</h2>
             <input type="number" placeholder='Roll no.' value={rollNo ?? ''} onChange={(e) => setRollNo(Number(e.target.value))} />
             <select className="selectB" value={standard ?? ''} onChange={(e) => setStandard(e.target.value)}>
@@ -248,24 +227,19 @@ const Hostel = () => {
           </div>
         )}
 
-
-        <div className='hostelContainer'>  
+        <div>
           <div className='row'>
             <h2>Hostel bed rooms:</h2>
             <div>
-              {occupied.map((ele, index) => {
-                return (
-                  <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#76e57a' : '#F88379', marginLeft: '10px' }}>
-                    {ele}
-                  </button>
-                );
-              })}
+              {occupied.map((ele, index) => (
+                <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#76e57a' : '#F88379', marginLeft: '10px' }}>
+                  {ele}
+                </button>
+              ))}
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 };

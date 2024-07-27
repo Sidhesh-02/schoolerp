@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { createStudent, uploadPhoto } from "../utils/api";
 import "../styles/student.css";
 import UploadStudents from "../components/UploadStudents";
 
@@ -72,11 +72,11 @@ const Student: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/students", student);
-      console.log(response.data);
+      const data = await createStudent(student);
+      console.log(data);
       alert("Student created successfully");
     } catch (error) {
-      console.error("Error creating student:", error);
+      console.error(error);
       alert("Failed to create student");
     }
   };
@@ -101,22 +101,13 @@ const Student: React.FC = () => {
     setStudent((prev) => ({ ...prev, fees: newFees }));
   };
 
-  const calculatePendingAmount = () => {
-    if (student) {
-      const totalPaid = student.fees.reduce((acc, fee) => acc + fee.amount, 0);
-      const totalAmount = 10500; // assuming the total fee is 10500
-      const pendingAmount = totalAmount - totalPaid;
-      return pendingAmount;
-    }
-    return 0;
-  };
-
   const handleFeeChange2 = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     index: number
   ) => {
     const { name, value } = e.target;
-
+    const newFees = [...student.fees];
+    
     if (name === "installmentType") {
       let amount = 0;
       switch (value) {
@@ -136,38 +127,30 @@ const Student: React.FC = () => {
           amount = 0;
           break;
       }
-
-      const pendingAmount = calculatePendingAmount();
-      if (pendingAmount <= 0) {
-        alert("No pending fees. The student has completed all payments.");
-        return;
-      }
-
-      const newFees = [...student.fees];
-      newFees[index] = { ...newFees[index], [name]: value, amount, pendingAmount : pendingAmount-amount };
-      setStudent((prev) => ({ ...prev, fees: newFees }));
+  
+      newFees[index] = { ...newFees[index], [name]: value, amount };
     } else {
-      const { name, value } = e.target;
-      const newFees = [...student.fees];
       newFees[index] = { ...newFees[index], [name]: value };
-      setStudent((prev) => ({ ...prev, fees: newFees }));
     }
+  
+    // Calculate the new pending amount
+    const totalPaid = newFees.reduce((acc, fee) => acc + fee.amount, 0);
+    const totalAmount = 10500; // Total amount for all installments
+    const updatedPendingAmount = totalAmount - totalPaid;
+  
+    newFees[index] = { ...newFees[index], pendingAmount: Math.max(updatedPendingAmount, 0) };
+  
+    setStudent((prev) => ({ ...prev, fees: newFees }));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const response = await axios.post<string>('http://localhost:5000/uploadPhoto', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        setStudent((prev) => ({ ...prev, photoUrl: response.data }));
+        const photoUrl = await uploadPhoto(file);
+        setStudent((prev) => ({ ...prev, photoUrl }));
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error(error);
         alert('Failed to upload image');
       }
     }
@@ -175,10 +158,10 @@ const Student: React.FC = () => {
 
   return (
     <div>
-      <div style={{backgroundColor : "#f4f4f4", padding : "15px", borderRadius: "4px"}}>
+      <div className="global-container">
           <UploadStudents/>
       </div>
-      <div style={{backgroundColor : "#f4f4f4", padding : "15px", borderRadius: "4px", marginTop:"10px"}}>
+      <div className="global-container">
         <h2>Create Student Profile</h2>
         <div>
           <label>Upload Photo</label>
@@ -216,6 +199,7 @@ const Student: React.FC = () => {
         <div>
           <label>Date of Birth</label>
           <input
+            className="studentInput"
             type="date"
             name="dateOfBirth"
             value={student.dateOfBirth}
@@ -289,11 +273,10 @@ const Student: React.FC = () => {
             }
           ></textarea>
         </div>
-
-        <h3>Parent Information</h3>
-        {student.parents.map((parent, index) => (
-          <div key={index}>
-            <div>
+        <div>
+          <h3>Parents</h3>
+          {student.parents.map((parent, index) => (
+            <div key={index}>
               <label>Father Name</label>
               <input
                 className="StudentInput"
@@ -302,8 +285,6 @@ const Student: React.FC = () => {
                 value={parent.fatherName}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Father Occupation</label>
               <input
                 className="StudentInput"
@@ -312,8 +293,6 @@ const Student: React.FC = () => {
                 value={parent.fatherOccupation}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Mother Name</label>
               <input
                 className="StudentInput"
@@ -322,8 +301,6 @@ const Student: React.FC = () => {
                 value={parent.motherName}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Mother Occupation</label>
               <input
                 className="StudentInput"
@@ -332,8 +309,6 @@ const Student: React.FC = () => {
                 value={parent.motherOccupation}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Father Contact</label>
               <input
                 className="StudentInput"
@@ -342,8 +317,6 @@ const Student: React.FC = () => {
                 value={parent.fatherContact}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Mother Contact</label>
               <input
                 className="StudentInput"
@@ -352,78 +325,71 @@ const Student: React.FC = () => {
                 value={parent.motherContact}
                 onChange={(e) => handleParentChange(e, index)}
               />
-            </div>
-            <div>
               <label>Address</label>
               <textarea
+                className="StudentInput"
                 name="address"
                 value={parent.address}
                 onChange={(e) => handleParentChange(e, index)}
               ></textarea>
             </div>
-          </div>
-        ))}
-
-        <h3>Fee Information</h3>
-        {student.fees.map((fee, index) => (
-          <div key={index}>
-            <div>
+          ))}
+        </div>
+        <div>
+          <h3>Fees</h3>
+          {student.fees.map((fee, index) => (
+            <div key={index}>
               <label>Installment Type</label>
               <select
                 name="installmentType"
                 value={fee.installmentType}
                 onChange={(e) => handleFeeChange2(e, index)}
               >
-                <option value="">Select Installment</option>
                 <option value="Total">Total</option>
                 <option value="1st">1st</option>
                 <option value="2nd">2nd</option>
                 <option value="3rd">3rd</option>
               </select>
-            </div>
-            <div>
+
               <label>Amount</label>
               <input
-                className="StudentInput"
+                className="studentInput"
                 type="number"
                 name="amount"
                 value={fee.amount}
                 onChange={(e) => handleFeeChange(e, index)}
               />
-            </div>
-            <div>
+
               <label>Amount Date</label>
               <input
-                className="StudentInput"
+                className="studentInput"
                 type="date"
                 name="amountDate"
                 value={fee.amountDate}
                 onChange={(e) => handleFeeChange(e, index)}
               />
-            </div>
-            <div>
               <label>Admission Date</label>
               <input
-                className="StudentInput"
+                className="studentInput"
                 type="date"
                 name="admissionDate"
                 value={fee.admissionDate}
                 onChange={(e) => handleFeeChange(e, index)}
               />
-            </div>
-            <div>
               <label>Pending Amount</label>
               <input
-                className="StudentInput"
+                className="studentInput"
                 type="number"
                 name="pendingAmount"
                 value={fee.pendingAmount}
                 onChange={(e) => handleFeeChange(e, index)}
               />
             </div>
-          </div>
-        ))}
-        <button onClick={handleSubmit}>Submit</button>
+          ))}
+        </div>
+        <button type="button" onClick={handleSubmit}>
+          Submit
+        </button>
       </div>
     </div>
   );

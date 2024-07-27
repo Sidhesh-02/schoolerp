@@ -18,6 +18,7 @@ interface Auth {
 
 const App: React.FC = () => {
   const [auth, setAuth] = useState<Auth | null>(null);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(true); // Add this line
 
   useEffect(() => {
     const storedAuth = localStorage.getItem("auth");
@@ -47,10 +48,10 @@ const App: React.FC = () => {
 
   if (!auth) {
     return (
-      <form className="login"action="">
+      <form className="login" action="">
         <div>
-          <input className="credential" type="text" placeholder="Username" id="username" /><br/>
-          <input className="credential" type="password" placeholder="Password" id="password" /><br/>
+          <input className="studentInput" type="text" placeholder="Username" id="username" /><br />
+          <input className="studentInput" type="password" placeholder="Password" id="password" /><br />
           <button
             onClick={() =>
               login(
@@ -67,70 +68,83 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="App">
-      <Navbar auth={auth} logout={logout} />
-      <div className="content-wrapper">
-        <Routes>
-          <Route path="/" element={<Navigate to="/Report" />} />
-          <Route
-            path="/Report"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <Report />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Student"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <Student />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Search"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <Search />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Attendance"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["teacher", "admin"]}>
-                <Attendance />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Fees"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <Fees />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Hostel"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                <Hostel />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Marks"
-            element={
-              <ProtectedRoute auth={auth} allowedRoles={["teacher", "admin"]}>
-                <Marks />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+    <div>
+      <div style={{ backgroundColor: "#f4e3e3",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>2024 - Designed & Developed by SVPCET Software Developer Team</div>
+        <button className="nullify-button" style={{fontSize:"15px"}} onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
+          {isNavbarOpen ? "Close" : "Open"}
+        </button>
+      </div>
+
+      <div className="App">
+        {isNavbarOpen && <Navbar auth={auth} logout={logout} />}
+        <div className="content-wrapper">
+          <header>
+            <h1>Sacred Heart School</h1>
+          </header>
+          <Routes>
+            <Route path="/" element={<Navigate to="/Report" />} />
+            <Route
+              path="/Report"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Report />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Student"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Student />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Search"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Search />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Attendance"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["teacher", "admin"]}>
+                  <Attendance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Fees"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Fees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Hostel"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Hostel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Marks"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["teacher", "admin"]}>
+                  <Marks />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
       </div>
     </div>
+
   );
 };
 

@@ -1,9 +1,10 @@
 import React from 'react';
+import { downloadAttendance } from '../utils/api';
 
 const DownloadAttendance: React.FC = () => {
   const handleDownload = async () => {
     try {
-      const response = await fetch('http://localhost:5000/downloadattendance');
+      const response = await downloadAttendance();
       if (!response.ok) {
         throw new Error('Failed to download attendance records');
       }
@@ -23,7 +24,7 @@ const DownloadAttendance: React.FC = () => {
   };
 
   return (
-    <div>
+    <div style={{marginTop:"-20px"}}>
       <button onClick={handleDownload}>Download Attendance</button>
     </div>
   );

@@ -26,16 +26,11 @@ const Report = () => {
 
     return (
         <>
-            Reports
             <div>
                 <div className="Dashboard">
                     {/* Student Data */}
                     <h3>Total Students</h3>
                     <h3 className="data">{count} students</h3>
-
-                    {/* Attendance Data
-                    <h3>Absent Students</h3>
-                    <h3>0</h3> */}
                     
                     {/* Fee Data */}
                     <h3>Total Money Collected</h3>

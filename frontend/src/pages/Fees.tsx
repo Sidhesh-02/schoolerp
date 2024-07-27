@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+import { fetchStudentFees, addFeeInstallment } from "../utils/api";
 import "../styles/fee.css";
-import axios from "axios";
 import FeeReicpts from "../components/FeeReicpts";
 
 interface Fee {
@@ -24,7 +24,6 @@ const Fees: React.FC = () => {
   const [rollNo, setRollNo] = useState("");
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
-
   const [newInstallment, setNewInstallment] = useState<Fee>({
     title: "",
     amount: 0,
@@ -34,20 +33,15 @@ const Fees: React.FC = () => {
   });
 
   const search = async () => {
+    if (!standard || !rollNo) {
+      alert("Please enter both Standard and Roll_no.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      if (!standard || !rollNo) {
-        alert("Please enter both Standard and Roll_no.");
-        return;
-      }
-
-      setLoading(true);
-
-      const res = await axios.get("http://localhost:5000/fees/details", {
-        params: {
-          standard: standard.trim(),
-          roll_no: rollNo.trim(),
-        },
-      });
+      const res = await fetchStudentFees(standard, rollNo);
 
       if (res.data && !res.data.error) {
         setStudent(res.data);
@@ -57,9 +51,7 @@ const Fees: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching fees details", error);
-      alert(
-        "An error occurred while fetching fees details. Please try again later."
-      );
+      alert("An error occurred while fetching fees details. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -71,13 +63,10 @@ const Fees: React.FC = () => {
     setStudent(null);
   };
 
- 
-
   const handleAddInstallmentChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
     let amount = newInstallment.amount;
 
     if (name === "title") {
@@ -105,35 +94,32 @@ const Fees: React.FC = () => {
     if (student) {
       const totalPaid = student.fees.reduce((acc, fee) => acc + fee.amount, 0);
       const totalAmount = 10500; // assuming the total fee is 10500
-      const pendingAmount = totalAmount - totalPaid;
-      return pendingAmount;
+      return totalAmount - totalPaid;
     }
     return 0;
   };
 
   const addInstallment = async () => {
+    if (!student) {
+      alert("No student data available.");
+      return;
+    }
+
+    const pendingAmount = calculatePendingAmount();
+    if (pendingAmount <= 0) {
+      alert("No pending fees. The student has completed all payments.");
+      return;
+    }
+
+    const updatedInstallment = {
+      ...newInstallment,
+      admissionDate: student.fees[0].admissionDate,
+      pendingAmount: pendingAmount - newInstallment.amount,
+      studentId: student.id,
+    };
+
     try {
-      if (!student) {
-        alert("No student data available.");
-        return;
-      }
-
-      const pendingAmount = calculatePendingAmount();
-      if (pendingAmount <= 0) {
-        alert("No pending fees. The student has completed all payments.");
-        return;
-      }
-      const updatedInstallment = {
-        ...newInstallment,
-        admissionDate: student.fees[0].admissionDate,
-        pendingAmount: pendingAmount - newInstallment.amount,
-        studentId: student.id,
-      };
-
-      const res = await axios.post(
-        "http://localhost:5000/fees/add",
-        updatedInstallment
-      );
+      const res = await addFeeInstallment(updatedInstallment);
 
       if (res.data && !res.data.error) {
         setStudent((prevStudent) => {
@@ -157,9 +143,7 @@ const Fees: React.FC = () => {
       }
     } catch (error) {
       console.error("Error adding installment", error);
-      alert(
-        "An error occurred while adding installment. Please try again later."
-      );
+      alert("An error occurred while adding installment. Please try again later.");
     }
   };
 
@@ -167,7 +151,7 @@ const Fees: React.FC = () => {
     <div>
       <div className="fee-container">
         <h1 className="fee-header">Fee System</h1>
-        <div className="fee-form">
+        <div>
           <div>
             <label>Standard</label>
             <select
@@ -186,17 +170,17 @@ const Fees: React.FC = () => {
               <option value="5th">5th</option>
             </select>
           </div>
-          
+
+          <label>Roll No</label>
           <input
             type="text"
             placeholder="Roll No"
-            className="FeeInput"
+            className="StudentInput"
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             required
             disabled={loading}
           />
-          
           <div className="fee-buttons">
             <button onClick={search} style={{ marginRight: "20px" }} disabled={loading}>
               Search
@@ -210,7 +194,6 @@ const Fees: React.FC = () => {
 
       {student && (
         <div>
-
           <div className="fee-container">
             <h3>Name: {student.fullName}</h3>
             <h3>Roll No: {student.rollNo}</h3>
@@ -263,6 +246,7 @@ const Fees: React.FC = () => {
             </div>
             <button onClick={addInstallment}>Add Installment</button>
           </div>
+
           <div className="fee-container">
             <FeeReicpts id={student.id} name={student.fullName} />
           </div>

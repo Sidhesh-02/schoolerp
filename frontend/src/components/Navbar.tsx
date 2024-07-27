@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
 
 interface NavbarProps {
@@ -24,13 +24,19 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
           links
             .filter((link) => link.roles.includes(auth.role))
             .map((link) => (
-              <li key={`link-${link.name}`} className="app_flex p-text">
-                <Link to={`/${link.name}`}>{link.name}</Link>
+              <li key={`link-${link.name}`}>
+                <NavLink
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                  to={`/${link.name}`}
+                  style={{ fontSize: "20px" }}
+                >
+                  {link.name}
+                </NavLink>
               </li>
             ))}
       </ul>
       {auth && (
-        <button onClick={logout} className="logout-button">
+        <button className="logout" onClick={logout}>
           Logout
         </button>
       )}

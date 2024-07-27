@@ -1,7 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/DownloadAttendance";
 import "../styles/attendance.css";
+import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../utils/api";
 
 interface Student {
   id: number;
@@ -30,49 +30,32 @@ const Attendance: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStandards();
-    fetchSubjects();
+    fetchStandardsList();
+    fetchSubjectsList();
   }, []);
 
-  const fetchStandards = async () => {
+  const fetchStandardsList = async () => {
     try {
-      const response = await fetch("http://localhost:5000/getstandards");
-      if (response.ok) {
-        const data = await response.json();
-        setStandards(data.standards);
-      } else {
-        console.error("Failed to fetch standards");
-      }
+      const response = await fetchStandards();
+      setStandards(response.data.standards);
     } catch (error) {
       console.error("Error fetching standards:", error);
     }
   };
 
-  const fetchSubjects = async () => {
+  const fetchSubjectsList = async () => {
     try {
-      const response = await fetch("http://localhost:5000/getsubjects");
-      if (response.ok) {
-        const data = await response.json();
-        setSubjects(data);
-      } else {
-        console.error("Failed to fetch subjects");
-      }
+      const response = await fetchSubjects();
+      setSubjects(response.data);
     } catch (error) {
       console.error("Error fetching subjects:", error);
     }
   };
 
-  const fetchStudents = async (standard: string) => {
+  const fetchStudentsList = async (standard: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/getattendancelist?standard=${standard}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data);
-      } else {
-        console.error("Failed to fetch students");
-      }
+      const response = await fetchStudents(standard);
+      setStudents(response.data);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
@@ -82,7 +65,7 @@ const Attendance: React.FC = () => {
     const value = e.target.value;
     setSelectedStandard(value);
     if (value) {
-      fetchStudents(value);
+      fetchStudentsList(value);
     } else {
       setStudents([]);
     }
@@ -117,19 +100,8 @@ const Attendance: React.FC = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/submitattendance", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        alert("Attendance recorded successfully");
-      } else {
-        throw new Error("Failed to record attendance");
-      }
+      await submitAttendance(data);
+      alert("Attendance recorded successfully");
     } catch (error) {
       console.error("Error recording attendance:", error);
       alert("Failed to record attendance");
@@ -137,9 +109,13 @@ const Attendance: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Attendance System</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="global-container">
+
+      <h2>Download Attendance</h2>
+      <DownloadAttendance />
+      
+      <h2>Attendance Markup</h2>
+      <form style={{marginTop:"-8px"}} onSubmit={handleSubmit}>
         <label htmlFor="standard">Select Standard:</label>
         <select
           id="standard"
@@ -182,6 +158,7 @@ const Attendance: React.FC = () => {
         </select>
 
         <div>
+          
           <h4>Mark Absent Students:</h4>
           {students.map((student) => (
             <div className="AttendanceList" key={student.id}>
@@ -203,8 +180,6 @@ const Attendance: React.FC = () => {
           Submit Attendance
         </button>
       </form>
-
-      <DownloadAttendance />
     </div>
   );
 };

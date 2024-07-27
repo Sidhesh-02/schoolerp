@@ -242,11 +242,6 @@ app.get('/studentcount', async (req, res) => {
       if(hostelData){
         sumBed = totalBed - hostelData;
       }
-      // console.log(hostelData);
-      // console.log("Total Bed",sumBed)
-      // console.log("Total Amount",sumFee);
-      // console.log("Pending Fees",sumPen);
-      // console.log("sumbed",sumBed);
       res.send({len,sumFee,sumPen,sumBed}); 
   } catch (error) {
       console.log(error);
@@ -331,6 +326,21 @@ app.delete("/delete/students", async (req, res) => {
   }
 });
 
+//Search Students
+app.get("/getallstudent", async(req,res)=>{
+  const { std } = req.query;
+  try{
+    const result = await prisma.student.findMany({
+      where :{
+        standard : std
+      }
+    })
+    res.status(200).json(JSON.parse(JSON.stringify({result}, jsonBigIntReplacer)));
+  }catch(error){
+    res.status(400).json(error)
+  }
+})
+
 //Get searched student by rollno.:
 app.get("/students/rollNo", async (req, res) => {
   const { rollno, standard } = req.query;
@@ -353,7 +363,6 @@ app.get("/students/rollNo", async (req, res) => {
     });
 
     if (student) {
-      // console.log("Backend data from postgress ", student);
       res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
     } else {
       res.status(404).json({ message: "Student not found" });
@@ -704,7 +713,6 @@ app.post("/add", async (req, res) => {
 
 app.get("/marks/search", async(req,res)=>{
   const{rollNo , standard } = req.query;
-  console.log("roll :" , typeof(rollNo), " standard : " , typeof(standard))
   try{
     const result = await prisma.student.findFirst({
       where:{
@@ -718,7 +726,6 @@ app.get("/marks/search", async(req,res)=>{
     if (!result) {
       return res.status(404).json({ message: "Student not found" });
     }
-    // console.log(JSON.stringify({result}, jsonBigIntReplacer))
     res.status(200).json(JSON.stringify({result}, jsonBigIntReplacer))
   }catch(error){
     console.error("Error fetching student marks:", error);

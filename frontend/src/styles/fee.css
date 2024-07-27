@@ -13,20 +13,6 @@
   margin-bottom: 20px;
 }
 
-.fee-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.fee-form input {
-  width: 98%;
-  padding: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 .fee-buttons {
   margin-bottom: 20px;
 }

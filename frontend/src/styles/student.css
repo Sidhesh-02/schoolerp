@@ -15,18 +15,6 @@ label {
   color: #555;
 }
 
-input.StudentInput[type="text"],
-input[type="date"],
-input[type="number"],
-select,
-textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: 5px;
-  box-sizing: border-box;
-}
 
 textarea {
   resize: vertical;

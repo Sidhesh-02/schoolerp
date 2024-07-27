@@ -1,11 +1,19 @@
-body{
-  margin: 0;
-  padding: 0;
-}
-
 .App {
   min-height: 100vh;
   display: flex;
+}
+
+.toggle-button {
+  transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #76e57a;
+}
+
+/* Add this to hide the navbar when closed */
+.navbar-hidden {
+  display: none;
 }
 
 .content-wrapper {
@@ -23,18 +31,37 @@ li {
   margin: 10px 0;
 }
 
+.global-container{
+  background-color: #f4f4f4;
+  margin-top: 15px;
+  padding : 15px;
+}
+
 button {
   margin-top: 20px;
   padding: 10px 20px;
   background-color: #87ff89;
+  border: 1px solid;
   color: #000000;
-  border: none;
   cursor: pointer;
 }
 
 button:hover {
   background-color: #000000;
   color: white;
+}
+
+.nullify-button {
+  margin-top: 0;
+  padding: 0;
+  background-color: initial;
+  border: none;
+  color: initial;
+}
+
+.nullify-button:hover {
+  background-color: initial;
+  color: initial;
 }
 
 .class-dropdown {
@@ -59,15 +86,6 @@ input {
   height: 100vh;
 }
 
-input.credential[type="text"],
-input.credential[type="password"] {
-  width: 92%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
 .login button {
   width: 270px;
   padding: 10px;
@@ -85,3 +103,17 @@ input.credential[type="password"] {
   background-color: #76e57a;
 }
 
+input.StudentInput,
+input[type="date"],
+input[type="number"],
+input[type="text"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  background-color: ghostwhite;
+  border: 1px solid;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
