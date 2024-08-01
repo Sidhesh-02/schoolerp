@@ -2,23 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import axios from "axios";
+import { feetable } from "../../utils/api";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
-    console.log("Id and Name", id,name)
 
   const [title ,setTitle] = useState<string>('');
   const [, setFeedata] = useState<any>();
   
   const fetchFeeData = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/feetable", {
-        params: {
-          id,
-          title,
-        },
-      });
-      console.log(data)
+      const { data } = await feetable(id,title);
       setFeedata(data[0]);
       generateWordDocument(data[0]);
     } catch (error) {

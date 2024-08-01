@@ -70,10 +70,10 @@ const App: React.FC = () => {
   return (
     <div>
       <div style={{ backgroundColor: "#f4e3e3",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-        <div>2024 - Designed & Developed by SVPCET Software Developer Team</div>
         <button className="nullify-button" style={{fontSize:"15px"}} onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
-          {isNavbarOpen ? "Close" : "Open"}
+          {isNavbarOpen ? "Close Navigation" : "Open Nagivation"}
         </button>
+        <div>Developed by SVPCET Software Developer Team - 2024</div>
       </div>
 
       <div className="App">

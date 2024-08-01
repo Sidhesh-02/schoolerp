@@ -1,16 +1,14 @@
 import React from 'react';
-import axios from 'axios';
+import { downloadStudentsExcel } from '../../utils/api';
 
 const StudentsInfoDownload: React.FC = () => {
   const downloadExcel = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/excelstudents', {
-        responseType: 'blob', 
-      });
+      const response = await downloadStudentsExcel();
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'students_data.xlsx'); // file name for the downloaded file
+      link.setAttribute('download', 'students_data.xlsx');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -23,7 +21,7 @@ const StudentsInfoDownload: React.FC = () => {
   return (
     <div>
       <h2>Download All Student Data</h2>
-      <button style={{marginTop:"-2px"}} onClick={downloadExcel}>Download Excel</button>
+      <button style={{ marginTop: '-2px' }} onClick={downloadExcel}>Download Excel</button>
     </div>
   );
 };

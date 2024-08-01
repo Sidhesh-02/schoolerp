@@ -3,8 +3,8 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../utils/api";
 import "../styles/marks.css";
-import PerformanceChart from "../components/PerformanceChart";
-import BarChart from "../components/BarChart";
+import PerformanceChart from "../components/Marks/PerformanceChart";
+import BarChart from "../components/Marks/BarChart";
 
 interface FormData {
   standard: string;

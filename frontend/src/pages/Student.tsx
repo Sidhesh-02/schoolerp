@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createStudent, uploadPhoto } from "../utils/api";
 import "../styles/student.css";
-import UploadStudents from "../components/UploadStudents";
+import UploadStudents from "../components/Student/AppendStudentExcel";
 
 interface Student {
   fullName: string;
@@ -246,6 +246,8 @@ const Student: React.FC = () => {
             className="StudentInput"
             type="text"
             name="adhaarCardNo"
+            maxLength={12}
+            required
             value={student.adhaarCardNo}
             onChange={(e) =>
               setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))
@@ -316,6 +318,8 @@ const Student: React.FC = () => {
                 name="fatherContact"
                 value={parent.fatherContact}
                 onChange={(e) => handleParentChange(e, index)}
+                maxLength={10}
+                minLength={10}
               />
               <label>Mother Contact</label>
               <input
@@ -324,6 +328,8 @@ const Student: React.FC = () => {
                 name="motherContact"
                 value={parent.motherContact}
                 onChange={(e) => handleParentChange(e, index)}
+                maxLength={10}
+                minLength={10}
               />
               <label>Address</label>
               <textarea

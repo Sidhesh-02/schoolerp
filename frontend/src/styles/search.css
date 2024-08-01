@@ -8,23 +8,23 @@
   font-weight: bold;
 }
 
-.profile-header {
+/* .profile-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
-}
+} */
 
 .profile-header h3 {
   margin: 0;
 }
 
-.profile-photo {
+/* .profile-photo {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 .profile-photo img {
   max-width: 150px;
@@ -54,7 +54,5 @@
 
 .profile-section .profile-field p {
   flex: 2;
-  margin: 0;
-  color: #000;
 }
 

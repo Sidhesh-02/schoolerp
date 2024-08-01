@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { fetchStudentFees, addFeeInstallment } from "../utils/api";
 import "../styles/fee.css";
-import FeeReicpts from "../components/FeeReicpts";
+import FeeReicpts from "../components/Fees/FeeReicpts";
 
 interface Fee {
   title: string;

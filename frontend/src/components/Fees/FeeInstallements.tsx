@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 interface AddFeeProps {
-  addFee: (fee: Fee) => void; // Callback function to add fee
+  addFee: (fee: Fee) => void;
 }
 
 interface Fee {
@@ -27,7 +27,7 @@ const AddFee: React.FC<AddFeeProps> = ({ addFee }) => {
   };
 
   const handleAddFee = () => {
-    addFee(fee); // Call the parent component's addFee function with the current fee state
+    addFee(fee); 
     setFee({
       title: '',
       amount: 0,

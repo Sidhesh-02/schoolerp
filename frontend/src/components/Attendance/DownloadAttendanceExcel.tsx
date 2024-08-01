@@ -1,5 +1,5 @@
 import React from 'react';
-import { downloadAttendance } from '../utils/api';
+import { downloadAttendance } from '../../utils/api';
 
 const DownloadAttendance: React.FC = () => {
   const handleDownload = async () => {

@@ -61,7 +61,7 @@ button:hover {
 
 .nullify-button:hover {
   background-color: initial;
-  color: initial;
+  color: blue;
 }
 
 .class-dropdown {

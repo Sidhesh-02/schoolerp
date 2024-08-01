@@ -1,6 +1,6 @@
-import StudentsInfoDownload from '../components/StudentsInfoDownload';
-import SearchStudent from '../components/SearchStudent';
-import Searchall from '../components/Searchall';
+import StudentsInfoDownload from '../components/Student/RetriveStudentExcel';
+import SearchStudent from '../components/Search/SearchStudent';
+import Searchall from '../components/Search/SearchAllStudents';
 import "../styles/search.css"
 
 const Search: React.FC = () => {

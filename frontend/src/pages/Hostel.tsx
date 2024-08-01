@@ -208,7 +208,9 @@ const Hostel = () => {
         {isUpdating && (
           <div>
             <h2>Update Hostel Details</h2>
+            <label>Roll No</label>
             <input type="number" placeholder='Roll no.' value={rollNo ?? ''} onChange={(e) => setRollNo(Number(e.target.value))} />
+            <label>Standard</label>
             <select className="selectB" value={standard ?? ''} onChange={(e) => setStandard(e.target.value)}>
               <option value=''>Select standard</option>
               <option value='lkg1'>Lkg1</option>
@@ -220,7 +222,9 @@ const Hostel = () => {
               <option value='4th'>4th</option>
               <option value='5th'>5th</option>
             </select>
+            <label>Room No</label>
             <input type="number" placeholder='Room no.' onChange={(e) => setRoom(Number(e.target.value))} /><br />
+            <label>Bed No</label>
             <input type="number" placeholder='Bed no.' onChange={(e) => setBed(Number(e.target.value))} /><br />
             <button onClick={updateHostel}>Update</button>
             <button onClick={goBack} style={{ marginLeft: "10px" }}>Back</button>

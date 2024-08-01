@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import "../styles/report.css"
+import { report } from "../utils/api";
 
 const Report = () => {
     const [count, setCount] = useState(0);
@@ -10,7 +10,7 @@ const Report = () => {
 
     const studentCount = async () => {
         try {
-            const gotCount = await axios.get("http://localhost:5000/studentcount");
+            const gotCount = await report();
             setCount(gotCount.data.len);
             setFee(gotCount.data.sumFee);
             setPenFee(gotCount.data.sumPen);

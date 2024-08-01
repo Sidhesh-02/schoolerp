@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { deleteStudent, searchStudent, updateStudent } from "../../utils/api";
 
 interface Student {
   id: number;
@@ -43,16 +43,7 @@ const SearchStudent: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.get<Student>(
-        "http://localhost:5000/students/rollNo",
-        {
-          params: {
-            rollno: rollNo,
-            standard: standard,
-          },
-        }
-      );
-      console.log("Response",response.data);
+      const response = await searchStudent(parseInt(rollNo), standard);
       setSearchResult(response.data);
       setEditableStudent({
         ...response.data,
@@ -70,11 +61,7 @@ const SearchStudent: React.FC = () => {
         alert("Please search and select a valid student to delete.");
         return;
       }
-      await axios.delete("http://localhost:5000/delete/students", {
-        params: {
-          studentId: searchResult.id,
-        },
-      });
+      await deleteStudent(searchResult.id);
       alert("Student deleted successfully");
       setSearchResult(null); // Clear the search result after deletion
       setEditableStudent(null); // Clear the editable student state
@@ -90,8 +77,7 @@ const SearchStudent: React.FC = () => {
         alert("No student data to update.");
         return;
       }
-      console.log("ES",editableStudent);
-      await axios.put(`http://localhost:5000/update/student/${editableStudent.id}`, editableStudent);
+      await updateStudent(editableStudent.id,editableStudent);
       alert("Student updated successfully");
       setSearchResult(null);
       setEditableStudent(null);
@@ -153,14 +139,16 @@ const SearchStudent: React.FC = () => {
 
       {searchResult && (
         <div>
+          <h2 style={{paddingTop:"10px"}}>Student Profile</h2>
           <div className="profile-container">
             <div className="profile-header">
-              <h3>Student Profile</h3>
-              {searchResult.photoUrl && (
-                <div className="profile-photo">
-                  <img src={searchResult.photoUrl} alt="Student Photo" />
-                </div>
-              )}
+              <div>
+                {searchResult.photoUrl && (
+                  <div className="profile-photo">
+                    <img src={searchResult.photoUrl} alt="Student Photo" />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="profile-section">
@@ -310,7 +298,7 @@ const SearchStudent: React.FC = () => {
             <div>
               <label>Scholarship Applied:</label>
               <input
-                className="StudentInput"
+                
                 type="checkbox"
                 name="scholarshipApplied"
                 checked={editableStudent.scholarshipApplied}

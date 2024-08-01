@@ -1,15 +1,6 @@
 import axios from "axios";
 import Student from "../pages/Student";
 
-export const createStudent = async (student: Student) => {
-  try {
-    const response = await axios.post("http://localhost:5000/students", student);
-    return response.data;
-  } catch (error) {
-    throw new Error("Error creating student");
-  }
-};
-
 export const uploadPhoto = async (file: File) => {
   try {
     const formData = new FormData();
@@ -23,6 +14,71 @@ export const uploadPhoto = async (file: File) => {
   } catch (error) {
     throw new Error("Error uploading image");
   }
+};
+
+export const report = async () => {
+  return await axios.get("http://localhost:5000/studentcount");
+};
+
+
+//Student Operations
+export const createStudent = async (student: Student) => {
+  try {
+    const response = await axios.post("http://localhost:5000/students", student);
+    return response.data;
+  } catch (error) {
+    throw new Error("Error creating student");
+  }
+};
+
+export const updateStudent = async (studentId: number, studentData: unknown) => {
+  try {
+    await axios.put(`http://localhost:5000/update/student/${studentId}`, studentData);
+  } catch (error) {
+    console.error("Error updating student:", error);
+    throw error;
+  }
+};
+
+export const deleteStudent = async (studentId: number) => {
+  try {
+    await axios.delete("http://localhost:5000/delete/students", {
+      params: {
+        studentId: studentId,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    throw error;
+  }
+};
+
+export const fetchAllStudents = async (std: string) => {
+  try {
+    const response = await axios.get("http://localhost:5000/getallstudent", {
+      params: { std },
+    });
+    return response.data.result;
+  } catch (error) {
+    throw new Error("Error fetching students");
+  }
+};
+
+export const downloadStudentsExcel = async () => {
+  return await axios.get('http://localhost:5000/excelstudents', {
+    responseType: 'blob',
+  });
+};
+
+export const uploadStudentsFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return await axios.post('http://localhost:5000/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 // Attendance Routes
@@ -114,6 +170,17 @@ export const fetchHostelData = async () => {
   export const addFeeInstallment = async (installment: unknown) => {
     return await axios.post("http://localhost:5000/fees/add", installment);
   };
+
+  export const feetable = async (id:number,title:string)=>{
+    const res = await axios.get("http://localhost:5000/feetable", {
+      params: {
+        id,
+        title,
+      },
+    });
+
+    return res;
+  }
 
 
 
