@@ -73,7 +73,9 @@ const App: React.FC = () => {
         <button className="nullify-button" style={{fontSize:"15px"}} onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
           {isNavbarOpen ? "Close Navigation" : "Open Nagivation"}
         </button>
-        <div>Developed by SVPCET Software Developer Team - 2024</div>
+        <div>
+          DEVLOPED BY SVPCET
+        </div>
       </div>
 
       <div className="App">
