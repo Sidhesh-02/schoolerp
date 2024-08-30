@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import Student from "../pages/Student";
 
@@ -31,14 +32,33 @@ export const createStudent = async (student: Student) => {
   }
 };
 
-export const updateStudent = async (studentId: number, studentData: unknown) => {
+export const updateStudent = async (studentId: number, studentData: any,rollNo?: any,standard?:string) => {
   try {
-    await axios.put(`http://localhost:5000/update/student/${studentId}`, studentData);
+    
+    if (studentData.photoUrl && Object.keys(studentData).length === 1) {
+      // Fetch current student data
+      const response = await axios.get(`http://localhost:5000/students/rollNo`, {
+        params: { rollno: rollNo, standard }
+      });
+      const currentData = response.data;
+
+      // Merge current data with the new photoUrl
+      const updateData = { ...currentData, photoUrl: studentData.photoUrl };
+      
+      // Update student with only photoUrl change
+      await axios.put(`http://localhost:5000/update/student/${studentId}`, updateData);
+    } else {
+      // Update student with all provided data
+      await axios.put(`http://localhost:5000/update/student/${studentId}`, studentData);
+    }
   } catch (error) {
     console.error("Error updating student:", error);
     throw error;
   }
 };
+
+
+
 
 export const deleteStudent = async (studentId: number) => {
   try {
@@ -53,6 +73,8 @@ export const deleteStudent = async (studentId: number) => {
   }
 };
 
+
+// As per standard
 export const fetchAllStudents = async (std: string) => {
   try {
     const response = await axios.get("http://localhost:5000/getallstudent", {
@@ -63,6 +85,17 @@ export const fetchAllStudents = async (std: string) => {
     throw new Error("Error fetching students");
   }
 };
+
+// As per scholarship search
+
+export const fetchAllStudentsSc = async()=>{
+  try{
+    const res = await axios.get("http://localhost:5000/getallstudentsc");
+    return res.data;
+  }catch(error){
+    throw new Error("Error fetching students");
+  }
+}
 
 export const downloadStudentsExcel = async () => {
   return await axios.get('http://localhost:5000/excelstudents', {
@@ -182,6 +215,41 @@ export const fetchHostelData = async () => {
     return res;
   }
 
+
+// control panel
+
+export const addSubject = async(data : any)=>{
+  const res = await axios.post("http://localhost:5000/control/subjects", {
+      std : data.std,
+      subjects : data.subjects
+  }, {
+    headers : {
+      'Content-Type' : 'application/json'
+    }
+  })
+  return res;
+}
+
+export const addMiscellaneous = async(data : any) =>{
+  const res = await axios.post("http://localhost:5000/fixChanges", {
+      number_of_hostel_bed : data.num_of_beds,
+      one: data.Installment1,
+      two :data.Installment2, 
+      three :data.Installment3
+    },{
+      headers : {
+        'Content-Type' : 'application/json'
+      }
+    } 
+  )
+  return res;
+}
+
+export const constants_from_db = async ()=>{
+  const {data} = await axios.get("http://localhost:5000/getChanges");
+  console.log(data.number_of_hostel_bed);
+  return data.number_of_hostel_bed;
+}
 
 
   

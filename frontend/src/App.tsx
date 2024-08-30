@@ -10,6 +10,7 @@ import Hostel from "./pages/Hostel";
 import Marks from "./pages/Marks";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Search from "./pages/Search";
+import Control from "./pages/Control";
 
 interface Auth {
   username: string;
@@ -69,12 +70,12 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <div style={{ backgroundColor: "#f4e3e3",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+      <div style={{ backgroundColor: "rgb(203 213 225)",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
         <button className="nullify-button" style={{fontSize:"15px"}} onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
           {isNavbarOpen ? "Close Navigation" : "Open Nagivation"}
         </button>
         <div>
-          DEVLOPED BY SVPCET
+          Designed by Svpcet
         </div>
       </div>
 
@@ -139,6 +140,15 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute auth={auth} allowedRoles={["teacher", "admin"]}>
                   <Marks />
+                </ProtectedRoute>
+              }
+            />
+
+          <Route 
+              path="/control"
+              element={
+                <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
+                  <Control/>
                 </ProtectedRoute>
               }
             />

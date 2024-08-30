@@ -3,8 +3,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../utils/api";
 import "../styles/marks.css";
-import PerformanceChart from "../components/Marks/PerformanceChart";
-import BarChart from "../components/Marks/BarChart";
 
 interface FormData {
   standard: string;
@@ -339,12 +337,6 @@ const Marks: React.FC = () => {
             <br />
             <h3>Total Percentage - {totalPercentage}%</h3>
 
-            {search.marks.length > 0 && (
-              <>
-                <PerformanceChart marks={search.marks} examType={exam} /> <br /><br />
-                <BarChart marks={search.marks} examType={exam} />
-              </>
-            )}
           </div>
         ) : null}
       </div>

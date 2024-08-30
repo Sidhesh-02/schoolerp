@@ -13,6 +13,7 @@ interface Student {
   scholarshipApplied: boolean;
   photoUrl?: string;
   address: string;
+  remark:string;
   parents: Parent[];
   fees: Fee[];
 }
@@ -33,10 +34,10 @@ interface Fee {
   amount: number;
   amountDate: string;
   admissionDate: string;
-  pendingAmount: number;
 }
 
 const Student: React.FC = () => {
+  
   const [student, setStudent] = useState<Student>({
     fullName: "",
     gender: "Male",
@@ -65,9 +66,9 @@ const Student: React.FC = () => {
         amount: 0,
         amountDate: "",
         admissionDate: "",
-        pendingAmount: 0,
       },
     ],
+    remark :""
   });
 
   const handleSubmit = async () => {
@@ -132,13 +133,6 @@ const Student: React.FC = () => {
     } else {
       newFees[index] = { ...newFees[index], [name]: value };
     }
-  
-    // Calculate the new pending amount
-    const totalPaid = newFees.reduce((acc, fee) => acc + fee.amount, 0);
-    const totalAmount = 10500; // Total amount for all installments
-    const updatedPendingAmount = totalAmount - totalPaid;
-  
-    newFees[index] = { ...newFees[index], pendingAmount: Math.max(updatedPendingAmount, 0) };
   
     setStudent((prev) => ({ ...prev, fees: newFees }));
   };
@@ -265,6 +259,21 @@ const Student: React.FC = () => {
             }
           />
         </div>
+        <div>  
+          {student.scholarshipApplied && (
+            <div>
+              <label>Remark</label>
+              <input
+                type="text"
+                name="remark"
+                value={student.remark}
+                onChange={(e) =>
+                  setStudent((v) => ({ ...v, remark: e.target.value }))
+                }
+              />
+            </div>
+          )}
+        </div>
         <div>
           <label>Address</label>
           <textarea
@@ -380,14 +389,6 @@ const Student: React.FC = () => {
                 type="date"
                 name="admissionDate"
                 value={fee.admissionDate}
-                onChange={(e) => handleFeeChange(e, index)}
-              />
-              <label>Pending Amount</label>
-              <input
-                className="studentInput"
-                type="number"
-                name="pendingAmount"
-                value={fee.pendingAmount}
                 onChange={(e) => handleFeeChange(e, index)}
               />
             </div>

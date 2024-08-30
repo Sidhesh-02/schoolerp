@@ -15,6 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
     { name: "Fees", roles: ["admin"] },
     { name: "Hostel", roles: ["admin"] },
     { name: "Marks", roles: ["teacher", "admin"] },
+    { name: "Control", roles: ["admin"] },
   ];
 
   return (

@@ -43,7 +43,8 @@ router.post("/students", async (req, res) => {
         address,
         parents,
         fees,
-        photoUrl
+        photoUrl,
+        remark
     } = req.body;
 
     try {
@@ -58,6 +59,7 @@ router.post("/students", async (req, res) => {
                 scholarshipApplied,
                 address,
                 photoUrl,
+                remark,
                 parents: {
                     create: parents.map((parent) => ({
                         fatherName: parent.fatherName,
@@ -75,7 +77,6 @@ router.post("/students", async (req, res) => {
                         amount: parseFloat(fee.amount),
                         amountDate: new Date(fee.amountDate),
                         admissionDate: new Date(fee.admissionDate),
-                        pendingAmount: 10500 - parseFloat(fee.amount),
                     })),
                 },
             },
@@ -151,6 +152,26 @@ router.get("/students/rollNo", async (req, res) => {
         res.status(500).json({ message: "An error occurred while fetching the student" });
     }
 });
+
+// get all who applied for scholarship
+router.get("/getallstudentsc",async (req,res)=>{
+    try{
+        const studentsc = await prisma.student.findMany({
+            where:{
+                scholarshipApplied:true
+            }
+        })
+        if (studentsc) {
+            res.status(200).send(JSON.stringify(studentsc, jsonBigIntReplacer));
+        } else {
+            res.status(404).json({ message: "Student not found" });
+        }
+    }catch(error){
+        console.error("Error fetching student:", error.message);
+        console.error("Stack trace:", error.stack);
+        res.status(500).json({ message: "An error occurred while fetching the student" });
+    }
+})
 
 // Update student route
 router.put("/update/student/:id", async (req, res) => {

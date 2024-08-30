@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/Attendance/DownloadAttendanceExcel";
 import "../styles/attendance.css";
@@ -34,6 +35,17 @@ const Attendance: React.FC = () => {
     fetchSubjectsList();
   }, []);
 
+  useEffect(() =>{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const arr : any = [];
+    subjects.forEach((e: any) =>{
+      if(e.stdId == selectedStandard){
+          arr.push(e);
+      }
+    })
+    setSubjects(arr);
+  }, [selectedStandard])
+
   const fetchStandardsList = async () => {
     try {
       const response = await fetchStandards();
@@ -61,8 +73,9 @@ const Attendance: React.FC = () => {
     }
   };
 
-  const handleStandardChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleStandardChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
+    await fetchSubjectsList();
     setSelectedStandard(value);
     if (value) {
       fetchStudentsList(value);

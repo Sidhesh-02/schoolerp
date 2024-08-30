@@ -8,7 +8,7 @@
 }
 
 .toggle-button:hover {
-  background-color: #76e57a;
+  background-color: #768ae5;
 }
 
 /* Add this to hide the navbar when closed */
@@ -40,15 +40,14 @@ li {
 button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: #87ff89;
-  border: 1px solid;
-  color: #000000;
+  border: none;
+  background-color: rgba(20, 20, 20, 0.855);
+  color: white;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #000000;
-  color: white;
+  background-color: rgba(10, 8, 8, 0.855);
 }
 
 .nullify-button {
@@ -89,18 +88,18 @@ input {
 .login button {
   width: 270px;
   padding: 10px;
-  background-color: #87ff89;
+  background-color: black;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-  color: #333;
   margin-top: 10px;
   transition: background-color 0.3s ease;
 }
 
 .login button:hover {
-  background-color: #76e57a;
+  background-color: #141414da;
 }
 
 input.StudentInput,
@@ -113,7 +112,6 @@ textarea {
   width: 100%;
   padding: 8px;
   background-color: ghostwhite;
-  border: 1px solid;
   margin-top: 5px;
   box-sizing: border-box;
 }

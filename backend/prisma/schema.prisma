@@ -16,8 +16,12 @@ model Student {
   standard          String     
   adhaarCardNo      BigInt     @unique
   scholarshipApplied Boolean
+  remark            String?
   address           String
   photoUrl          String?
+  
+  @@unique([standard, rollNo])
+  
   parents           Parent[]
   fees              Fee[]
   attendanceRecords Attendance[]
@@ -43,7 +47,6 @@ model Fee {
   amount            Float
   amountDate        DateTime @default(now()) @db.Date
   admissionDate     DateTime @default(now()) @db.Date
-  pendingAmount     Float
   studentId         Int
   student           Student    @relation(fields: [studentId], references: [id])
 }
@@ -63,10 +66,11 @@ model Attendance {
   subjectName       String?
 }
 
-
 model Subject {
   id                Int        @id @default(autoincrement())
   name              String
+  stdId             String     
+  std               Standards   @relation(fields: [stdId], references: [std])
   attendanceRecords Attendance[]
   marks             Marks[]
 }
@@ -104,4 +108,18 @@ enum ExaminationType {
 enum Gender {
   Male
   Female
+}
+
+model Standards{
+    id        Int         @unique @default(autoincrement())
+    std       String      @unique
+    subjects  Subject[]
+}
+
+model miscellaneous{
+    id                           Int @unique @default(autoincrement())
+    number_of_hostel_bed         Int 
+    Installment_one              Int
+    Installment_two              Int
+    Installment_three            Int
 }

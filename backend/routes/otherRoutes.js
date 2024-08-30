@@ -47,16 +47,12 @@ router.get('/excelstudents', async (req, res) => {
         { header: 'Mother Name', key: 'motherName', width: 20 },
         { header: 'Father Contact', key: 'fatherContact', width: 15 },
         { header: 'Mother Contact', key: 'motherContact', width: 15 },
-        { header: 'Fees Pending', key: 'feesPending', width: 15 },
         { header: 'Fees Paid', key: 'feesPaid', width: 15 },
       ];
   
       // Add student data to worksheet
       studentsInfo.forEach((student) => {
         const feesPaid = student.fees.reduce((sum, fee) => sum + fee.amount, 0);
-        const totalFees = 10500; // Assuming total fees is 10500
-        const feesPending = totalFees - feesPaid;
-  
         worksheet.addRow({
           sid: student.id,
           fullName: student.fullName,
@@ -65,14 +61,13 @@ router.get('/excelstudents', async (req, res) => {
           rollNo: student.rollNo,
           standard: student.standard,
           adhaarCardNo: student.adhaarCardNo.toString(),
-          scholarshipApplied: student.scholarshipApplied ? 'Yes' : 'No',
+          scholarshipApplied: student.scholarshipApplied,
           address: student.address,
           photoUrl: student.photoUrl,
           fatherName: student.parents[0]?.fatherName || '',
           motherName: student.parents[0]?.motherName || '',
           fatherContact: student.parents[0]?.fatherContact?.toString() || '',
           motherContact: student.parents[0]?.motherContact?.toString() || '',
-          feesPending: feesPending,
           feesPaid: feesPaid,
         });
       });
@@ -126,7 +121,7 @@ router.get('/excelstudents', async (req, res) => {
           rollNo: parseInt(row.getCell(4).value),
           standard: row.getCell(5).value,
           adhaarCardNo: BigInt(row.getCell(6).value),
-          scholarshipApplied: row.getCell(7).value === "Yes",
+          scholarshipApplied: row.getCell(7).value.toString().toLowerCase() === "true" || row.getCell(7).value.toString().toLowerCase() === "yes",
           address: row.getCell(8).value,
           parents: [
             {
@@ -145,9 +140,10 @@ router.get('/excelstudents', async (req, res) => {
               amount: parseFloat(row.getCell(16).value),
               amountDate: row.getCell(17).value,
               admissionDate: row.getCell(18).value,
-              pendingAmount: 0,
+              
             },
           ],
+          remark:row.getCell(19).value,
         };
         students.push(student);
       }
@@ -166,6 +162,7 @@ router.get('/excelstudents', async (req, res) => {
             adhaarCardNo: student.adhaarCardNo,
             scholarshipApplied: student.scholarshipApplied,
             address: student.address,
+            remark:student.remark,
             parents: {
               create: student.parents,
             },
@@ -193,23 +190,62 @@ router.get('/excelstudents', async (req, res) => {
         const hostelData = await prisma.hosteldata.count();
         
         let sumFee = 0;
-        let sumPen = 0;
         let sumBed = 0;
         let totalBed = 100;
         feeData.map((key)=>{
           sumFee = sumFee + key.amount;
-          sumPen = sumPen + key.pendingAmount;
         })
         if(hostelData){
           sumBed = totalBed - hostelData;
         }
-        res.send({len,sumFee,sumPen,sumBed}); 
+        res.send({len,sumFee,sumBed}); 
     } catch (error) {
         console.log(error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
   });
 
+  router.post("/fixChanges" , async(req,res)=>{
+    let {number_of_hostel_bed , one , two , three} = req.body;
+    console.log(req.body);
+    const hostelBed = parseInt(number_of_hostel_bed);
+    const installmentOne = parseInt(one);
+    const installmentTwo = parseInt(two);
+    const installmentThree = parseInt(three);
+  
+    if (isNaN(hostelBed) || isNaN(installmentOne) || isNaN(installmentTwo) || isNaN(installmentThree)) {
+      return res.status(400).json({ error: "Invalid input data. Please provide valid numbers." });
+    }
+  
+    try {
+      const del = await prisma.miscellaneous.deleteMany();
+      const result = await prisma.miscellaneous.create({
+        data: {
+          number_of_hostel_bed: hostelBed,
+          Installment_one: installmentOne,
+          Installment_two: installmentTwo,
+          Installment_three: installmentThree
+        }
+
+      });
+      console.log("result ---> " , result);
+      res.status(200).json(result);
+    }catch(error){
+      console.log(error);
+      res.status(500).json(error);
+    }
+})
+
+let hostelRes = {};
+
+router.get("/getChanges", async(req,res)=>{
+  try{
+    hostelRes = await prisma.miscellaneous.findFirst();
+    res.status(200).json(hostelRes);
+  }catch(error){
+    res.status(500).json(error);
+  }
+})
 
 
-  module.exports = router;
+  module.exports = {hostelRes, router};

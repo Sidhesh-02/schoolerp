@@ -37,7 +37,6 @@ router.get("/fees/details", async (req, res) => {
               amount: true,
               amountDate: true,
               admissionDate: true,
-              pendingAmount: true,
             },
           },
         },
@@ -71,7 +70,7 @@ router.get("/fees/details", async (req, res) => {
   
   //Add Fees Details
   router.post("/fees/add", async (req, res) => {
-    const { title, amount, amountDate, admissionDate, pendingAmount, studentId } =
+    const { title, amount, amountDate, admissionDate, studentId } =
       req.body;
   
     if (!title || !amount || !amountDate || !admissionDate || !studentId) {
@@ -85,7 +84,6 @@ router.get("/fees/details", async (req, res) => {
           amount: parseFloat(amount),
           amountDate: new Date(amountDate),
           admissionDate: new Date(admissionDate),
-          pendingAmount: parseFloat(pendingAmount),
           studentId: parseInt(studentId),
         },
       });

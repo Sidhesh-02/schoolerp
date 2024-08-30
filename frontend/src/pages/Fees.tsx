@@ -8,7 +8,6 @@ interface Fee {
   amount: number;
   amountDate: string;
   admissionDate: string;
-  pendingAmount: number;
 }
 
 interface Student {
@@ -28,8 +27,7 @@ const Fees: React.FC = () => {
     title: "",
     amount: 0,
     amountDate: "",
-    admissionDate: "",
-    pendingAmount: 0,
+    admissionDate: ""
   });
 
   const search = async () => {
@@ -90,31 +88,15 @@ const Fees: React.FC = () => {
     }));
   };
 
-  const calculatePendingAmount = () => {
-    if (student) {
-      const totalPaid = student.fees.reduce((acc, fee) => acc + fee.amount, 0);
-      const totalAmount = 10500; // assuming the total fee is 10500
-      return totalAmount - totalPaid;
-    }
-    return 0;
-  };
-
   const addInstallment = async () => {
     if (!student) {
       alert("No student data available.");
       return;
     }
 
-    const pendingAmount = calculatePendingAmount();
-    if (pendingAmount <= 0) {
-      alert("No pending fees. The student has completed all payments.");
-      return;
-    }
-
     const updatedInstallment = {
       ...newInstallment,
       admissionDate: student.fees[0].admissionDate,
-      pendingAmount: pendingAmount - newInstallment.amount,
       studentId: student.id,
     };
 
@@ -135,8 +117,7 @@ const Fees: React.FC = () => {
           title: "",
           amount: 0,
           amountDate: "",
-          admissionDate: "",
-          pendingAmount: 0,
+          admissionDate: ""
         });
       } else {
         alert("Failed to add installment");
@@ -205,7 +186,6 @@ const Fees: React.FC = () => {
                 <p>Amount: {fee.amount}</p>
                 <p>Amount Date: {fee.amountDate}</p>
                 <p>Admission Date: {fee.admissionDate}</p>
-                <p>Pending Amount: {fee.pendingAmount}</p>
               </div>
             ))}
           </div>

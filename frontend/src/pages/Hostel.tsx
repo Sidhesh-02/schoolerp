@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "../styles/hostel.css";
 import { useEffect, useState } from 'react';
-import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData } from "../utils/api";
+import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../utils/api";
 
 const Hostel = () => {
   const [rollNo, setRollNo] = useState<number>();
@@ -35,6 +35,31 @@ const Hostel = () => {
       alert('Failed to add data');
     }
   };
+
+  useEffect(() => {
+    const handlePromises = async() =>{
+      const data = await constants_from_db();
+      console.log("count  --> " , data);
+      const newOccupied: number[] = [];
+      for (let i = 1; i <= data; i++) {
+      newOccupied.push(i);
+      }
+      setOccupied(newOccupied);
+    }
+    handlePromises();
+    
+    const fetchData = async () => {
+      try {
+        const response = await fetchHostelData();
+        setAvailable(response.data.available);
+      } catch (error) {
+        console.log('Error fetching hostel data', error);
+      }
+    };
+    fetchData();
+    
+    
+  }, []);
 
   useEffect(() => {
     const newOccupied: number[] = [];
@@ -236,7 +261,7 @@ const Hostel = () => {
             <h2>Hostel bed rooms:</h2>
             <div>
               {occupied.map((ele, index) => (
-                <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#76e57a' : '#F88379', marginLeft: '10px' }}>
+                <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#00000' : '#00000', marginLeft: '10px' }}>
                   {ele}
                 </button>
               ))}

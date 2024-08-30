@@ -140,92 +140,105 @@ const SearchStudent: React.FC = () => {
       {searchResult && (
         <div>
           <h2 style={{paddingTop:"10px"}}>Student Profile</h2>
-          <div className="profile-container">
+          <div style={{display:"flex"}} className="profile-container">
+          
             <div className="profile-header">
-              <div>
-                {searchResult.photoUrl && (
-                  <div className="profile-photo">
-                    <img src={searchResult.photoUrl} alt="Student Photo" />
-                  </div>
-                )}
-              </div>
+              {searchResult.photoUrl && (
+                <div className="profile-photo">
+                  <img src={searchResult.photoUrl} alt="Student Photo" />
+                </div>
+              )}
             </div>
 
-            <div className="profile-section">
-              <h4>Personal Information</h4>
-              <div style={{marginLeft:"10px"}}>
-                <div className="profile-field">
-                  <label>Full Name:</label>
-                  <p>{searchResult.fullName}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Gender:</label>
-                  <p>{searchResult.gender}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Date of Birth:</label>
-                  <p>{searchResult.dateOfBirth}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Roll No:</label>
-                  <p>{searchResult.rollNo}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Class:</label>
-                  <p>{searchResult.standard}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Adhaar Card No:</label>
-                  <p>{searchResult.adhaarCardNo}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Scholarship Applied:</label>
-                  <p>{searchResult.scholarshipApplied ? "Yes" : "No"}</p>
-                </div>
-                <div className="profile-field">
-                  <label>Address:</label>
-                  <p>{searchResult.address}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="profile-section">
-              <h4>Parents Information</h4>
-              <div style={{marginLeft:"10px"}}>
-                {searchResult.parents.map((parent) => (
-                  <div key={parent.id}>
+            <div>
+              <div className="profile-section">
+                <h4>Personal Information</h4>
+                <div style={{marginLeft:"10px",display:"flex"}}>
+                  <section>
                     <div className="profile-field">
-                      <label>Father Name:</label>
-                      <p>{parent.fatherName}</p>
+                      <label>Full Name:</label>
+                      <p>{searchResult.fullName}</p>
                     </div>
                     <div className="profile-field">
-                      <label>Father Occupation:</label>
-                      <p>{parent.fatherOccupation}</p>
+                      <label>Gender:</label>
+                      <p>{searchResult.gender}</p>
                     </div>
                     <div className="profile-field">
-                      <label>Mother Name:</label>
-                      <p>{parent.motherName}</p>
+                      <label>Date of Birth:</label>
+                      <p>{formatDateForInput(searchResult.dateOfBirth)}</p>
                     </div>
                     <div className="profile-field">
-                      <label>Mother Occupation:</label>
-                      <p>{parent.motherOccupation}</p>
+                      <label>Roll No:</label>
+                      <p>{searchResult.rollNo}</p>
                     </div>
                     <div className="profile-field">
-                      <label>Father Contact:</label>
-                      <p>{parent.fatherContact}</p>
+                      <label>Class:</label>
+                      <p>{searchResult.standard}</p>
+                    </div>
+                  </section>
+                  <section>
+                    <div className="profile-field">
+                      <label>Adhaar Card No:</label>
+                      <p>{searchResult.adhaarCardNo}</p>
                     </div>
                     <div className="profile-field">
-                      <label>Mother Contact:</label>
-                      <p>{parent.motherContact}</p>
+                      <label>Scholarship Applied:</label>
+                      <p>{searchResult.scholarshipApplied ? "Yes" : "No"}</p>
                     </div>
                     <div className="profile-field">
                       <label>Address:</label>
-                      <p>{parent.address}</p>
+                      <p>{searchResult.address}</p>
                     </div>
-                  </div>
-                ))}
+                  </section>
+                </div>
+              </div>
+
+              <div className="profile-section">
+                <h4>Parents Information</h4>
+                <div style={{marginLeft:"10px"}}>
+                  {searchResult.parents.map((parent) => (
+                    <div key={parent.id}>
+                      <section style={{display:"flex"}}>
+                        <section>
+                          <div className="profile-field">
+                            <label>Father Name:</label>
+                            <p>{parent.fatherName}</p>
+                          </div>
+                          <div className="profile-field">
+                            <label>Mother Name:</label>
+                            <p>{parent.motherName}</p>
+                          </div>
+                          <div className="profile-field">
+                            <label>Father Occupation:</label>
+                            <p>{parent.fatherOccupation}</p>
+                          </div>
+                          <div className="profile-field">
+                            <label>Mother Occupation:</label>
+                            <p>{parent.motherOccupation}</p>
+                          </div>
+                        </section>
+                        <section>
+                          <div className="profile-field">
+                            <label>Father Contact:</label>
+                            <p>{parent.fatherContact}</p>
+                          </div>
+                          <div className="profile-field">
+                            <label>Mother Contact:</label>
+                            <p>{parent.motherContact}</p>
+                          </div>
+                        </section>
+                      </section>
+                      <div className="profile-field">
+                        <label>Address:</label>
+                        <p>{parent.address}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+            
+                
           </div>
           <button onClick={handleDelete}>Delete Student</button>
         </div>
