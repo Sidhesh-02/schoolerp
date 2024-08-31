@@ -191,7 +191,8 @@ router.get('/excelstudents', async (req, res) => {
         
         let sumFee = 0;
         let sumBed = 0;
-        let totalBed = 100;
+        let totalBed = await prisma.miscellaneous.findFirst();
+        totalBed = totalBed.number_of_hostel_bed ?? 0;
         feeData.map((key)=>{
           sumFee = sumFee + key.amount;
         })

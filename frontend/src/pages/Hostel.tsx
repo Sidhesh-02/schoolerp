@@ -39,7 +39,6 @@ const Hostel = () => {
   useEffect(() => {
     const handlePromises = async() =>{
       const data = await constants_from_db();
-      console.log("count  --> " , data);
       const newOccupied: number[] = [];
       for (let i = 1; i <= data; i++) {
       newOccupied.push(i);

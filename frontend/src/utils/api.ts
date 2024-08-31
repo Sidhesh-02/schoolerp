@@ -247,8 +247,7 @@ export const addMiscellaneous = async(data : any) =>{
 
 export const constants_from_db = async ()=>{
   const {data} = await axios.get("http://localhost:5000/getChanges");
-  console.log(data.number_of_hostel_bed);
-  return data.number_of_hostel_bed;
+  return data?.number_of_hostel_bed || 0;
 }
 
 

@@ -4,6 +4,8 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const path = require("path");
 
+const {hostelRes} = require("./otherRoutes");
+ 
 const prisma = new PrismaClient();
 
 router.use(express.json());
@@ -16,7 +18,7 @@ router.get('/gethosteldata', async (req, res) => {
       const result = await prisma.hosteldata.findMany();
   
       const available = [];
-      for (let i = 1; i <= 100; i++) {
+      for (let i = 1; i <= hostelRes; i++) {
         available.push(i);
       }
   
