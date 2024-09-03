@@ -9,6 +9,7 @@ router.use(express.urlencoded({extended : true}));
 
 router.post("/control/subjects", async(req,res)=>{
     const {std , subjects} = req.body;
+    
     try{
         const result = await prisma.standards.create({
             data :{

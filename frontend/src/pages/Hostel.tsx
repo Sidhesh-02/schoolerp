@@ -6,7 +6,6 @@ import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, upd
 const Hostel = () => {
   const [rollNo, setRollNo] = useState<number>();
   const [standard, setStandard] = useState<string | undefined>();
-  const [room_no, setRoom] = useState<number | undefined>();
   const [bed_no, setBed] = useState<number | undefined>();
   const [occupied, setOccupied] = useState<number[]>([]);
   const [available, setAvailable] = useState<number[]>([]);
@@ -22,7 +21,6 @@ const Hostel = () => {
         rollNo,
         standard,
         gender: res.gender,
-        room_no,
         bed_no,
       });
 
@@ -38,10 +36,10 @@ const Hostel = () => {
 
   useEffect(() => {
     const handlePromises = async() =>{
-      const data = await constants_from_db();
+      const dataFromMiss = await constants_from_db();
       const newOccupied: number[] = [];
-      for (let i = 1; i <= data; i++) {
-      newOccupied.push(i);
+      for (let i = 1; i <= dataFromMiss.data.number_of_hostel_bed; i++) {
+        newOccupied.push(i);
       }
       setOccupied(newOccupied);
     }
@@ -91,7 +89,6 @@ const Hostel = () => {
       response.data.result.forEach((e: any) => {
         if (e.bed_number === ele) {
           setData(e);
-          setRoom(e.room_number);
           setBed(e.bed_number);
           setRollNo(e.rollNo);
           setStandard(e.standard);
@@ -117,7 +114,6 @@ const Hostel = () => {
       await deleteHostelData({
         rollNo,
         standard,
-        room_no,
         bed_no,
       });
       alert("Student removed successfully!");
@@ -130,7 +126,6 @@ const Hostel = () => {
   const clear = () => {
     setRollNo(undefined);
     setStandard(undefined);
-    setRoom(undefined);
     setBed(undefined);
     setRes(null);
   };
@@ -140,7 +135,6 @@ const Hostel = () => {
       await updateHostelData({
         rollNo,
         standard,
-        room_no,
         bed_no,
       });
       alert("Successfully updated");
@@ -200,7 +194,6 @@ const Hostel = () => {
                   </div>
                   <h2>Set Student Bed</h2>
                   <div>
-                    <input className='inputB' type='number' placeholder='Room no.' onChange={(e) => { setRoom(Number(e.target.value)); }} /><br />
                     <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
                   </div>
                   <button onClick={submit}>Save</button>
@@ -220,7 +213,6 @@ const Hostel = () => {
             <div><strong>Gender:</strong> {data.gender}</div>
             <div><strong>Standard:</strong> {data.standard}</div>
             <div><strong>Bed Number:</strong> {data.bed_number}</div>
-            <div><strong>Room Number:</strong> {data.room_number}</div>
             <button onClick={Delete} style={{ background: "#F88379" }}>Delete</button>
             <button style={{ marginLeft: "10px" }} onClick={update}>Update</button>
             <button style={{ marginLeft: "10px" }} onClick={() => { setShow(false); }}>Back</button>
@@ -246,8 +238,6 @@ const Hostel = () => {
               <option value='4th'>4th</option>
               <option value='5th'>5th</option>
             </select>
-            <label>Room No</label>
-            <input type="number" placeholder='Room no.' onChange={(e) => setRoom(Number(e.target.value))} /><br />
             <label>Bed No</label>
             <input type="number" placeholder='Bed no.' onChange={(e) => setBed(Number(e.target.value))} /><br />
             <button onClick={updateHostel}>Update</button>

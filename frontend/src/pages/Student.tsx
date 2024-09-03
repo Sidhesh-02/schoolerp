@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createStudent, uploadPhoto } from "../utils/api";
+import { constants_from_db, createStudent, uploadPhoto } from "../utils/api";
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
 
@@ -72,9 +72,21 @@ const Student: React.FC = () => {
   });
 
   const handleSubmit = async () => {
+    if (
+      
+      !student.fullName ||
+      !student.rollNo ||
+      !student.dateOfBirth ||
+      !student.adhaarCardNo ||
+      !student.standard ||
+      student.parents.some((parent) => !parent.fatherName || !parent.motherName || !parent.fatherContact || !parent.motherContact) ||
+      student.fees.some((fee) => !fee.installmentType || !fee.amountDate || !fee.admissionDate)
+    ) {
+      alert("Please fill all the required fields.");
+      return;
+    }
     try {
-      const data = await createStudent(student);
-      console.log(data);
+      await createStudent(student);
       alert("Student created successfully");
     } catch (error) {
       console.error(error);
@@ -102,27 +114,29 @@ const Student: React.FC = () => {
     setStudent((prev) => ({ ...prev, fees: newFees }));
   };
 
-  const handleFeeChange2 = (
+  const handleFeeChange2 = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     index: number
   ) => {
     const { name, value } = e.target;
     const newFees = [...student.fees];
+    const dataFromMiss = await constants_from_db();
+    const totalAmount = dataFromMiss.data.Installment_one + dataFromMiss.data.Installment_two + dataFromMiss.data.Installment_three;
     
     if (name === "installmentType") {
       let amount = 0;
       switch (value) {
         case "Total":
-          amount = 10500;
+          amount = totalAmount;
           break;
         case "1st":
-          amount = 5000;
+          amount = dataFromMiss.data.Installment_one;
           break;
         case "2nd":
-          amount = 3500;
+          amount = dataFromMiss.data.Installment_two
           break;
         case "3rd":
-          amount = 2000;
+          amount = dataFromMiss.data.Installment_three;
           break;
         default:
           amount = 0;
@@ -241,7 +255,6 @@ const Student: React.FC = () => {
             type="text"
             name="adhaarCardNo"
             maxLength={12}
-            required
             value={student.adhaarCardNo}
             onChange={(e) =>
               setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))

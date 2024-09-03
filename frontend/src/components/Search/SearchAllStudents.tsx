@@ -9,6 +9,9 @@ const Searchall = () => {
   const search = async () => {
     try {
       const data = await fetchAllStudents(std);
+      if(data.length === 0){
+        alert("No Student Found");
+      }
       setResult(data);
     } catch (error) {
       console.log(error);
@@ -17,7 +20,7 @@ const Searchall = () => {
 
   return (
     <div>
-      <h2>Search All Students</h2>
+      <h2>Search Students By Standard</h2>
       <div>
         <label>Select Standard</label>
         <select onChange={(e) => setStd(e.target.value)}>

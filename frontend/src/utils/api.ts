@@ -153,8 +153,8 @@ export const fetchHostelData = async () => {
     });
   };
   
-  export const searchStudent = async (rollNo: number, standard: string | undefined) => {
-    return await axios.get('http://localhost:5000/students/rollNo', {
+  export const searchStudent = (rollNo: number, standard: string | undefined) => {
+    return axios.get('http://localhost:5000/students/rollNo', {
       params: {
         rollno: rollNo,
         standard,
@@ -246,8 +246,8 @@ export const addMiscellaneous = async(data : any) =>{
 }
 
 export const constants_from_db = async ()=>{
-  const {data} = await axios.get("http://localhost:5000/getChanges");
-  return data?.number_of_hostel_bed || 0;
+  const data = await axios.get("http://localhost:5000/getChanges");
+  return data || {};
 }
 
 

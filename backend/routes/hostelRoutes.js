@@ -65,7 +65,7 @@ router.get('/gethosteldata', async (req, res) => {
   // Update Hostel Data
   router.post("/updatehostel",async (req, res)=>{
   
-    const { rollNo, standard, room_no, bed_no} = req.body;
+    const { rollNo, standard, bed_no} = req.body;
     try {
         const result = await prisma.hosteldata.update({
             where : {
@@ -75,7 +75,6 @@ router.get('/gethosteldata', async (req, res) => {
               }
             },
             data: {
-              room_number : room_no,
               bed_number: bed_no,
             },
         });

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchStudentFees, addFeeInstallment } from "../utils/api";
+import { fetchStudentFees, addFeeInstallment, constants_from_db } from "../utils/api";
 import "../styles/fee.css";
 import FeeReicpts from "../components/Fees/FeeReicpts";
 
@@ -29,6 +29,14 @@ const Fees: React.FC = () => {
     amountDate: "",
     admissionDate: ""
   });
+
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const search = async () => {
     if (!standard || !rollNo) {
@@ -61,19 +69,21 @@ const Fees: React.FC = () => {
     setStudent(null);
   };
 
-  const handleAddInstallmentChange = (
+  const handleAddInstallmentChange = async (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     let amount = newInstallment.amount;
-
+    
+    const resForMis = await constants_from_db();
+    
     if (name === "title") {
       switch (value) {
         case "2nd":
-          amount = 3500;
+          amount = resForMis.data.Installment_one;
           break;
         case "3rd":
-          amount = 2000;
+          amount = resForMis.data.Installment_two;
           break;
         default:
           amount = 0;
@@ -184,8 +194,8 @@ const Fees: React.FC = () => {
               <div key={index} style={{ marginBottom: '10px', paddingLeft: '20px' }}>
                 <h4>Title: {fee.title}</h4>
                 <p>Amount: {fee.amount}</p>
-                <p>Amount Date: {fee.amountDate}</p>
-                <p>Admission Date: {fee.admissionDate}</p>
+                <p>Amount Date: {formatDateForInput(fee.amountDate)}</p>
+                <p>Admission Date: {formatDateForInput(fee.admissionDate)}</p>
               </div>
             ))}
           </div>

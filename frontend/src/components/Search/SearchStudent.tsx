@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { deleteStudent, searchStudent, updateStudent } from "../../utils/api";
+import { AlignmentType, Document, ImageRun, Packer, Paragraph, TextRun } from "docx";
+import { saveAs } from "file-saver";
+
 
 interface Student {
   id: number;
@@ -41,8 +44,343 @@ const SearchStudent: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const generateWordDocument = async () => {
+    if (!searchResult) return;
+    let arrayBuffer = null;
+    
+    if (searchResult.photoUrl) {
+        try {
+            const imageUrl = searchResult.photoUrl.replace(/\\/g, '/');
+            const response = await fetch(imageUrl);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch image');
+            }
+
+            const imageBlob = await response.blob();
+            arrayBuffer = await imageBlob.arrayBuffer();
+        } catch (error) {
+            console.error('Error fetching or processing image:', error);
+        }
+    }
+    
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              spacing: { after: 300 },
+              children: [
+                new TextRun({
+                  text: "Student Form",
+                  bold: true,
+                  size: 48,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: arrayBuffer??"",
+                  transformation: {
+                    width: 100,  
+                    height: 100, 
+                  },
+                }),
+            ]}),
+            new Paragraph({ text: "" }), 
+            new Paragraph({
+              alignment: AlignmentType.LEFT,
+              spacing: { before: 300, after: 200 },
+              children: [
+                new TextRun({
+                  text: `Student Details`,
+                  bold: true,
+                  underline: {},
+                  size: 32,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({ text: "" }), 
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Full Name: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.fullName,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Gender: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.gender,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Date of Birth: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.dateOfBirth,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Roll No: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.rollNo,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Class: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.standard,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Adhaar Card No: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.adhaarCardNo,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Scholarship Applied: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.scholarshipApplied ? "Yes" : "No",
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({
+              spacing: { after: 200 },
+              children: [
+                new TextRun({
+                  text: `Address: `,
+                  bold: true,
+                  size: 28,
+                  
+                }),
+                new TextRun({
+                  text: searchResult.address,
+                  size: 28,
+                  
+                }),
+              ],
+            }),
+            new Paragraph({ text: "" }), 
+            
+            ...searchResult.parents.map((parent) => [
+              new Paragraph({
+                alignment: AlignmentType.LEFT,
+                spacing: { before: 300, after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Parent Details`,
+                    bold: true,
+                    underline: {},
+                    size: 32,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Father Name: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.fatherName,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Father Occupation: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.fatherOccupation,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Father Contact: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.fatherContact,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Mother Name: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.motherName,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Mother Occupation: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.motherOccupation,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Mother Contact: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.motherContact,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({
+                spacing: { after: 200 },
+                children: [
+                  new TextRun({
+                    text: `Address: `,
+                    bold: true,
+                    size: 28,
+                    
+                  }),
+                  new TextRun({
+                    text: parent.address,
+                    size: 28,
+                    
+                  }),
+                ],
+              }),
+              new Paragraph({ text: "" }), 
+            ]),
+          ].flat(),
+        },
+      ],
+    });
+  
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, `${searchResult.fullName}_${searchResult.standard}_Profile.docx`);
+    });
+  };
+
   const handleSearch = async () => {
     try {
+      if(!rollNo || !standard){
+        alert("Enter Valid Roll-No/Standard");
+        return;
+      }
       const response = await searchStudent(parseInt(rollNo), standard);
       setSearchResult(response.data);
       setEditableStudent({
@@ -50,8 +388,7 @@ const SearchStudent: React.FC = () => {
         dateOfBirth: formatDateForInput(response.data.dateOfBirth),
       });
     } catch (error) {
-      console.error("Error fetching student:", error);
-      alert("Failed to fetch student");
+      alert("Student Not Found");
     }
   };
 
@@ -63,7 +400,7 @@ const SearchStudent: React.FC = () => {
       }
       await deleteStudent(searchResult.id);
       alert("Student deleted successfully");
-      setSearchResult(null); // Clear the search result after deletion
+      setSearchResult(null); 
       setEditableStudent(null); // Clear the editable student state
     } catch (error) {
       console.error("Error deleting student:", error);
@@ -110,7 +447,7 @@ const SearchStudent: React.FC = () => {
 
   return (
     <div>
-      <h2>Search Update and Delete Students</h2>
+      <h2>Search, Update, Delete Students</h2>
       <div>
         <label>Roll No</label>
         <input
@@ -240,7 +577,8 @@ const SearchStudent: React.FC = () => {
             
                 
           </div>
-          <button onClick={handleDelete}>Delete Student</button>
+          <button style={{margin:"2px"}} onClick={generateWordDocument}>Download as Word</button>
+          <button style={{margin:"2px"}} onClick={handleDelete}>Delete Student</button>
         </div>
       )}
 
@@ -413,6 +751,7 @@ const SearchStudent: React.FC = () => {
             <button type="button" onClick={handleUpdate}>
               Update Student
             </button>
+            
           </form>
         </div>
       )}

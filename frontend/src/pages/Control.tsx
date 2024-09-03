@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useState } from 'react'
 import { addMiscellaneous, addSubject } from '../utils/api';
-// import '../styles/Control.css';
+import StudentsInfoDownload from '../components/Student/RetriveStudentExcel';
+import PhotoUpdate from '../components/Search/PhotoUpdate';
+
 
 
 interface subject {
@@ -78,20 +80,28 @@ const Control = () => {
     }
 
   return (
-    <div>
+    <div className='global-container'>
         <h2>Control Panel </h2>
+        <hr style={{margin:"30px 0px"}}/>
+        
+        <StudentsInfoDownload/>
+        <hr style={{margin:"30px 0px"}}/>
+
+        <PhotoUpdate/>
+        <hr style={{margin:"30px 0px"}}/>
         {/* for standard and subject */}
         <div>
-            <h4>Add Subjects according to Standard</h4>
+            <h2>Add Subject</h2>
             <input type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
             <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input>
             <span><button  className="btn" onClick={SplitSubString}>Add</button></span> 
             <span><button className="btn" onClick={Submit}>Submit</button></span>
         </div>
 
+        <hr style={{margin:"30px 0px"}}/>
         {/* for changing number of hostel beds  and Installment fee*/}
         <div>
-            <h4>Update number of hostel beds  and Installment fee </h4>
+            <h2>Update Hostel Beds & Fees</h2>
             <input type='number' placeholder='Enter number of hostel beds' onChange={(e) =>{Setnum_of_beds(Number(e.target.value))}}></input>
             <input type='number' placeholder='Installment 1' onChange={(e) =>{SetInstallment1(Number(e.target.value))}}></input>
             <input type='number' placeholder='Installment 2' onChange={(e) =>{SetInstallment2(Number(e.target.value))}}></input>

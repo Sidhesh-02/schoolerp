@@ -25,6 +25,8 @@ router.get('/excelstudents', async (req, res) => {
         include: {
           parents: true,
           fees: true,
+          marks:true,
+          
         },
       });
   
@@ -206,36 +208,82 @@ router.get('/excelstudents', async (req, res) => {
     }
   });
 
-  router.post("/fixChanges" , async(req,res)=>{
-    let {number_of_hostel_bed , one , two , three} = req.body;
-    console.log(req.body);
-    const hostelBed = parseInt(number_of_hostel_bed);
-    const installmentOne = parseInt(one);
-    const installmentTwo = parseInt(two);
-    const installmentThree = parseInt(three);
-  
-    if (isNaN(hostelBed) || isNaN(installmentOne) || isNaN(installmentTwo) || isNaN(installmentThree)) {
-      return res.status(400).json({ error: "Invalid input data. Please provide valid numbers." });
-    }
-  
+  router.post("/fixChanges", async (req, res) => {
+    let { number_of_hostel_bed, one, two, three } = req.body;
+    
     try {
-      const del = await prisma.miscellaneous.deleteMany();
-      const result = await prisma.miscellaneous.create({
-        data: {
-          number_of_hostel_bed: hostelBed,
-          Installment_one: installmentOne,
-          Installment_two: installmentTwo,
-          Installment_three: installmentThree
-        }
-
+      // Check if a record already exists
+      const existingRecord = await prisma.miscellaneous.findFirst({
+        where: {},
       });
-      console.log("result ---> " , result);
-      res.status(200).json(result);
-    }catch(error){
+  
+      // Only parse and update fields that have valid values
+      const updatedData = {};
+  
+      if (number_of_hostel_bed) {
+        const hostelBed = parseInt(number_of_hostel_bed);
+        if (!isNaN(hostelBed)) {
+          updatedData.number_of_hostel_bed = hostelBed;
+        } else {
+          return res.status(400).json({ error: "Invalid number_of_hostel_bed." });
+        }
+      }
+  
+      if (one) {
+        const installmentOne = parseInt(one);
+        if (!isNaN(installmentOne)) {
+          updatedData.Installment_one = installmentOne;
+        } else {
+          return res.status(400).json({ error: "Invalid Installment_one." });
+        }
+      }
+  
+      if (two) {
+        const installmentTwo = parseInt(two);
+        if (!isNaN(installmentTwo)) {
+          updatedData.Installment_two = installmentTwo;
+        } else {
+          return res.status(400).json({ error: "Invalid Installment_two." });
+        }
+      }
+  
+      if (three) {
+        const installmentThree = parseInt(three);
+        if (!isNaN(installmentThree)) {
+          updatedData.Installment_three = installmentThree;
+        } else {
+          return res.status(400).json({ error: "Invalid Installment_three." });
+        }
+      }
+  
+      if (Object.keys(updatedData).length === 0) {
+        return res.status(400).json({ error: "No valid data provided for update." });
+      }
+  
+      if (existingRecord) {
+        // Update existing record
+        const updatedRecord = await prisma.miscellaneous.update({
+          where: {
+            id: existingRecord.id, // Use appropriate identifier field
+          },
+          data: updatedData,
+        });
+        
+        return res.status(200).json(updatedRecord);
+      } else {
+        // Create a new record
+        const newRecord = await prisma.miscellaneous.create({
+          data: updatedData,
+        });
+        return res.status(200).json(newRecord);
+      }
+    } catch (error) {
       console.log(error);
-      res.status(500).json(error);
+      return res.status(500).json({ error: "An error occurred while processing your request." });
     }
-})
+  });
+  
+  
 
 let hostelRes = {};
 

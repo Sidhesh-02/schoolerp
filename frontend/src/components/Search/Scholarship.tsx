@@ -8,6 +8,9 @@ export default function Scholarship() {
     const getStudents = async () => {
         try {
             const students = await fetchAllStudentsSc();
+            if(students.length === 0){
+                alert("No Student Found");
+            }
             setList(students);
         } catch (error) {
             console.log(error);
@@ -17,7 +20,7 @@ export default function Scholarship() {
     return (
         <>
             <div>
-                <label>Students opted for scholarship</label>
+                <h2>Scholarship Students :-</h2>
                 <button onClick={getStudents}>Get Students</button>
                 <table>
                     <thead>

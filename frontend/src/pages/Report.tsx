@@ -5,7 +5,6 @@ import { report } from "../utils/api";
 const Report = () => {
     const [count, setCount] = useState(0);
     const [fee,setFee] = useState(0);
-    const [pendFee, setPenFee] = useState(0);
     const [remBed, setRemBed] = useState(0);
 
     const studentCount = async () => {
@@ -13,7 +12,6 @@ const Report = () => {
             const gotCount = await report();
             setCount(gotCount.data.len);
             setFee(gotCount.data.sumFee);
-            setPenFee(gotCount.data.sumPen);
             setRemBed(gotCount.data.sumBed)
         } catch (error) {
             console.log(error);
@@ -35,9 +33,6 @@ const Report = () => {
                     {/* Fee Data */}
                     <h3>Total Money Collected</h3>
                     <h3 className="data">{fee} ₹</h3>
-
-                    <h3>Total Money yet to Collected</h3>
-                    <h3 className="data">{pendFee} ₹</h3>
 
                     {/* Hostel Data */}
                     <h3>Total Bed Remaining</h3>

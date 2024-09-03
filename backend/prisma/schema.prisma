@@ -94,7 +94,6 @@ model Hosteldata{
     rollNo Int
     standard String
     gender String
-    room_number Int 
     bed_number Int  @unique
     @@unique([rollNo, standard])
 }

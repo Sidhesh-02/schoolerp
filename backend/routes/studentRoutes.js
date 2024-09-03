@@ -123,11 +123,7 @@ router.get("/getallstudent", async (req, res) => {
 // Get searched student by rollno.:
 router.get("/students/rollNo", async (req, res) => {
     const { rollno, standard } = req.query;
-
-    if (!rollno || isNaN(rollno) || !standard) {
-        return res.status(400).json({ message: "Invalid roll number or standard" });
-    }
-
+    
     try {
         const student = await prisma.student.findFirst({
             where: {
@@ -137,7 +133,6 @@ router.get("/students/rollNo", async (req, res) => {
             include: {
                 parents: true,
                 fees: true,
-                attendanceRecords: true,
             },
         });
 
