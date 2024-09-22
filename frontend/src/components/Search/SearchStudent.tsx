@@ -31,7 +31,8 @@ interface Parent {
 }
 
 const SearchStudent: React.FC = () => {
-  const [rollNo, setRollNo] = useState("");
+  // const [rollNo, setRollNo] = useState("");
+  const [search,setSearchQuery] = useState("");
   const [standard, setStandard] = useState("");
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [editableStudent, setEditableStudent] = useState<Student | null>(null);
@@ -377,11 +378,13 @@ const SearchStudent: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      if(!rollNo || !standard){
-        alert("Enter Valid Roll-No/Standard");
+      if(!search){
+        alert("Check Search Query");
         return;
       }
-      const response = await searchStudent(parseInt(rollNo), standard);
+      
+      const response = await searchStudent(search, standard);
+      
       setSearchResult(response.data);
       setEditableStudent({
         ...response.data,
@@ -445,17 +448,22 @@ const SearchStudent: React.FC = () => {
     });
   };
 
+  const clearSearchResult = () => {
+    setSearchResult(null);
+    setEditableStudent(null);
+  };
+
   return (
     <div>
       <h2>Search, Update, Delete Students</h2>
       <div>
-        <label>Roll No</label>
+        <label>Name/Roll No.</label>
         <input
           className="StudentInput"
           type="text"
-          placeholder="Search by Roll No"
-          value={rollNo}
-          onChange={(e) => setRollNo(e.target.value)}
+          placeholder="Search by Name/Roll No"
+          value={search}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
       <div>
@@ -473,6 +481,8 @@ const SearchStudent: React.FC = () => {
         </select>
       </div>
       <button onClick={handleSearch}>Search</button>
+      &nbsp;
+      <button onClick={clearSearchResult}>Clear</button>
 
       {searchResult && (
         <div>

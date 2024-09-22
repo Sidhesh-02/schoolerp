@@ -15,10 +15,11 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Get Hostel Data
 router.get('/gethosteldata', async (req, res) => {
     try {
-      const result = await prisma.hosteldata.findMany();
-  
+      const result = await prisma.hostel.findMany();
+      const hostelRes = await prisma.control.findFirst();
+      
       const available = [];
-      for (let i = 1; i <= hostelRes; i++) {
+      for (let i = 1; i <= hostelRes.number_of_hostel_bed; i++) {
         available.push(i);
       }
   
@@ -41,17 +42,16 @@ router.get('/gethosteldata', async (req, res) => {
   // Posting Hostel Data
   router.post("/hosteldata",async (req, res)=>{
   
-    const { name, rollNo, standard, gender, room_no, bed_no } = req.body;
+    const { name, rollNo, standard, gender, bed_no } = req.body;
   
     try {
-        const result = await prisma.hosteldata.create({
+        const result = await prisma.hostel.create({
             data: {
                 name : name,
                 standard: standard,
                 gender : gender,
-                room_number : room_no,
                 bed_number: bed_no,
-                rollNo : rollNo,
+                rollNo : parseInt(rollNo),
             },
         });
        
@@ -67,10 +67,10 @@ router.get('/gethosteldata', async (req, res) => {
   
     const { rollNo, standard, bed_no} = req.body;
     try {
-        const result = await prisma.hosteldata.update({
+        const result = await prisma.hostel.update({
             where : {
               rollNo_standard : {
-                rollNo : rollNo,
+                rollNo : parseInt(rollNo),
                 standard : standard
               }
             },
@@ -91,9 +91,9 @@ router.get('/gethosteldata', async (req, res) => {
       const {rollNo, bed_no } = req.body;
   
       try{
-          const result = await prisma.hosteldata.delete({
+          const result = await prisma.hostel.delete({
             where :{
-              rollNo : rollNo,
+              rollNo : parseInt(rollNo),
               bed_number : bed_no
             }
           })

@@ -88,7 +88,7 @@ model Marks {
   subject        Subject  @relation(fields: [subjectId], references: [id])
 }
 
-model Hosteldata{
+model Hostel{
     id Int @unique @id @default(autoincrement())
     name String 
     rollNo Int
@@ -115,7 +115,7 @@ model Standards{
     subjects  Subject[]
 }
 
-model miscellaneous{
+model Control{
     id                           Int @unique @default(autoincrement())
     number_of_hostel_bed         Int 
     Installment_one              Int

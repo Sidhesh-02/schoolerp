@@ -122,20 +122,33 @@ router.get("/getallstudent", async (req, res) => {
 
 // Get searched student by rollno.:
 router.get("/students/rollNo", async (req, res) => {
-    const { rollno, standard } = req.query;
+    const { param , standard } = req.query;
     
     try {
-        const student = await prisma.student.findFirst({
-            where: {
-                rollNo: parseInt(rollno),
-                standard: standard,
-            },
-            include: {
-                parents: true,
-                fees: true,
-            },
-        });
-
+        let student;
+        if (/^\d+$/.test(param)){
+            student = await prisma.student.findFirst({
+                where: {
+                    rollNo: parseInt(param),
+                    standard: standard,
+                },
+                include: {
+                    parents: true,
+                    fees: true,
+                },
+            });    
+        }else{
+            student = await prisma.student.findFirst({
+                where: {
+                    fullName: param,
+                    standard: standard,
+                },
+                include: {
+                    parents: true,
+                    fees: true,
+                },
+            });   
+        }
         if (student) {
             res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
         } else {

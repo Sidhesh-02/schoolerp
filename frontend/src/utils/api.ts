@@ -119,8 +119,12 @@ export const fetchStandards = async () => {
     return await axios.get("http://localhost:5000/getstandards");
   };
   
-export const fetchSubjects = async () => {
-    return await axios.get("http://localhost:5000/getsubjects");
+export const fetchSubjects = async (selectedStandard:string) => {
+    return await axios.get("http://localhost:5000/getsubjects",{
+      params :{
+        selectedStandard
+      }
+    });
 };
   
 export const fetchStudents = async (standard: string) => {
@@ -153,10 +157,10 @@ export const fetchHostelData = async () => {
     });
   };
   
-  export const searchStudent = (rollNo: number, standard: string | undefined) => {
+  export const searchStudent = (param: string, standard: string | undefined) => {
     return axios.get('http://localhost:5000/students/rollNo', {
       params: {
-        rollno: rollNo,
+        param,
         standard,
       },
     });
@@ -184,10 +188,10 @@ export const fetchHostelData = async () => {
     return await axios.post("http://localhost:5000/add", formData);
   };
   
-  export const searchMarks = async (rollNo: number, standard: string) => {
+  export const searchMarks = async (params: number | string, standard: string) => {
     return await axios.get("http://localhost:5000/marks/search", {
       params: {
-        rollNo,
+        params,
         standard
       }
     });

@@ -17,6 +17,15 @@ function jsonBigIntReplacer(key, value) {
     return value;
 }
 
+async function calculateTotalPercentage(recievedData){
+    let sumPercent = 0;
+    let count = 0;
+    const totalPercentage = recievedData.forEach((subjectWise) => {
+        sumPercent += subjectWise.percentage;
+        count++;
+    });
+    return (sumPercent/count).toFixed(2);
+}
 /* Marks Model */
 
 // Marks Add
@@ -59,21 +68,36 @@ router.post("/add", async (req, res) => {
   });
   
   router.get("/marks/search", async(req,res)=>{
-    const{rollNo , standard } = req.query;
+    const{param , standard } = req.query;
     try{
-      const result = await prisma.student.findFirst({
-        where:{
-          rollNo : parseInt(rollNo),
-          standard : standard
-        },
-        include:{
-          marks : true,
-        }
-      });
+      let result;
+      if (/^\d+$/.test(param)){
+        result = await prisma.student.findFirst({
+          where:{
+            rollNo : parseInt(param),
+            standard : standard
+          },
+          include:{
+            marks : true,
+          }
+        });
+      }else{
+        result = await prisma.student.findFirst({
+          where:{
+            rollNo : param,
+            standard : standard
+          },
+          include:{
+            marks : true,
+          }
+        });
+      }
+      const totalpercentage = await calculateTotalPercentage(result.marks)
+      
       if (!result) {
         return res.status(404).json({ message: "Student not found" });
       }
-      res.status(200).json(JSON.stringify({result}, jsonBigIntReplacer))
+      res.status(200).json(JSON.stringify({result,totalpercentage}, jsonBigIntReplacer))
     }catch(error){
       console.error("Error fetching student marks:", error);
       res.status(500).json({error : error})

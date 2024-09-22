@@ -189,11 +189,11 @@ router.get('/excelstudents', async (req, res) => {
         const count = await prisma.student.findMany(); 
         const len = count.length;
         const feeData = await prisma.fee.findMany();
-        const hostelData = await prisma.hosteldata.count();
+        const hostelData = await prisma.hostel.count();
         
         let sumFee = 0;
         let sumBed = 0;
-        let totalBed = await prisma.miscellaneous.findFirst();
+        let totalBed = await prisma.control.findFirst();
         totalBed = totalBed.number_of_hostel_bed ?? 0;
         feeData.map((key)=>{
           sumFee = sumFee + key.amount;
@@ -213,7 +213,7 @@ router.get('/excelstudents', async (req, res) => {
     
     try {
       // Check if a record already exists
-      const existingRecord = await prisma.miscellaneous.findFirst({
+      const existingRecord = await prisma.control.findFirst({
         where: {},
       });
   
@@ -262,7 +262,7 @@ router.get('/excelstudents', async (req, res) => {
   
       if (existingRecord) {
         // Update existing record
-        const updatedRecord = await prisma.miscellaneous.update({
+        const updatedRecord = await prisma.control.update({
           where: {
             id: existingRecord.id, // Use appropriate identifier field
           },
@@ -272,7 +272,7 @@ router.get('/excelstudents', async (req, res) => {
         return res.status(200).json(updatedRecord);
       } else {
         // Create a new record
-        const newRecord = await prisma.miscellaneous.create({
+        const newRecord = await prisma.control.create({
           data: updatedData,
         });
         return res.status(200).json(newRecord);
@@ -284,12 +284,9 @@ router.get('/excelstudents', async (req, res) => {
   });
   
   
-
-let hostelRes = {};
-
 router.get("/getChanges", async(req,res)=>{
   try{
-    hostelRes = await prisma.miscellaneous.findFirst();
+    const hostelRes = await prisma.control.findFirst();
     res.status(200).json(hostelRes);
   }catch(error){
     res.status(500).json(error);
@@ -297,4 +294,4 @@ router.get("/getChanges", async(req,res)=>{
 })
 
 
-  module.exports = {hostelRes, router};
+  module.exports = {router};

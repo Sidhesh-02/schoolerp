@@ -62,8 +62,14 @@ router.get("/getstandards", async (req, res) => {
   
   // Get Subject List for Attendance
   router.get("/getsubjects", async (req, res) => {
+    const { selectedStandard } = req.query;
+    
     try {
-      const subjects = await prisma.subject.findMany();
+      const subjects = await prisma.subject.findMany({
+        where: {
+          stdId: selectedStandard, 
+        },
+      });
       res.status(200).json(subjects);
     } catch (error) {
       console.error("Error fetching subjects:", error);

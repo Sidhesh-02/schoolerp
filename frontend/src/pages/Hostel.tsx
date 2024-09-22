@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../utils/api";
 
 const Hostel = () => {
-  const [rollNo, setRollNo] = useState<number>();
+  const [rollNo, setRollNo] = useState("");
   const [standard, setStandard] = useState<string | undefined>();
   const [bed_no, setBed] = useState<number | undefined>();
   const [occupied, setOccupied] = useState<number[]>([]);
@@ -13,6 +13,19 @@ const Hostel = () => {
   const [data, setData] = useState<any>(null);
   const [res, setRes] = useState<any>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const bedsPerPage = 100; // Number of beds per page
+
+  const totalBeds = occupied.length;
+  const totalPages = Math.ceil(totalBeds / bedsPerPage);
+
+  // Get the beds for the current page
+  const paginatedBeds = occupied.slice(
+    (currentPage - 1) * bedsPerPage,
+    currentPage * bedsPerPage
+  );
+
 
   const submit = async () => {
     try {
@@ -23,7 +36,7 @@ const Hostel = () => {
         gender: res.gender,
         bed_no,
       });
-
+      console.log("Check ",response.data)
       if (response.data) {
         alert('Data added successfully');
         window.location.reload();
@@ -57,26 +70,7 @@ const Hostel = () => {
     
     
   }, []);
-
-  useEffect(() => {
-    const newOccupied: number[] = [];
-    for (let i = 1; i <= 100; i++) {
-      newOccupied.push(i);
-    }
-    setOccupied(newOccupied);
-
-    const fetchData = async () => {
-      try {
-        const response = await fetchHostelData();
-        setAvailable(response.data.available);
-      } catch (error) {
-        console.log('Error fetching hostel data', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+  
   const update = () => {
     setIsUpdating(true);
     setRollNo(data.rollNo);
@@ -101,8 +95,12 @@ const Hostel = () => {
   };
 
   const search = async () => {
+    if(!rollNo){
+      alert("Requires Roll No or Name");
+      return;
+    }
     try {
-      const response = await searchStudent(rollNo!, standard);
+      const response = await searchStudent(rollNo, standard);
       setRes(response.data);
     } catch (error) {
       console.log('Error searching student', error);
@@ -124,7 +122,7 @@ const Hostel = () => {
   };
 
   const clear = () => {
-    setRollNo(undefined);
+    setRollNo("");
     setStandard(undefined);
     setBed(undefined);
     setRes(null);
@@ -149,6 +147,14 @@ const Hostel = () => {
     setIsUpdating(false);
   };
 
+  // Pagination navigation
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
   return (
     <div>
       <div className="global-container">
@@ -157,13 +163,15 @@ const Hostel = () => {
             <div>
               <div>
                 <h2>Hostel Accommodation</h2>
+
+                {/* Search Student */}
                 <label>Roll No</label>
                 <input
                   className='inputB'
                   type='number'
                   placeholder='Roll number'
                   value={rollNo ?? ''}
-                  onChange={(e) => { setRollNo(Number(e.target.value)); }}
+                  onChange={(e) => { setRollNo(e.target.value); }}
                 />
 
                 <label>Standard</label>
@@ -208,15 +216,36 @@ const Hostel = () => {
         {show ? (
           <div>
             <h2>Occupied By:</h2>
-            <div><strong>Name:</strong> {data.name}</div>
-            <div><strong>Roll No:</strong> {data.rollNo}</div>
-            <div><strong>Gender:</strong> {data.gender}</div>
-            <div><strong>Standard:</strong> {data.standard}</div>
-            <div><strong>Bed Number:</strong> {data.bed_number}</div>
-            <button onClick={Delete} style={{ background: "#F88379" }}>Delete</button>
-            <button style={{ marginLeft: "10px" }} onClick={update}>Update</button>
-            <button style={{ marginLeft: "10px" }} onClick={() => { setShow(false); }}>Back</button>
+            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: '10px 0' }}><strong>Name:</strong></td>
+                  <td style={{ padding: '10px 0' }}>{data.name}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '10px 0' }}><strong>Roll No:</strong></td>
+                  <td style={{ padding: '10px 0' }}>{data.rollNo}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '10px 0' }}><strong>Gender:</strong></td>
+                  <td style={{ padding: '10px 0' }}>{data.gender}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '10px 0' }}><strong>Standard:</strong></td>
+                  <td style={{ padding: '10px 0' }}>{data.standard}</td>
+                </tr>
+                <tr>
+                  <td style={{ padding: '10px 0' }}><strong>Bed Number:</strong></td>
+                  <td style={{ padding: '10px 0' }}>{data.bed_number}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button onClick={Delete} style={{ background: "#F88379", marginTop: '10px' }}>Delete</button>
+            <button style={{ marginLeft: "10px", marginTop: '10px' }} onClick={update}>Update</button>
+            <button style={{ marginLeft: "10px", marginTop: '10px' }} onClick={() => { setShow(false); }}>Back</button>
           </div>
+
         ) : (
           <> </>
         )}
@@ -225,9 +254,9 @@ const Hostel = () => {
           <div>
             <h2>Update Hostel Details</h2>
             <label>Roll No</label>
-            <input type="number" placeholder='Roll no.' value={rollNo ?? ''} onChange={(e) => setRollNo(Number(e.target.value))} />
+            <input disabled type="number" placeholder='Roll no.' value={rollNo ?? ''} onChange={(e) => setRollNo(e.target.value)} />
             <label>Standard</label>
-            <select className="selectB" value={standard ?? ''} onChange={(e) => setStandard(e.target.value)}>
+            <select disabled className="selectB" value={standard ?? ''} onChange={(e) => setStandard(e.target.value)}>
               <option value=''>Select standard</option>
               <option value='lkg1'>Lkg1</option>
               <option value='kg1'>kg1</option>
@@ -247,13 +276,31 @@ const Hostel = () => {
 
         <div>
           <div className='row'>
-            <h2>Hostel bed rooms:</h2>
+  
+            <h2>Hostel bed rooms (Page {currentPage} of {totalPages}):</h2>
             <div>
-              {occupied.map((ele, index) => (
-                <button key={index} onClick={() => details(ele)} style={{ backgroundColor: available[index] !== 0 ? '#00000' : '#00000', marginLeft: '10px' }}>
+              {paginatedBeds.map((ele, index) => (
+                <button
+                  key={index}
+                  onClick={() => details(ele)}
+                  style={{
+                    backgroundColor: available.includes(ele) ? 'black' : '#b9936c',  
+                    marginLeft: '10px',
+                  }}
+                >
                   {ele}
                 </button>
               ))}
+            </div>
+
+
+            <div style={{ marginTop: '20px' }}>
+              <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                Previous
+              </button>
+              <button onClick={handleNextPage} disabled={currentPage === totalPages} style={{ marginLeft: '10px' }}>
+                Next
+              </button>
             </div>
           </div>
         </div>

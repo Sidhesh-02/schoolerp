@@ -41,7 +41,7 @@ button {
   margin-top: 20px;
   padding: 10px 20px;
   border: none;
-  background-color: rgba(20, 20, 20, 0.855);
+  background-color: black;
   color: white;
   cursor: pointer;
 }

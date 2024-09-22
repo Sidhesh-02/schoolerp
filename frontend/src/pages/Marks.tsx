@@ -43,10 +43,11 @@ const Marks: React.FC = () => {
   const [standards, setStandards] = useState<Standard[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [search, setSearch] = useState<any>();
-  const [rollNo, setRollNo] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [std, setStd] = useState<string>('');
   const [exam, setExam] = useState<string>();
   const [totalPercentage, setTotalPercentage] = useState<number>(0);
+  const [selectedStandard,setSelectedStandard] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,7 +55,8 @@ const Marks: React.FC = () => {
         const standardsResponse = await fetchStandards();
         setStandards(standardsResponse.data.standards);
 
-        const subjectsResponse = await fetchSubjects();
+        const subjectsResponse = await fetchSubjects(selectedStandard);
+
         setSubjects(subjectsResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -64,11 +66,26 @@ const Marks: React.FC = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (selectedStandard) {
+      const fetchSubjectsForStandard = async () => {
+        try {
+          const subjectsResponse = await fetchSubjects(selectedStandard);
+          setSubjects(subjectsResponse.data);
+        } catch (error) {
+          console.error("Error fetching subjects:", error);
+        }
+      };
+      fetchSubjectsForStandard();
+    }
+  }, [selectedStandard]);
+
   const handleStandardChange = async (e: ChangeEvent<HTMLSelectElement>) => {
     const standard = e.target.value;
+    setSelectedStandard(standard); // Set the selected standard
     setFormData((prevFormData) => ({
       ...prevFormData,
-      standard,
+      standard, // Update the form data with the selected standard
       studentName: "",
       marks: [],
     }));
@@ -132,33 +149,25 @@ const Marks: React.FC = () => {
     }
   };
 
-  const calculatePercentage = () => {
-    let marks = 0;
-    let totalMarks = 0;
-    search.marks.forEach((e: any) => {
-      if (exam === e.examinationType) {
-        marks += e.obtainedMarks;
-        totalMarks += e.totalMarks;
-      }
-    });
-    const percentage = (marks / totalMarks) * 100;
-    setTotalPercentage(percentage);
-  };
-
-  useEffect(() => {
-    if (search && search.marks.length > 0) {
-      calculatePercentage();
-    }
-  }, [search, exam]);
-
   const submitChange = async () => {
     try {
-      const response = await searchMarks(rollNo, std);
+      if (!searchQuery) {
+        alert("Required Name or Roll No.");
+        return;
+      }
+      const response = await searchMarks(searchQuery, std);
       setSearch(JSON.parse(response.data).result);
+      setTotalPercentage(JSON.parse(response.data).totalpercentage);
     } catch (error) {
       console.error("Error searching marks:", error);
     }
   };
+
+  const clearResult = async () => {
+    setStandards([]);
+    setExam('');
+    setSearch(null);
+  }
 
   return (
     <div className="global-container">
@@ -267,18 +276,18 @@ const Marks: React.FC = () => {
         )}
         <button className="CustomButton" type="submit">Add Marks</button>
       </form>
-      
-        <br />
-        <br />
-        
+
+      <br />
+      <br />
+
 
       <h2>Search Student Marks</h2>
 
-      <label>Roll No</label>
+      <label>Name/Roll No</label>
       <input
-        type="number"
-        placeholder="Roll no."
-        onChange={(e) => setRollNo(Number(e.target.value))}
+        type="text"
+        placeholder="Search by Name/Roll No"
+        onChange={(e) => setSearchQuery(e.target.value)}
       />
 
       <label>Standard</label>
@@ -306,7 +315,9 @@ const Marks: React.FC = () => {
         <option value="MidTerm">Mid Term</option>
         <option value="Final">Final</option>
       </select>
-      <button onClick={submitChange} type="button">Search</button>
+      <button onClick={submitChange}>Search</button>
+      &nbsp;
+      <button onClick={clearResult}>Clear</button>
       <div>
         {search != null ? (
           <div>
@@ -336,6 +347,7 @@ const Marks: React.FC = () => {
             </table>
             <br />
             <h3>Total Percentage - {totalPercentage}%</h3>
+
 
           </div>
         ) : null}
