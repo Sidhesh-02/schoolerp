@@ -215,31 +215,33 @@ const Hostel = () => {
       <div className="global-container">
         {show ? (
           <div>
-            <h2>Occupied By:</h2>
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-              <tbody>
-                <tr>
-                  <td style={{ padding: '10px 0' }}><strong>Name:</strong></td>
-                  <td style={{ padding: '10px 0' }}>{data.name}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '10px 0' }}><strong>Roll No:</strong></td>
-                  <td style={{ padding: '10px 0' }}>{data.rollNo}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '10px 0' }}><strong>Gender:</strong></td>
-                  <td style={{ padding: '10px 0' }}>{data.gender}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '10px 0' }}><strong>Standard:</strong></td>
-                  <td style={{ padding: '10px 0' }}>{data.standard}</td>
-                </tr>
-                <tr>
-                  <td style={{ padding: '10px 0' }}><strong>Bed Number:</strong></td>
-                  <td style={{ padding: '10px 0' }}>{data.bed_number}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <h2>Occupied By:</h2>
+              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '10px 0' }}><strong>Name:</strong></td>
+                    <td style={{ padding: '10px 0' }}>{data.name}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px 0' }}><strong>Roll No:</strong></td>
+                    <td style={{ padding: '10px 0' }}>{data.rollNo}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px 0' }}><strong>Gender:</strong></td>
+                    <td style={{ padding: '10px 0' }}>{data.gender}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px 0' }}><strong>Standard:</strong></td>
+                    <td style={{ padding: '10px 0' }}>{data.standard}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px 0' }}><strong>Bed Number:</strong></td>
+                    <td style={{ padding: '10px 0' }}>{data.bed_number}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <button onClick={Delete} style={{ background: "#F88379", marginTop: '10px' }}>Delete</button>
             <button style={{ marginLeft: "10px", marginTop: '10px' }} onClick={update}>Update</button>

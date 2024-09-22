@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/Attendance/DownloadAttendanceExcel";
 import "../styles/attendance.css";
 import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../utils/api";
+import SelectStandard from "../components/SelectStandard";
 
 interface Student {
   id: number;
@@ -32,19 +33,7 @@ const Attendance: React.FC = () => {
 
   useEffect(() => {
     fetchStandardsList();
-    fetchSubjectsList();
   }, []);
-
-  useEffect(() =>{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const arr : any = [];
-    subjects.forEach((e: any) =>{
-      if(e.stdId == selectedStandard){
-          arr.push(e);
-      }
-    })
-    setSubjects(arr);
-  }, [selectedStandard])
 
   const fetchStandardsList = async () => {
     try {
@@ -55,9 +44,9 @@ const Attendance: React.FC = () => {
     }
   };
 
-  const fetchSubjectsList = async () => {
+  const fetchSubjectsList = async (standard: string) => {
     try {
-      const response = await fetchSubjects();
+      const response = await fetchSubjects(standard); // Fetch subjects for the selected standard
       setSubjects(response.data);
     } catch (error) {
       console.error("Error fetching subjects:", error);
@@ -75,12 +64,14 @@ const Attendance: React.FC = () => {
 
   const handleStandardChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    await fetchSubjectsList();
     setSelectedStandard(value);
+
     if (value) {
-      fetchStudentsList(value);
+      await fetchSubjectsList(value); // Fetch relevant subjects
+      fetchStudentsList(value); // Fetch students for the selected standard
     } else {
       setStudents([]);
+      setSubjects([]); // Clear subjects if no standard is selected
     }
   };
 
@@ -103,8 +94,7 @@ const Attendance: React.FC = () => {
     setAbsentStudents(updatedAbsentStudents);
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     const data = {
       standard: selectedStandard,
       date: attendanceDate,
@@ -122,13 +112,12 @@ const Attendance: React.FC = () => {
   };
 
   return (
-    <div className="global-container">
-
+    <div className="global-container">  
       <h2>Download Attendance</h2>
       <DownloadAttendance />
       
       <h2>Attendance Markup</h2>
-      <form style={{marginTop:"-8px"}} onSubmit={handleSubmit}>
+      <div style={{marginTop:"-8px"}}>
         <label htmlFor="standard">Select Standard:</label>
         <select
           id="standard"
@@ -171,7 +160,6 @@ const Attendance: React.FC = () => {
         </select>
 
         <div>
-          
           <h4>Mark Absent Students:</h4>
           {students.map((student) => (
             <div className="AttendanceList" key={student.id}>
@@ -189,10 +177,10 @@ const Attendance: React.FC = () => {
           ))}
         </div>
 
-        <button className="CustomButton" type="submit">
+        <button className="CustomButton" onClick={handleSubmit}>
           Submit Attendance
         </button>
-      </form>
+      </div>
     </div>
   );
 };

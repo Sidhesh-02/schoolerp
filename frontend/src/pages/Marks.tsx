@@ -82,10 +82,10 @@ const Marks: React.FC = () => {
 
   const handleStandardChange = async (e: ChangeEvent<HTMLSelectElement>) => {
     const standard = e.target.value;
-    setSelectedStandard(standard); // Set the selected standard
+    setSelectedStandard(standard); 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      standard, // Update the form data with the selected standard
+      standard, 
       studentName: "",
       marks: [],
     }));

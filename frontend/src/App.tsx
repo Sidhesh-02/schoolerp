@@ -71,8 +71,11 @@ const App: React.FC = () => {
   return (
     <div>
       <div style={{ backgroundColor: "rgb(203 213 225)",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-        <button className="nullify-button" style={{fontSize:"15px"}} onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
-          {isNavbarOpen ? "Close Navigation" : "Open Nagivation"}
+        <button className="nullify-button" onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
+          {isNavbarOpen ? 
+            <img style={{marginLeft:"16px"}} width={17} height={12} src="/src/images/hamburger.png" alt="Close" /> : 
+            <img style={{marginLeft:"16px"}} width={17} height={12} src="/src/images/hamburger.png" alt="Open" />
+          }
         </button>
         <div>
           Designed by Svpcet

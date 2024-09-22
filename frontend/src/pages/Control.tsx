@@ -40,7 +40,7 @@ const Control = () => {
 
         SetarrSub(data);
         if (data) {
-            alert("Data Added Successfully");
+            alert("Data Added ! Now Submit Data");
         }
     }
 
@@ -50,13 +50,12 @@ const Control = () => {
             std: Standard,
             subjects: arrSub
         }
-        console.log("arrSub.length  --> ", arrSub.length)
         if (arrSub.length == 0) {
-            alert("Add some subject")
+            alert("Subject Required")
         } else {
             const res = await addSubject(data);
             if (res) {
-                alert("Subjects were added successfully")
+                alert("Subjects Added Successfully")
             }
         }
 
@@ -93,6 +92,7 @@ const Control = () => {
                 <input type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
                 <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input>
                 <span><button className="btn" onClick={SplitSubString}>Add</button></span>
+                &nbsp;
                 <span><button className="btn" onClick={Submit}>Submit</button></span>
             </div>
 
