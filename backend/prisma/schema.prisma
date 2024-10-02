@@ -19,6 +19,9 @@ model Student {
   remark            String?
   address           String
   photoUrl          String?
+
+  sessionId         Int
+  session           Session    @relation(fields: [sessionId], references: [sessionId])
   
   @@unique([standard, rollNo])
   
@@ -122,3 +125,12 @@ model Control{
     Installment_two              Int
     Installment_three            Int
 }
+
+model Session{
+  sessionId  Int @unique @default(autoincrement())
+  sessionName String
+  students      Student[]   
+  attendances   Attendance[] 
+  marks         Marks[]  
+}
+

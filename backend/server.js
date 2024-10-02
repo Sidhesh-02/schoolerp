@@ -7,7 +7,8 @@ const fees = require("./routes/feesRoutes");
 const marks = require("./routes/marksRoutes");
 const hostel = require("./routes/hostelRoutes");
 const control = require("./routes/controlRoutes");
-const {router} = require("./routes/otherRoutes");
+const other = require("./routes/otherRoutes");
+const session = require("./routes/sessionRoutes")
 
 const app = express();
 
@@ -25,7 +26,8 @@ app.use(fees);
 app.use(marks);
 app.use(hostel);
 app.use(control);
-app.use(router);
+app.use(other);
+app.use(session);
 
 
 app.listen(5000, () => {

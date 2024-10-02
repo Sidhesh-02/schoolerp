@@ -294,4 +294,4 @@ router.get("/getChanges", async(req,res)=>{
 })
 
 
-  module.exports = {router};
+  module.exports = router;
