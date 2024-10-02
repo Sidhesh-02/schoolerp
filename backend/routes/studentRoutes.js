@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const fileStorage = require("../sessionManager");
 const router = express.Router();
 
 const prisma = new PrismaClient();
@@ -108,6 +109,7 @@ router.delete("/delete/students", async (req, res) => {
 // Search Students
 router.get("/getallstudent", async (req, res) => {
     const { std } = req.query;
+    
     try {
         const result = await prisma.student.findMany({
             where: {
@@ -120,9 +122,17 @@ router.get("/getallstudent", async (req, res) => {
     }
 });
 
+
 // Get searched student by rollno.:
 router.get("/students/rollNo", async (req, res) => {
     const { param , standard } = req.query;
+    const data = fileStorage.readData();
+    const year = data.year;
+    console.log(year);
+    if (!year) {
+        return res.status(400).send("Year is not set.");
+    }
+
     
     try {
         let student;

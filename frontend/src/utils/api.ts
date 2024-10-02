@@ -255,4 +255,8 @@ export const constants_from_db = async ()=>{
 }
 
 
-  
+export const currentSession = async (year : string)=>{
+  return await axios.post("http://localhost:5000/session",{
+    year : year
+  });
+}

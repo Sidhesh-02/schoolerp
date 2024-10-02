@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
+import { SetStateAction, useState } from "react";
+import { currentSession } from "../utils/api";
 
 interface NavbarProps {
   auth: { username: string; role: "teacher" | "admin" } | null;
@@ -17,9 +19,31 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
     { name: "Marks", roles: ["teacher", "admin"] },
     { name: "Control", roles: ["admin"] },
   ];
+  const [selectYear,setSelectedYear] = useState("2024-2025");
+  
+  const handleYearChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+    setSelectedYear(event.target.value);
+  };
 
+  const submitSession = async()=>{
+    try{
+      const res = await currentSession(selectYear);
+      if(!res){
+        alert("Not able to select");
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
   return (
     <div className="navbar">
+      <label>Select Year</label>
+      <select value={selectYear} onChange={handleYearChange} style={{width:"150px"}}>
+        <option value="2024-2025">2024-2025</option>
+        <option value="2025-2026">2025-2026</option>
+        <option value="2026-2027">2026-2027</option>
+      </select>
+      <button onClick={submitSession}>Submit Session</button>
       <ul>
         {auth &&
           links

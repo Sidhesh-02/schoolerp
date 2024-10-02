@@ -20,9 +20,8 @@ model Student {
   address           String
   photoUrl          String?
 
-  sessionId         Int
-  session           Session    @relation(fields: [sessionId], references: [sessionId])
-  
+  session           String?
+
   @@unique([standard, rollNo])
   
   parents           Parent[]
@@ -124,13 +123,5 @@ model Control{
     Installment_one              Int
     Installment_two              Int
     Installment_three            Int
-}
-
-model Session{
-  sessionId  Int @unique @default(autoincrement())
-  sessionName String
-  students      Student[]   
-  attendances   Attendance[] 
-  marks         Marks[]  
 }
 
