@@ -62,7 +62,6 @@ router.post("/students", async (req, res) => {
                 address,
                 photoUrl,
                 remark,
-                session : session,
                 parents: {
                     create: parents.map((parent) => ({
                         fatherName: parent.fatherName,
@@ -82,6 +81,7 @@ router.post("/students", async (req, res) => {
                         admissionDate: new Date(fee.admissionDate),
                     })),
                 },
+                session
             },
             include: {
                 parents: true,

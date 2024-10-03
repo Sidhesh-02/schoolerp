@@ -89,7 +89,6 @@ router.get("/fees/details", async (req, res) => {
           amountDate: new Date(amountDate),
           admissionDate: new Date(admissionDate),
           studentId: parseInt(studentId),
-          session: session
         },
       });
   

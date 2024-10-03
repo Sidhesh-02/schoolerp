@@ -70,24 +70,23 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <div style={{ backgroundColor: "rgb(203 213 225)",padding:"10px 10px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-        <button className="nullify-button" onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
+      <div style={{ backgroundColor: "rgb(203 213 225)",padding:"10px 30px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <button style={{fontFamily:"Times New Roman",fontSize:"16px"}} className="nullify-button" onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
           {isNavbarOpen ? 
-            <img style={{marginLeft:"16px"}} width={17} height={12} src="/src/images/hamburger.png" alt="Close" /> : 
-            <img style={{marginLeft:"16px"}} width={17} height={12} src="/src/images/hamburger.png" alt="Open" />
+            <div>Close</div>:
+            <div>Open</div>
           }
         </button>
+        <div style={{fontSize:"20px",fontWeight:"bold"}}>Sacred Heart School</div>
         <div>
-          Designed by Svpcet
+          ERP - Pallotii
         </div>
       </div>
 
       <div className="App">
         {isNavbarOpen && <Navbar auth={auth} logout={logout} />}
         <div className="content-wrapper">
-          <header>
-            <h1>Sacred Heart School</h1>
-          </header>
+          
           <Routes>
             <Route path="/" element={<Navigate to="/Report" />} />
             <Route

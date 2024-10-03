@@ -19,7 +19,7 @@ model Student {
   remark            String?
   address           String
   photoUrl          String?
-
+  status            StudentStatus @default(None)
   session           String
 
   @@unique([standard, rollNo, session])
@@ -51,8 +51,6 @@ model Fee {
   admissionDate     DateTime @default(now()) @db.Date
   studentId         Int
   student           Student    @relation(fields: [studentId], references: [id])
-
-  session          String
 }
 
 
@@ -72,17 +70,6 @@ model Attendance {
   session          String
 }
 
-model Subject {
-  id                Int        @id @default(autoincrement())
-  name              String
-  stdId             String     
-  std               Standards   @relation(fields: [stdId], references: [std])
-  attendanceRecords Attendance[]
-  marks             Marks[]
-
-  session          String
-}
-
 model Marks {
   id             Int      @id @default(autoincrement())
   studentId      Int
@@ -94,8 +81,6 @@ model Marks {
   percentage     Float
   student        Student  @relation(fields: [studentId], references: [id])
   subject        Subject  @relation(fields: [subjectId], references: [id])
-
-  session          String
 }
 
 model Hostel{
@@ -106,19 +91,15 @@ model Hostel{
     gender String
     bed_number Int  @unique
     @@unique([rollNo, standard])
-
-    session          String
 }
 
-enum ExaminationType {
-  UnitTest
-  MidTerm
-  Final
-}
-
-enum Gender {
-  Male
-  Female
+model Subject {
+  id                Int        @id @default(autoincrement())
+  name              String
+  stdId             String     
+  std               Standards   @relation(fields: [stdId], references: [std])
+  attendanceRecords Attendance[]
+  marks             Marks[]
 }
 
 model Standards{
@@ -133,6 +114,24 @@ model Control{
     Installment_one              Int
     Installment_two              Int
     Installment_three            Int
-    session          String
 }
+
+enum ExaminationType {
+  UnitTest
+  MidTerm
+  Final
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+enum StudentStatus {
+  Passed
+  Failed
+  None
+}
+
+
 

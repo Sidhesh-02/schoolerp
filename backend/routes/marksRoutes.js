@@ -58,7 +58,6 @@ router.post("/add", async (req, res) => {
               obtainedMarks,
               totalMarks,
               percentage,
-              session: session
             },
           });
         })
@@ -103,7 +102,7 @@ router.post("/add", async (req, res) => {
       if (!result) {
         return res.status(404).json({ message: "Student not found" });
       }
-      res.status(200).json(JSON.stringify({result,totalpercentage}, jsonBigIntReplacer))
+      res.status(200).json(JSON.stringify({result,totalpercentage}, jsonBigIntReplacer));
     }catch(error){
       console.error("Error fetching student marks:", error);
       res.status(500).json({error : error})

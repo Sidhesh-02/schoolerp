@@ -18,7 +18,8 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 router.get('/gethosteldata', async (req, res) => {
     try {
       const result = await prisma.hostel.findMany({where:{session:session}});
-      const hostelRes = await prisma.control.findFirst({where:{session:session}});
+      const hostelRes = await prisma.control.findFirst({where:{session:session}})??0;
+      console.log(hostelRes)
       
       const available = [];
       for (let i = 1; i <= hostelRes.number_of_hostel_bed; i++) {

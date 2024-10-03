@@ -18,7 +18,7 @@ export const uploadPhoto = async (file: File) => {
 };
 
 export const report = async () => {
-  return await axios.get("http://localhost:5000/studentcount");
+  return await axios.get("http://localhost:5000/reportsdata");
 };
 
 
@@ -235,7 +235,7 @@ export const addSubject = async(data : any)=>{
 }
 
 export const addMiscellaneous = async(data : any) =>{
-  const res = await axios.post("http://localhost:5000/fixChanges", {
+  const res = await axios.post("http://localhost:5000/changesFromControlPanel", {
       number_of_hostel_bed : data.num_of_beds,
       one: data.Installment1,
       two :data.Installment2, 

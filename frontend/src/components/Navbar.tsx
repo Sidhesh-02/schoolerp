@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useState, useEffect } from "react";
 import { currentSession } from "../utils/api";
 
 interface NavbarProps {
@@ -19,33 +19,51 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
     { name: "Marks", roles: ["teacher", "admin"] },
     { name: "Control", roles: ["admin"] },
   ];
-  const [selectYear,setSelectedYear] = useState("2024-2025");
-  
-  const handleYearChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-    setSelectedYear(event.target.value);
+
+  // Initialize state with value from localStorage if available
+  const [selectYear, setSelectedYear] = useState(
+    localStorage.getItem("selectedSession") || "2024-2025"
+  );
+
+  useEffect(() => {
+    // On component mount, if there's a saved session, use it
+    const savedSession = localStorage.getItem("selectedSession");
+    if (savedSession) {
+      setSelectedYear(savedSession);
+    }
+  }, []);
+
+  const handleYearChange = (event: { target: { value: SetStateAction<string> } }) => {
+    const selectedValue = event.target.value;
+    setSelectedYear(selectedValue);
   };
 
-  const submitSession = async()=>{
-    try{
+  const submitSession = async () => {
+    try {
       const res = await currentSession(selectYear);
-      if(res){
+      if (res) {
+        // Save the selected year in localStorage
+        localStorage.setItem("selectedSession", selectYear);
         alert(`${selectYear} Session Selected`);
         window.location.reload();
       }
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
-  }
+  };
+
   return (
     <div className="navbar">
       <label>Select Year</label>
-      <select value={selectYear} onChange={handleYearChange} style={{width:"150px"}}>
+      <select value={selectYear} onChange={handleYearChange} style={{ width: "150px" }}>
         <option value="2024-2025">2024-2025</option>
         <option value="2025-2026">2025-2026</option>
         <option value="2026-2027">2026-2027</option>
       </select>
-      <button style={{maxWidth:"max-content"}} onClick={submitSession}>Select Session</button>
-      <ul style={{paddingLeft:"5px"}}>
+      <button style={{ maxWidth: "max-content" }} onClick={submitSession}>
+        Select Session
+      </button>
+      <ul style={{ paddingLeft: "5px" }}>
         {auth &&
           links
             .filter((link) => link.roles.includes(auth.role))

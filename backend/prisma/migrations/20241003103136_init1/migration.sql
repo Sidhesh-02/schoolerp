@@ -4,6 +4,9 @@ CREATE TYPE "ExaminationType" AS ENUM ('UnitTest', 'MidTerm', 'Final');
 -- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('Male', 'Female');
 
+-- CreateEnum
+CREATE TYPE "StudentStatus" AS ENUM ('Passed', 'Failed', 'None');
+
 -- CreateTable
 CREATE TABLE "Student" (
     "id" SERIAL NOT NULL,
@@ -17,6 +20,7 @@ CREATE TABLE "Student" (
     "remark" TEXT,
     "address" TEXT NOT NULL,
     "photoUrl" TEXT,
+    "session" TEXT NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
@@ -44,6 +48,7 @@ CREATE TABLE "Fee" (
     "amountDate" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "admissionDate" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "studentId" INTEGER NOT NULL,
+    "session" TEXT NOT NULL,
 
     CONSTRAINT "Fee_pkey" PRIMARY KEY ("id")
 );
@@ -59,6 +64,7 @@ CREATE TABLE "Attendance" (
     "subjectId" INTEGER,
     "standard" TEXT NOT NULL,
     "subjectName" TEXT,
+    "session" TEXT NOT NULL,
 
     CONSTRAINT "Attendance_pkey" PRIMARY KEY ("id")
 );
@@ -68,6 +74,7 @@ CREATE TABLE "Subject" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "stdId" TEXT NOT NULL,
+    "session" TEXT NOT NULL,
 
     CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
 );
@@ -82,20 +89,22 @@ CREATE TABLE "Marks" (
     "obtainedMarks" DOUBLE PRECISION NOT NULL,
     "totalMarks" DOUBLE PRECISION NOT NULL,
     "percentage" DOUBLE PRECISION NOT NULL,
+    "session" TEXT NOT NULL,
 
     CONSTRAINT "Marks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Hosteldata" (
+CREATE TABLE "Hostel" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "rollNo" INTEGER NOT NULL,
     "standard" TEXT NOT NULL,
     "gender" TEXT NOT NULL,
     "bed_number" INTEGER NOT NULL,
+    "session" TEXT NOT NULL,
 
-    CONSTRAINT "Hosteldata_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Hostel_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -105,28 +114,36 @@ CREATE TABLE "Standards" (
 );
 
 -- CreateTable
-CREATE TABLE "miscellaneous" (
+CREATE TABLE "Control" (
     "id" SERIAL NOT NULL,
     "number_of_hostel_bed" INTEGER NOT NULL,
     "Installment_one" INTEGER NOT NULL,
     "Installment_two" INTEGER NOT NULL,
-    "Installment_three" INTEGER NOT NULL
+    "Installment_three" INTEGER NOT NULL,
+    "session" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Status" (
+    "id" SERIAL NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "status" "StudentStatus" NOT NULL
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_adhaarCardNo_key" ON "Student"("adhaarCardNo");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Student_standard_rollNo_key" ON "Student"("standard", "rollNo");
+CREATE UNIQUE INDEX "Student_standard_rollNo_session_key" ON "Student"("standard", "rollNo", "session");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Hosteldata_id_key" ON "Hosteldata"("id");
+CREATE UNIQUE INDEX "Hostel_id_key" ON "Hostel"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Hosteldata_bed_number_key" ON "Hosteldata"("bed_number");
+CREATE UNIQUE INDEX "Hostel_bed_number_key" ON "Hostel"("bed_number");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Hosteldata_rollNo_standard_key" ON "Hosteldata"("rollNo", "standard");
+CREATE UNIQUE INDEX "Hostel_rollNo_standard_key" ON "Hostel"("rollNo", "standard");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Standards_id_key" ON "Standards"("id");
@@ -135,7 +152,10 @@ CREATE UNIQUE INDEX "Standards_id_key" ON "Standards"("id");
 CREATE UNIQUE INDEX "Standards_std_key" ON "Standards"("std");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "miscellaneous_id_key" ON "miscellaneous"("id");
+CREATE UNIQUE INDEX "Control_id_key" ON "Control"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Status_id_key" ON "Status"("id");
 
 -- AddForeignKey
 ALTER TABLE "Parent" ADD CONSTRAINT "Parent_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

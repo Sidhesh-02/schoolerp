@@ -33,6 +33,8 @@ router.get('/excelstudents', async (req, res) => {
           marks:true,
         },
       });
+
+      
   
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Students');
@@ -193,38 +195,50 @@ router.get('/excelstudents', async (req, res) => {
   });
   
   
-  router.get('/studentcount', async (req, res) => {
+  router.get('/reportsdata', async (req, res) => {
     try {
-        const count = await prisma.student.findMany({
-          where:{session:session}
-        }); 
-        const len = count.length;
-        const feeData = await prisma.fee.findMany();
-        const hostelData = await prisma.hostel.count();
-        
+        // Fetch all required student data (including fees) in one query
+        const studentData = await prisma.student.findMany({
+          where: {
+            session: session,
+          },
+          include: {
+            fees: true,  // Include the related fees data
+          },
+        });
+
+        // Count of students
+        const len = studentData.length;
+
+        // Calculate the total fee amount
         let sumFee = 0;
-        let sumBed = 0;
+        studentData.forEach(student => {
+          student.fees.forEach(fee => {
+            sumFee += fee.amount;
+          });
+        });
+
+        // Get hostel count and bed-related data
+        const hostelData = await prisma.hostel.count();
         let totalBed = await prisma.control.findFirst();
-        totalBed = totalBed.number_of_hostel_bed ?? 0;
-        feeData.map((key)=>{
-          sumFee = sumFee + key.amount;
-        })
-        if(hostelData){
-          sumBed = totalBed - hostelData;
-        }
-        res.send({len,sumFee,sumBed}); 
+        totalBed = totalBed?.number_of_hostel_bed ?? 0;
+        const sumBed = totalBed - hostelData;
+
+        // Send the result
+        res.send({ len, sumFee, sumBed });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
-  });
+});
 
-  router.post("/fixChanges", async (req, res) => {
+
+  router.post("/changesFromControlPanel", async (req, res) => {
     let { number_of_hostel_bed, one, two, three } = req.body;
     
     try {
       // Check if a record already exists
-      const existingRecord = await prisma.control.findFirst({where:{session:session}});
+      const existingRecord = await prisma.control.findFirst();
   
       // Only parse and update fields that have valid values
       const updatedData = {};
@@ -264,6 +278,12 @@ router.get('/excelstudents', async (req, res) => {
           return res.status(400).json({ error: "Invalid Installment_three." });
         }
       }
+
+      if(session){
+        updatedData.session = session;
+      }else{
+        return res.status(400).json({ error: "Error " });
+      }
   
       if (Object.keys(updatedData).length === 0) {
         return res.status(400).json({ error: "No valid data provided for update." });
@@ -282,7 +302,7 @@ router.get('/excelstudents', async (req, res) => {
       } else {
         // Create a new record
         const newRecord = await prisma.control.create({
-          data: updatedData,
+          data: updatedData
         });
         return res.status(200).json(newRecord);
       }
@@ -295,7 +315,7 @@ router.get('/excelstudents', async (req, res) => {
   
 router.get("/getChanges", async(req,res)=>{
   try{
-    const hostelRes = await prisma.control.findFirst({where:{session:session}});
+    const hostelRes = await prisma.control.findFirst();
     res.status(200).json(hostelRes);
   }catch(error){
     res.status(500).json(error);

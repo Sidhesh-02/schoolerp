@@ -26,6 +26,7 @@ const Report = () => {
         <>
             <div>
                 <div className="Dashboard">
+                    <h2 style={{padding:"8px 0px"}}>Reports</h2>
                     {/* Student Data */}
                     <h3>Total Students</h3>
                     <h3 className="data">{count} students</h3>
