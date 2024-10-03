@@ -6,6 +6,10 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const path = require("path");
+const fileStorage = require("../sessionManager");
+
+const data = fileStorage.readData();
+const session = data.year;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -22,11 +26,11 @@ const prisma = new PrismaClient();
 router.get('/excelstudents', async (req, res) => {
     try {
       const studentsInfo = await prisma.student.findMany({
+        where:{session:session},
         include: {
           parents: true,
           fees: true,
           marks:true,
-          
         },
       });
   
@@ -35,6 +39,7 @@ router.get('/excelstudents', async (req, res) => {
   
       // Define columns for the worksheet
       worksheet.columns = [
+        { header: 'Session', key: 'session', width:10},
         { header: 'StudentId', key: 'sid', width: 10 },
         { header: 'Full Name', key: 'fullName', width: 30 },
         { header: 'Gender', key: 'gender', width: 10 },
@@ -56,6 +61,7 @@ router.get('/excelstudents', async (req, res) => {
       studentsInfo.forEach((student) => {
         const feesPaid = student.fees.reduce((sum, fee) => sum + fee.amount, 0);
         worksheet.addRow({
+          session: student.session,
           sid: student.id,
           fullName: student.fullName,
           gender: student.gender,
@@ -146,6 +152,8 @@ router.get('/excelstudents', async (req, res) => {
             },
           ],
           remark:row.getCell(19).value,
+          session:row.getCell(20).value
+          
         };
         students.push(student);
       }
@@ -165,6 +173,7 @@ router.get('/excelstudents', async (req, res) => {
             scholarshipApplied: student.scholarshipApplied,
             address: student.address,
             remark:student.remark,
+            session:student.session,
             parents: {
               create: student.parents,
             },
@@ -186,7 +195,9 @@ router.get('/excelstudents', async (req, res) => {
   
   router.get('/studentcount', async (req, res) => {
     try {
-        const count = await prisma.student.findMany(); 
+        const count = await prisma.student.findMany({
+          where:{session:session}
+        }); 
         const len = count.length;
         const feeData = await prisma.fee.findMany();
         const hostelData = await prisma.hostel.count();
@@ -213,9 +224,7 @@ router.get('/excelstudents', async (req, res) => {
     
     try {
       // Check if a record already exists
-      const existingRecord = await prisma.control.findFirst({
-        where: {},
-      });
+      const existingRecord = await prisma.control.findFirst({where:{session:session}});
   
       // Only parse and update fields that have valid values
       const updatedData = {};
@@ -286,7 +295,7 @@ router.get('/excelstudents', async (req, res) => {
   
 router.get("/getChanges", async(req,res)=>{
   try{
-    const hostelRes = await prisma.control.findFirst();
+    const hostelRes = await prisma.control.findFirst({where:{session:session}});
     res.status(200).json(hostelRes);
   }catch(error){
     res.status(500).json(error);

@@ -20,9 +20,9 @@ model Student {
   address           String
   photoUrl          String?
 
-  session           String?
+  session           String
 
-  @@unique([standard, rollNo])
+  @@unique([standard, rollNo, session])
   
   parents           Parent[]
   fees              Fee[]
@@ -51,6 +51,8 @@ model Fee {
   admissionDate     DateTime @default(now()) @db.Date
   studentId         Int
   student           Student    @relation(fields: [studentId], references: [id])
+
+  session          String
 }
 
 
@@ -66,6 +68,8 @@ model Attendance {
   subject           Subject?   @relation(fields: [subjectId], references: [id])
   standard          String
   subjectName       String?
+
+  session          String
 }
 
 model Subject {
@@ -75,6 +79,8 @@ model Subject {
   std               Standards   @relation(fields: [stdId], references: [std])
   attendanceRecords Attendance[]
   marks             Marks[]
+
+  session          String
 }
 
 model Marks {
@@ -88,6 +94,8 @@ model Marks {
   percentage     Float
   student        Student  @relation(fields: [studentId], references: [id])
   subject        Subject  @relation(fields: [subjectId], references: [id])
+
+  session          String
 }
 
 model Hostel{
@@ -98,6 +106,8 @@ model Hostel{
     gender String
     bed_number Int  @unique
     @@unique([rollNo, standard])
+
+    session          String
 }
 
 enum ExaminationType {
@@ -123,5 +133,6 @@ model Control{
     Installment_one              Int
     Installment_two              Int
     Installment_three            Int
+    session          String
 }
 

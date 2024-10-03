@@ -6,6 +6,9 @@ const router = express.Router();
 const path = require("path");
 const prisma = new PrismaClient();
 
+const fileStorage = require("../sessionManager");
+const data = fileStorage.readData();
+const session = data.year;
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
@@ -23,6 +26,7 @@ router.get("/fees/details", async (req, res) => {
     try {
       const result = await prisma.student.findFirst({
         where: {
+          session:session,
           standard: standard.toString(),
           rollNo: parseInt(roll_no),
         },
@@ -85,6 +89,7 @@ router.get("/fees/details", async (req, res) => {
           amountDate: new Date(amountDate),
           admissionDate: new Date(admissionDate),
           studentId: parseInt(studentId),
+          session: session
         },
       });
   

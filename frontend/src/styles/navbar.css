@@ -8,12 +8,13 @@
 }
 
 .navbar ul {
+  margin-top: 30px;
   list-style-type: none;
   padding: 0;
 }
 
 .navbar li {
-  margin: 10px 0;
+  margin: 5px 0;
 }
 
 .logout{

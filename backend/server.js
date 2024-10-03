@@ -15,7 +15,6 @@ const other = require("./routes/otherRoutes");
 
 const app = express();
 
-// Configure CORS
 app.use(cors());
 
 app.use(express.json());
@@ -24,19 +23,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.post('/session', (req, res) => {
     const { year } = req.body;
-
     if (!year) {
         return res.status(400).send('Year is required');
     }
-
     // Read current data from the file
     const data = fileStorage.readData();
-    
     // Set the year in the file
     data.year = year;
     fileStorage.writeData(data);
-
-    console.log("Year stored in local file:", year);
     res.status(200).send({ message: 'Year stored', year });
 });
 

@@ -2,6 +2,10 @@ const express = require("express");
 const {PrismaClient} = require("@prisma/client");
 const prisma = new PrismaClient();
 
+const fileStorage = require("../sessionManager");
+const data = fileStorage.readData();
+const session = data.year;
+
 const router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({extended : true}));

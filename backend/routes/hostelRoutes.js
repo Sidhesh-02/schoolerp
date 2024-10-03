@@ -4,7 +4,9 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const path = require("path");
 
-const {hostelRes} = require("./otherRoutes");
+const fileStorage = require("../sessionManager");
+const data = fileStorage.readData();
+const session = data.year;
  
 const prisma = new PrismaClient();
 
@@ -15,8 +17,8 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Get Hostel Data
 router.get('/gethosteldata', async (req, res) => {
     try {
-      const result = await prisma.hostel.findMany();
-      const hostelRes = await prisma.control.findFirst();
+      const result = await prisma.hostel.findMany({where:{session:session}});
+      const hostelRes = await prisma.control.findFirst({where:{session:session}});
       
       const available = [];
       for (let i = 1; i <= hostelRes.number_of_hostel_bed; i++) {
@@ -52,6 +54,7 @@ router.get('/gethosteldata', async (req, res) => {
                 gender : gender,
                 bed_number: bed_no,
                 rollNo : parseInt(rollNo),
+                session: session
             },
         });
        
@@ -71,7 +74,8 @@ router.get('/gethosteldata', async (req, res) => {
             where : {
               rollNo_standard : {
                 rollNo : parseInt(rollNo),
-                standard : standard
+                standard : standard,
+                session: session
               }
             },
             data: {
@@ -94,7 +98,8 @@ router.get('/gethosteldata', async (req, res) => {
           const result = await prisma.hostel.delete({
             where :{
               rollNo : parseInt(rollNo),
-              bed_number : bed_no
+              bed_number : bed_no,
+              session: session
             }
           })
           res.status(201).json(result)

@@ -28,8 +28,9 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
   const submitSession = async()=>{
     try{
       const res = await currentSession(selectYear);
-      if(!res){
-        alert("Not able to select");
+      if(res){
+        alert(`${selectYear} Session Selected`);
+        window.location.reload();
       }
     }catch(e){
       console.error(e);
@@ -43,8 +44,8 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
         <option value="2025-2026">2025-2026</option>
         <option value="2026-2027">2026-2027</option>
       </select>
-      <button onClick={submitSession}>Submit Session</button>
-      <ul>
+      <button style={{maxWidth:"max-content"}} onClick={submitSession}>Select Session</button>
+      <ul style={{paddingLeft:"5px"}}>
         {auth &&
           links
             .filter((link) => link.roles.includes(auth.role))

@@ -1,10 +1,11 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const fileStorage = require("../sessionManager");
 const router = express.Router();
-
 const prisma = new PrismaClient();
 
+const fileStorage = require("../sessionManager");
+const data = fileStorage.readData();
+const session = data.year;
 function jsonBigIntReplacer(key, value) {
     if (typeof value === "bigint") {
         return value.toString();
@@ -61,6 +62,7 @@ router.post("/students", async (req, res) => {
                 address,
                 photoUrl,
                 remark,
+                session : session,
                 parents: {
                     create: parents.map((parent) => ({
                         fatherName: parent.fatherName,
@@ -113,7 +115,8 @@ router.get("/getallstudent", async (req, res) => {
     try {
         const result = await prisma.student.findMany({
             where: {
-                standard: std
+                standard: std,
+                session : session
             }
         });
         res.status(200).json(JSON.parse(JSON.stringify({ result }, jsonBigIntReplacer)));
@@ -126,13 +129,11 @@ router.get("/getallstudent", async (req, res) => {
 // Get searched student by rollno.:
 router.get("/students/rollNo", async (req, res) => {
     const { param , standard } = req.query;
-    const data = fileStorage.readData();
-    const year = data.year;
-    console.log(year);
-    if (!year) {
-        return res.status(400).send("Year is not set.");
-    }
+    
 
+    if (!session) {
+        alert("Backend issue with session, Contact Developer")
+    }
     
     try {
         let student;
@@ -141,6 +142,7 @@ router.get("/students/rollNo", async (req, res) => {
                 where: {
                     rollNo: parseInt(param),
                     standard: standard,
+                    session: session
                 },
                 include: {
                     parents: true,
@@ -152,6 +154,7 @@ router.get("/students/rollNo", async (req, res) => {
                 where: {
                     fullName: param,
                     standard: standard,
+                    session : session
                 },
                 include: {
                     parents: true,
@@ -176,7 +179,8 @@ router.get("/getallstudentsc",async (req,res)=>{
     try{
         const studentsc = await prisma.student.findMany({
             where:{
-                scholarshipApplied:true
+                scholarshipApplied:true,
+                session:session
             }
         })
         if (studentsc) {
@@ -210,7 +214,7 @@ router.put("/update/student/:id", async (req, res) => {
     try {
         // Update student details
         const updatedStudent = await prisma.student.update({
-            where: { id: studentId },
+            where: { id: studentId},
             data: {
                 fullName,
                 gender,

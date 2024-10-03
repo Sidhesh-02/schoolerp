@@ -3,6 +3,7 @@ const path = require('path');
 
 // Path to the JSON file that will store session-like data
 const filePath = path.join(__dirname, 'sessionData.json');
+const filePath2 = path.join(__dirname, 'sessionUpdate.json');
 
 // Utility function to read data from the JSON file
 function readData() {
@@ -24,8 +25,19 @@ function writeData(data) {
     }
 }
 
+function readDataUpdate() {
+    try {
+        const data = fs.readFileSync(filePath2, 'utf-8');
+        return JSON.parse(data);  // Parse and return JSON data
+    } catch (err) {
+        // If file doesn't exist or there's an error, return default data
+        return { year: null };
+    }
+}
+
 // Export the read and write functions
 module.exports = {
     readData,
-    writeData
+    writeData,
+    readDataUpdate
 };

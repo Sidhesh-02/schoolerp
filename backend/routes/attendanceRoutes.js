@@ -3,7 +3,10 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const path = require("path");
 const ExcelJS = require("exceljs");
+const fileStorage = require("../sessionManager");
 
+const data = fileStorage.readData();
+const session = data.year;
 
 const prisma = new PrismaClient();
 
@@ -26,6 +29,7 @@ router.get("/getstandards", async (req, res) => {
     try {
       const standards = await prisma.student.findMany({
         distinct: ["standard"],
+        where : { session: session},
         select: {
           standard: true,
         },
@@ -49,6 +53,7 @@ router.get("/getstandards", async (req, res) => {
       const students = await prisma.student.findMany({
         where: {
           standard,
+          session:session
         },
         orderBy: { rollNo: "asc" },
       });
@@ -83,7 +88,7 @@ router.get("/getstandards", async (req, res) => {
   
     try {
       const students = await prisma.student.findMany({
-        where: { standard },
+        where: { standard, session:session },
       });
   
       let subject = null;

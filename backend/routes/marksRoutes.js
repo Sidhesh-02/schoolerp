@@ -3,6 +3,9 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const path = require("path");
 
+const fileStorage = require("../sessionManager");
+const data = fileStorage.readData();
+const session = data.year;
 
 const prisma = new PrismaClient();
 
@@ -34,7 +37,7 @@ router.post("/add", async (req, res) => {
   
     try {
       const student = await prisma.student.findFirst({
-        where: { fullName: studentName, standard },
+        where: { fullName: studentName, standard, session: session },
       });
   
       if (!student) {
@@ -55,6 +58,7 @@ router.post("/add", async (req, res) => {
               obtainedMarks,
               totalMarks,
               percentage,
+              session: session
             },
           });
         })
@@ -75,7 +79,8 @@ router.post("/add", async (req, res) => {
         result = await prisma.student.findFirst({
           where:{
             rollNo : parseInt(param),
-            standard : standard
+            standard : standard,
+            session: session
           },
           include:{
             marks : true,
@@ -85,7 +90,8 @@ router.post("/add", async (req, res) => {
         result = await prisma.student.findFirst({
           where:{
             rollNo : param,
-            standard : standard
+            standard : standard,
+            session: session
           },
           include:{
             marks : true,
