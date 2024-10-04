@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 
 
 interface Student {
+  remark: string;
   id: number;
   fullName: string;
   rollNo: string;
@@ -659,7 +660,6 @@ const SearchStudent: React.FC = () => {
             <div>
               <label>Scholarship Applied:</label>
               <input
-                
                 type="checkbox"
                 name="scholarshipApplied"
                 checked={editableStudent.scholarshipApplied}
@@ -669,6 +669,16 @@ const SearchStudent: React.FC = () => {
                     scholarshipApplied: e.target.checked,
                   })
                 }
+              />
+            </div>
+            <div>
+              <label>Remark:</label>
+              <input
+                className="StudentInput"
+                type="text"
+                name="remark"
+                value={editableStudent.remark}
+                onChange={handleInputChange}
               />
             </div>
             <div>

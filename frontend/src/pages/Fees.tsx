@@ -57,7 +57,7 @@ const Fees: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching fees details", error);
-      alert("An error occurred while fetching fees details. Please try again later.");
+      alert("Error, Contact Developer/Check Student Presence");
     } finally {
       setLoading(false);
     }

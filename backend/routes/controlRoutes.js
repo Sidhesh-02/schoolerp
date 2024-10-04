@@ -100,9 +100,6 @@ const promotionData = {
   
   router.post("/promotion", async (req, res) => {
     try {
-       
-  
-      
       const studentData = await prisma.student.findMany({
         include: {
           parents: true,
@@ -155,25 +152,47 @@ const promotionData = {
                   fatherContact: parent.fatherContact,
                   motherContact: parent.motherContact,
                   address: parent.address,
-                  // Don't copy the parent's id
                 })),
               },
               fees: {
                 create: oldStudent.fees.map((fee) => ({
-                  title: fee.title,
-                  amount: fee.amount,
-                  amountDate: new Date(),  // Set new date for the new fee record
-                  admissionDate: new Date(),  // Set new date for the admission
-                  // Don't copy the fee's id
+                  title: "",
+                  amount: 0,
+                  amountDate: new Date(),  
+                  admissionDate: new Date(),  
                 })),
               },
             };
-  
+            
+            
             // Create the new student with the modified data
             const createdStudent = await prisma.student.create({
               data: newStudentData,
             });
-  
+            
+            // Findind Student Data From the next session
+            const newId = await prisma.student.findFirst({
+              where :{
+                session : newSession
+              },
+            });
+
+            // Finding Student with the studentId to get the table new created ID
+            const feeRecord = await prisma.fee.findFirst({
+              where: {
+                studentId: newId.id,
+                admissionDate: new Date(),
+              },
+            });
+            // If found then deleting the entry 
+            if (feeRecord) {
+              await prisma.fee.delete({
+                where: {
+                  id: feeRecord.id,  // Deleting by the unique ID of the fee record
+                },
+              });
+              console.log("Fee deleted");
+            }
             return createdStudent;  // Return the newly created student data
           }
   

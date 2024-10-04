@@ -108,6 +108,7 @@ router.get("/getstandards", async (req, res) => {
         subjectId: subject ? parseInt(subjectId) : null,
         subjectName: subject ? subject.name : null, // Assign subject name if found
         standard, // Assign standard to each attendance record
+        session
       }));
   
       await prisma.attendance.createMany({
@@ -128,7 +129,9 @@ router.get("/getstandards", async (req, res) => {
         include: {
           student: true,
           subject: true,
-        },
+        },where:{
+          session:session
+        }
       });
   
       const workbook = new ExcelJS.Workbook();
@@ -141,6 +144,7 @@ router.get("/getstandards", async (req, res) => {
         { header: "Date", key: "date", width: 20 },
         { header: "Status", key: "status", width: 10 },
         { header: "Roll No", key: "rollNo", width: 10 },
+        { header: "Session", key: "session", width: 10 },
       ];
   
       attendanceRecords.forEach((record) => {
@@ -151,6 +155,7 @@ router.get("/getstandards", async (req, res) => {
           date: new Date(record.date).toLocaleDateString(),
           status: record.status ? "Absent" : "Present",
           rollNo: record.rollNo,
+          session: session
         });
       });
   
