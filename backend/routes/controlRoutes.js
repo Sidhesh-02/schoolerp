@@ -98,11 +98,9 @@ const promotionData = {
     return count > 0 ? (sumPercent / count).toFixed(2) : 0;  // Avoid division by zero
   }
   
+
   router.post("/promotion", async (req, res) => {
     try {
-       
-  
-      
       const studentData = await prisma.student.findMany({
         include: {
           parents: true,
@@ -168,12 +166,38 @@ const promotionData = {
                 })),
               },
             };
-  
+            
+            console.log("newStudentData --> ", newStudentData);
             // Create the new student with the modified data
             const createdStudent = await prisma.student.create({
               data: newStudentData,
             });
-  
+
+            const newId = await prisma.student.findFirst({
+              where :{
+                session : newSession
+              },
+
+            });
+            console.log("newId --> ", newId);
+            await prisma.fee.delete({
+                where : {
+                  studentId : parseInt(newId.id),
+                  admissionDate : oldStudent.fees.admissionDate
+                }
+            })
+            
+            await prisma.attendance.delete({
+              where : {
+                session : newSession
+              }
+            })
+          
+            await prisma.marks.delete({
+              where : {
+                studentId : parseInt(newId.id)
+              }
+            })
             return createdStudent;  // Return the newly created student data
           }
   
