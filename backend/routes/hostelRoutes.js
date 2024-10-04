@@ -17,9 +17,8 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Get Hostel Data
 router.get('/gethosteldata', async (req, res) => {
     try {
-      const result = await prisma.hostel.findMany({where:{session:session}});
-      const hostelRes = await prisma.control.findFirst({where:{session:session}})??0;
-      console.log(hostelRes)
+      const result = await prisma.hostel.findMany();
+      const hostelRes = await prisma.control.findFirst();
       
       const available = [];
       for (let i = 1; i <= hostelRes.number_of_hostel_bed; i++) {
@@ -55,7 +54,6 @@ router.get('/gethosteldata', async (req, res) => {
                 gender : gender,
                 bed_number: bed_no,
                 rollNo : parseInt(rollNo),
-                session: session
             },
         });
        
@@ -76,7 +74,6 @@ router.get('/gethosteldata', async (req, res) => {
               rollNo_standard : {
                 rollNo : parseInt(rollNo),
                 standard : standard,
-                session: session
               }
             },
             data: {
@@ -100,7 +97,6 @@ router.get('/gethosteldata', async (req, res) => {
             where :{
               rollNo : parseInt(rollNo),
               bed_number : bed_no,
-              session: session
             }
           })
           res.status(201).json(result)

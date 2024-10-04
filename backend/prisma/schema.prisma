@@ -14,14 +14,14 @@ model Student {
   dateOfBirth       DateTime @default(now()) @db.Date
   rollNo            Int        
   standard          String     
-  adhaarCardNo      BigInt     @unique
+  adhaarCardNo      BigInt    
   scholarshipApplied Boolean
   remark            String?
   address           String
   photoUrl          String?
   status            StudentStatus @default(None)
   session           String
-
+  
   @@unique([standard, rollNo, session])
   
   parents           Parent[]

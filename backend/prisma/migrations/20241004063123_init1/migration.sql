@@ -20,6 +20,7 @@ CREATE TABLE "Student" (
     "remark" TEXT,
     "address" TEXT NOT NULL,
     "photoUrl" TEXT,
+    "status" "StudentStatus" NOT NULL DEFAULT 'None',
     "session" TEXT NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
@@ -48,7 +49,6 @@ CREATE TABLE "Fee" (
     "amountDate" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "admissionDate" DATE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "studentId" INTEGER NOT NULL,
-    "session" TEXT NOT NULL,
 
     CONSTRAINT "Fee_pkey" PRIMARY KEY ("id")
 );
@@ -70,16 +70,6 @@ CREATE TABLE "Attendance" (
 );
 
 -- CreateTable
-CREATE TABLE "Subject" (
-    "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
-    "stdId" TEXT NOT NULL,
-    "session" TEXT NOT NULL,
-
-    CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Marks" (
     "id" SERIAL NOT NULL,
     "studentId" INTEGER NOT NULL,
@@ -89,7 +79,6 @@ CREATE TABLE "Marks" (
     "obtainedMarks" DOUBLE PRECISION NOT NULL,
     "totalMarks" DOUBLE PRECISION NOT NULL,
     "percentage" DOUBLE PRECISION NOT NULL,
-    "session" TEXT NOT NULL,
 
     CONSTRAINT "Marks_pkey" PRIMARY KEY ("id")
 );
@@ -102,9 +91,17 @@ CREATE TABLE "Hostel" (
     "standard" TEXT NOT NULL,
     "gender" TEXT NOT NULL,
     "bed_number" INTEGER NOT NULL,
-    "session" TEXT NOT NULL,
 
     CONSTRAINT "Hostel_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subject" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "stdId" TEXT NOT NULL,
+
+    CONSTRAINT "Subject_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -119,19 +116,8 @@ CREATE TABLE "Control" (
     "number_of_hostel_bed" INTEGER NOT NULL,
     "Installment_one" INTEGER NOT NULL,
     "Installment_two" INTEGER NOT NULL,
-    "Installment_three" INTEGER NOT NULL,
-    "session" TEXT NOT NULL
+    "Installment_three" INTEGER NOT NULL
 );
-
--- CreateTable
-CREATE TABLE "Status" (
-    "id" SERIAL NOT NULL,
-    "studentId" INTEGER NOT NULL,
-    "status" "StudentStatus" NOT NULL
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "Student_adhaarCardNo_key" ON "Student"("adhaarCardNo");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_standard_rollNo_session_key" ON "Student"("standard", "rollNo", "session");
@@ -154,9 +140,6 @@ CREATE UNIQUE INDEX "Standards_std_key" ON "Standards"("std");
 -- CreateIndex
 CREATE UNIQUE INDEX "Control_id_key" ON "Control"("id");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Status_id_key" ON "Status"("id");
-
 -- AddForeignKey
 ALTER TABLE "Parent" ADD CONSTRAINT "Parent_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -170,10 +153,10 @@ ALTER TABLE "Attendance" ADD CONSTRAINT "Attendance_studentId_fkey" FOREIGN KEY 
 ALTER TABLE "Attendance" ADD CONSTRAINT "Attendance_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Subject" ADD CONSTRAINT "Subject_stdId_fkey" FOREIGN KEY ("stdId") REFERENCES "Standards"("std") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Marks" ADD CONSTRAINT "Marks_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Marks" ADD CONSTRAINT "Marks_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Subject" ADD CONSTRAINT "Subject_stdId_fkey" FOREIGN KEY ("stdId") REFERENCES "Standards"("std") ON DELETE RESTRICT ON UPDATE CASCADE;

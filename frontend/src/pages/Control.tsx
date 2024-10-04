@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useState } from 'react'
-import { addMiscellaneous, addSubject } from '../utils/api';
+import { addControlValues, addSubject } from '../utils/api';
 import StudentsInfoDownload from '../components/Student/RetriveStudentExcel';
 import PhotoUpdate from '../components/Search/PhotoUpdate';
+import axios from 'axios';
 
 
 
@@ -61,18 +62,25 @@ const Control = () => {
 
     }
 
-    const handleMiscellaneousChanges = async () => {
+    const handleControlChanges = async () => {
         const data = {
             num_of_beds,
             Installment1,
             Installment2,
             Installment3,
         }
-        const res = await addMiscellaneous(data);
+        const res = await addControlValues(data);
         if (res) {
-            alert("Installments and No of Beds Updated")
+            alert("Entry Successfull");
         } else {
-            alert("unsuccsesful")
+            alert("Unsuccsesful");
+        }
+    }
+
+    const studentPromoteRoute = async()=>{
+        const promotionData = await axios.post("http://localhost:5000/promotion");
+        if(promotionData){
+            alert("Student Promoted Succesfully");
         }
     }
 
@@ -99,12 +107,22 @@ const Control = () => {
             <hr style={{ margin: "30px 0px" }} />
             {/* for changing number of hostel beds  and Installment fee*/}
             <div>
-                <h2>Update Hostel Beds & Fees</h2>
+                <h2>Control Beds and Installements</h2>
+                <label>Set Hostel Beds : </label>
                 <input type='number' placeholder='Enter number of hostel beds' onChange={(e) => { Setnum_of_beds(Number(e.target.value)) }}></input>
+                <label>Set Installments : </label>
                 <input type='number' placeholder='Installment 1' onChange={(e) => { SetInstallment1(Number(e.target.value)) }}></input>
                 <input type='number' placeholder='Installment 2' onChange={(e) => { SetInstallment2(Number(e.target.value)) }}></input>
                 <input type='number' placeholder='Installment 3' onChange={(e) => { SetInstallment3(Number(e.target.value)) }}></input>
-                <button onClick={handleMiscellaneousChanges}>Submit</button>
+                <button onClick={handleControlChanges}>Submit</button>
+            </div>
+            <br />
+            <div style={{color:"#8B0000", marginLeft:"5px"}}>
+                <h2>Danger Zone - Handle with Caution</h2>
+                <div>
+                    <label>Promote Qualified Students</label>
+                    <button style={{marginTop:"5px"}} onClick={studentPromoteRoute} >Promote</button>
+                </div>
             </div>
 
         </div>

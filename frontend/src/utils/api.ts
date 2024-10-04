@@ -234,7 +234,7 @@ export const addSubject = async(data : any)=>{
   return res;
 }
 
-export const addMiscellaneous = async(data : any) =>{
+export const addControlValues = async(data : any) =>{
   const res = await axios.post("http://localhost:5000/changesFromControlPanel", {
       number_of_hostel_bed : data.num_of_beds,
       one: data.Installment1,

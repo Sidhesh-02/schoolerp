@@ -278,12 +278,6 @@ router.get('/excelstudents', async (req, res) => {
           return res.status(400).json({ error: "Invalid Installment_three." });
         }
       }
-
-      if(session){
-        updatedData.session = session;
-      }else{
-        return res.status(400).json({ error: "Error " });
-      }
   
       if (Object.keys(updatedData).length === 0) {
         return res.status(400).json({ error: "No valid data provided for update." });
