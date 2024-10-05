@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { constants_from_db, createStudent, uploadPhoto } from "../utils/api";
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
+import StudentsInfoDownload from "../components/Student/RetriveStudentExcel";
 
 interface Student {
   fullName: string;
@@ -167,7 +168,17 @@ const Student: React.FC = () => {
   return (
     <div>
       <div className="global-container">
-          <UploadStudents/>
+      <div className="import_export">
+          <div className="innerbox"> 
+               <StudentsInfoDownload />
+          </div>
+          <div className="innerbox">
+              <UploadStudents/>
+          </div>
+        </div>
+       
+          
+         
       </div>
       <div className="global-container">
         <h2>Create Student Profile</h2>

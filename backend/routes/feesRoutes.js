@@ -2,6 +2,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
+const ExcelJS = require("exceljs");
 
 const path = require("path");
 const prisma = new PrismaClient();
@@ -36,6 +37,9 @@ router.get("/fees/details", async (req, res) => {
           rollNo: true,
           standard: true,
           fees: {
+            where :{
+
+            },
             select: {
               title: true,
               amount: true,
@@ -87,7 +91,7 @@ router.get("/fees/details", async (req, res) => {
           title,
           amount: parseFloat(amount),
           amountDate: new Date(amountDate),
-          admissionDate: new Date(admissionDate),
+          admissionDate: new Date(),
           studentId: parseInt(studentId),
         },
       });
@@ -96,6 +100,51 @@ router.get("/fees/details", async (req, res) => {
     } catch (error) {
       console.error("Error adding fee:", error);
       res.status(500).json({ error: "An error occurred" });
+    }
+  });
+
+
+
+  router.get("/downloadfeedata", async (req, res) => {
+    try {
+      const feeRecord = await prisma.fee.findMany();
+  
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Fees");
+  
+      worksheet.columns = [
+        { header: "id", key: "id", width: 30 },
+        { header: "title", key: "title", width: 15 },
+        { header: "amount", key: "amount", width: 30 },
+        { header: "amountDate", key: "amountDate", width: 20 },
+        { header: "admissionDate", key: "admissionDate", width: 10 },
+        { header: "studentId ", key: "studentId", width: 10 },
+      ];
+  
+      feeRecord.forEach((record) => {
+        worksheet.addRow({
+          id                  : record.id,
+          title               : record.title,
+          amount              : record.amount,
+          amountDate          : record.amountDate,
+          admissionDate       : record.admissionDate,
+          studentId           : record.studentId
+      })});
+  
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=Fees.xlsx"
+      );
+     
+      await workbook.xlsx.write(res);
+      res.end();
+    }catch (error) {
+      console.error("Error generating attendance Excel file:", error);
+      res.status(500).send("Failed to generate Excel file");
     }
   });
 

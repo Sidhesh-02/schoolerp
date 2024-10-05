@@ -153,52 +153,32 @@ const promotionData = {
                   fatherContact: parent.fatherContact,
                   motherContact: parent.motherContact,
                   address: parent.address,
-                  // Don't copy the parent's id
                 })),
               },
-              fees: {
-                create: oldStudent.fees.map((fee) => ({
-                  title: fee.title,
-                  amount: fee.amount,
-                  amountDate: new Date(),  // Set new date for the new fee record
-                  admissionDate: new Date(),  // Set new date for the admission
-                  // Don't copy the fee's id
-                })),
-              },
+            
             };
             
-            console.log("newStudentData --> ", newStudentData);
-            // Create the new student with the modified data
-            const createdStudent = await prisma.student.create({
-              data: newStudentData,
-            });
-
-            const newId = await prisma.student.findFirst({
-              where :{
-                session : newSession
-              },
-
-            });
-            console.log("newId --> ", newId);
-            await prisma.fee.delete({
-                where : {
-                  studentId : parseInt(newId.id),
-                  admissionDate : oldStudent.fees.admissionDate
-                }
-            })
             
-            await prisma.attendance.delete({
-              where : {
-                session : newSession
-              }
-            })
-          
-            await prisma.marks.delete({
-              where : {
-                studentId : parseInt(newId.id)
-              }
-            })
-            return createdStudent;  // Return the newly created student data
+            // Create the new student with the modified data
+            const existingStudent = await prisma.student.findUnique({
+              where: {
+                standard_rollNo_session: {
+                  standard: newStandard,
+                  rollNo: oldStudent.rollNo,
+                  session: newSession,
+                },
+              },
+            });
+            
+            if (!existingStudent) {
+              const createdStudent = await prisma.student.create({
+                data: newStudentData,
+              });
+              return createdStudent; // Return the newly created student data
+            }
+            
+
+            return null;
           }
   
           return null;  // Return null for students who are not promoted

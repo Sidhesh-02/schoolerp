@@ -2,6 +2,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
+const ExcelJS = require("exceljs");
 const path = require("path");
 
 const fileStorage = require("../sessionManager");
@@ -104,5 +105,48 @@ router.get('/gethosteldata', async (req, res) => {
         res.status(404).json({message : error})
       }
   })
+
+  router.get("/downloadhosteldata", async (req, res) => {
+    try {
+      const feeRecord = await prisma.hostel.findMany();
+  
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Hostel");
+  
+      worksheet.columns = [
+        { header: "id", key: "id", width: 30 },
+        { header: "name", key: "name", width: 15 },
+        { header: "rollNo", key: "rollNo", width: 30 },
+        { header: "standard", key: "standard", width: 20 },
+        { header: "gender", key: "gender", width: 10 },
+        { header: "bed_number ", key: "bed_number", width: 10 },
+      ];
+  
+      feeRecord.forEach((record) => {
+        worksheet.addRow({
+          id                  : record.id,
+          name                : record.name,
+          rollNo              : record.rollNo,
+          standard            : record.standard,
+          gender              : record.gender,
+          bed_number          : record.bed_number
+      })});
+  
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=Hostel.xlsx"
+      );
+      
+      await workbook.xlsx.write(res);
+      res.end();
+    }catch (error) {
+      console.error("Error generating attendance Excel file:", error);
+      res.status(500).send("Failed to generate Excel file");
+    }
+  });
 
   module.exports = router;

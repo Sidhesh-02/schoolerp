@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/Attendance/DownloadAttendanceExcel";
 import "../styles/attendance.css";
 import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../utils/api";
-import SelectStandard from "../components/SelectStandard";
+import UploadAttendance from "../components/Attendance/UploadAttendance";
+// import SelectStandard from "../components/SelectStandard";
 
 interface Student {
   id: number;
@@ -105,16 +106,26 @@ const Attendance: React.FC = () => {
     try {
       await submitAttendance(data);
       alert("Attendance recorded successfully");
+      window.location.reload();
     } catch (error) {
       console.error("Error recording attendance:", error);
-      alert("Failed to record attendance");
+      alert("Check Input Parameters");
     }
   };
 
   return (
     <div className="global-container">  
-      <h2>Download Attendance</h2>
-      <DownloadAttendance />
+      <div className="import_export">
+        <div className="innerbox">
+            <h2>Download Attendance</h2>
+            <DownloadAttendance />
+        </div>
+        <div className="innerbox" >
+            <h2>Upload Attendance</h2>
+            <UploadAttendance/>
+        </div>
+      </div>
+      
       
       <h2>Attendance Markup</h2>
       <div style={{marginTop:"-8px"}}>
@@ -160,22 +171,36 @@ const Attendance: React.FC = () => {
         </select>
 
         <div>
-          <h4>Mark Absent Students:</h4>
-          {students.map((student) => (
-            <div className="AttendanceList" key={student.id}>
-              <input
-                type="checkbox"
-                id={`student-${student.rollNo}`}
-                name={`absentStudents`}
-                checked={absentStudents.includes(student.rollNo)}
-                onChange={() => handleCheckboxChange(student.rollNo)}
-              />
-              <label htmlFor={`student-${student.rollNo}`}>
-                {student.fullName} (Roll No: {student.rollNo})
-              </label>
-            </div>
-          ))}
+          
+          <table className="AttendanceTable">
+            <thead>
+              <tr>
+                <th>Roll No</th>
+                <th>Full Name</th>
+                <th>Mark Absent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((student) => (
+                <tr key={student.id}>
+                  <td>{student.rollNo}</td>
+                  <td>{student.fullName}</td>
+                  <td>
+                    <input
+                      style={{width:"20px"}}
+                      type="checkbox"
+                      id={`student-${student.rollNo}`}
+                      name="absentStudents"
+                      checked={absentStudents.includes(student.rollNo)}
+                      onChange={() => handleCheckboxChange(student.rollNo)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+
 
         <button className="CustomButton" onClick={handleSubmit}>
           Submit Attendance

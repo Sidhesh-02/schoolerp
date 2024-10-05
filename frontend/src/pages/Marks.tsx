@@ -3,6 +3,8 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../utils/api";
 import "../styles/marks.css";
+import DownloadMarks from "../components/Marks/DownloadMarks";
+import UploadMarks from "../components/Marks/UploadMarks";
 
 interface FormData {
   standard: string;
@@ -171,6 +173,18 @@ const Marks: React.FC = () => {
 
   return (
     <div className="global-container">
+     
+    <div className="import_export">
+        <div className="innerbox"> 
+            <h2>Download Hostel Data</h2>
+            <DownloadMarks/>
+        </div>
+        <div className="innerbox">
+            <h2>Upload Hostel data</h2>
+            <UploadMarks/>
+        </div>
+    </div>
+    
       <h2>Add Marks</h2>
       {successMessage && <div className="alert">{successMessage}</div>}
       <form onSubmit={handleSubmit}>

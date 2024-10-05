@@ -15,3 +15,13 @@
 .occupied p {
   margin: 5px 0;
 }
+
+.import_export {
+  display: flex;
+  
+}
+
+.innerbox{
+  width : 50%;
+  margin: 2px;
+}

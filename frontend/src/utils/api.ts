@@ -115,6 +115,19 @@ export const uploadStudentsFile = async (file: File) => {
 };
 
 // Attendance Routes
+
+export const uploadAttendance  = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return await axios.post('http://localhost:5000/uploadAttendance', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+
 export const fetchStandards = async () => {
     return await axios.get("http://localhost:5000/getstandards");
   };
@@ -145,6 +158,26 @@ export const downloadAttendance = async () => {
 
 
 // New API calls for Hostel
+
+export const downloadHosteldata = async () => {
+  console.log("here too");
+  return await axios.get('http://localhost:5000/downloadhosteldata', {
+    responseType: 'blob',
+  });
+};
+
+export const uploadHosteldata = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return await axios.post('http://localhost:5000/uploadHostel', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+
 export const fetchHostelData = async () => {
     return await axios.get('http://localhost:5000/gethosteldata');
   };
@@ -157,7 +190,7 @@ export const fetchHostelData = async () => {
     });
   };
   
-  export const searchStudent = (param: string, standard: string | undefined) => {
+  export const searchStudent = (param: string, standard: string ) => {
     return axios.get('http://localhost:5000/students/rollNo', {
       params: {
         param,
@@ -184,6 +217,25 @@ export const fetchHostelData = async () => {
 
 
   //marks
+
+  export const downloadMarks = async () => {
+    console.log("here too");
+    return await axios.get('http://localhost:5000/downloadMarks', {
+      responseType: 'blob',
+    });
+  };
+  
+  export const uploadMarks = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    return await axios.post('http://localhost:5000/uploadMarks', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  };
+
   export const addMarks = async (formData: unknown) => {
     return await axios.post("http://localhost:5000/add", formData);
   };
@@ -198,6 +250,26 @@ export const fetchHostelData = async () => {
   };
 
   //fees
+
+
+  export const downloadfeedata = async () => {
+    console.log("here too");
+    return await axios.get('http://localhost:5000/downloadfeedata', {
+      responseType: 'blob',
+    });
+  };
+  
+  export const uploadfeedata = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    return await axios.post('http://localhost:5000/uploadFee', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  };
+
   export const fetchStudentFees = async (standard: string, rollNo: string) => {
     return await axios.get("http://localhost:5000/fees/details", {
       params: { standard: standard.trim(), roll_no: rollNo.trim() },
@@ -258,5 +330,11 @@ export const constants_from_db = async ()=>{
 export const currentSession = async (year : string)=>{
   return await axios.post("http://localhost:5000/session",{
     year : year
+  });
+}
+
+export const DownloadScholarshipStudent = async()=>{
+  return await axios.get('http://localhost:5000/scholarshipStudents', {
+    responseType: 'blob',
   });
 }

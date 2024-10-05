@@ -152,7 +152,7 @@ router.get("/students/rollNo", async (req, res) => {
         }else{
             student = await prisma.student.findFirst({
                 where: {
-                    fullName: param,
+                    rollNo: parseInt(param),
                     standard: standard,
                     session : session
                 },
@@ -163,8 +163,10 @@ router.get("/students/rollNo", async (req, res) => {
             });   
         }
         if (student) {
+            console.log("found " , student)
             res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
         } else {
+            console.log("found " , student)
             res.status(404).json({ message: "Student not found" });
         }
     } catch (error) {
@@ -206,6 +208,7 @@ router.put("/update/student/:id", async (req, res) => {
         standard,
         adhaarCardNo,
         scholarshipApplied,
+        remark,
         address,
         photoUrl,
         parents,
@@ -223,6 +226,7 @@ router.put("/update/student/:id", async (req, res) => {
                 standard,
                 adhaarCardNo,
                 scholarshipApplied,
+                remark,
                 address,
                 photoUrl,
             },

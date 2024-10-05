@@ -26,7 +26,7 @@ const UploadStudents: React.FC = () => {
     <div>
       <h2>Upload Students at Once</h2>
       <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
+      <button  style={{ marginTop: '-2px' }} onClick={handleUpload}>Upload</button>
     </div>
   );
 };

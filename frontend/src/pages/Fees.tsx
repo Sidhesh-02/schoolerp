@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { fetchStudentFees, addFeeInstallment, constants_from_db } from "../utils/api";
 import "../styles/fee.css";
 import FeeReicpts from "../components/Fees/FeeReicpts";
+import DownloadFee from "../components/Fees/DownloadFee";
+import UploadFee from "../components/Fees/UploadFee";
 
 interface Fee {
   title: string;
@@ -57,7 +59,7 @@ const Fees: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching fees details", error);
-      alert("An error occurred while fetching fees details. Please try again later.");
+      alert("Error, Contact Developer/Check Student Presence");
     } finally {
       setLoading(false);
     }
@@ -79,11 +81,14 @@ const Fees: React.FC = () => {
     
     if (name === "title") {
       switch (value) {
-        case "2nd":
+        case "1st" :
           amount = resForMis.data.Installment_one;
           break;
-        case "3rd":
+        case "2nd":
           amount = resForMis.data.Installment_two;
+          break;
+        case "3rd":
+          amount = resForMis.data.Installment_three;
           break;
         default:
           amount = 0;
@@ -106,12 +111,27 @@ const Fees: React.FC = () => {
 
     const updatedInstallment = {
       ...newInstallment,
-      admissionDate: student.fees[0].admissionDate,
+      admissionDate: student.fees[0]?.admissionDate ?? new Date(),
       studentId: student.id,
     };
-
+    
     try {
       const res = await addFeeInstallment(updatedInstallment);
+      let check = false;
+      student.fees.forEach((e : any) =>{
+       
+          if(e.title === updatedInstallment.title){
+            if(e.studentId === updatedInstallment.studentId){
+              check = true;
+            }
+          }
+      });
+      
+      if(check){
+        
+        alert("Installment Already Exists");
+        return;
+      }
 
       if (res.data && !res.data.error) {
         setStudent((prevStudent) => {
@@ -140,6 +160,19 @@ const Fees: React.FC = () => {
 
   return (
     <div>
+      <div className="fee-container">
+        <div className="import_export">
+          <div className="innerbox"> 
+              <h2>Download Fees Data</h2>
+              <DownloadFee/>
+          </div>
+          <div className="innerbox">
+              <h2>Upload Fees data</h2>
+              <UploadFee/>
+          </div>
+        </div>
+        
+      </div>
       <div className="fee-container">
         <h1 className="fee-header">Fee System</h1>
         <div>
@@ -210,6 +243,7 @@ const Fees: React.FC = () => {
                 onChange={handleAddInstallmentChange}
               >
                 <option value="">Select installment type</option>
+                <option value="1st">1st Installment</option>
                 <option value="2nd">2nd Installment</option>
                 <option value="3rd">3rd Installment</option>
               </select>

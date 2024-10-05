@@ -34,3 +34,13 @@ strong {
 }
 
 
+
+.import_export {
+  display: flex;
+  
+}
+
+.innerbox{
+  width : 50%;
+  margin: 2px;
+}

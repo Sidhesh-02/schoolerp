@@ -2,10 +2,12 @@
 import "../styles/hostel.css";
 import { useEffect, useState } from 'react';
 import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../utils/api";
+import DownloadHostel from "../components/Hostel/DownloadHostel";
+import UploadHostel from "../components/Hostel/UploadHostel";
 
 const Hostel = () => {
   const [rollNo, setRollNo] = useState("");
-  const [standard, setStandard] = useState<string | undefined>();
+  const [standard, setStandard] = useState<string >();
   const [bed_no, setBed] = useState<number | undefined>();
   const [occupied, setOccupied] = useState<number[]>([]);
   const [available, setAvailable] = useState<number[]>([]);
@@ -100,7 +102,9 @@ const Hostel = () => {
       return;
     }
     try {
+      console.log("here ")
       const response = await searchStudent(rollNo, standard);
+      console.log("response " , response)
       setRes(response.data);
     } catch (error) {
       console.log('Error searching student', error);
@@ -157,6 +161,18 @@ const Hostel = () => {
   };
   return (
     <div>
+      <div className="global-container">
+      <div className="import_export">
+          <div className="innerbox"> 
+              <h2>Download Hostel Data</h2>
+              <DownloadHostel/>
+          </div>
+          <div className="innerbox">
+              <h2>Upload Hostel data</h2>
+              <UploadHostel/>
+          </div>
+        </div>
+      </div>
       <div className="global-container">
         <div>
           <div>

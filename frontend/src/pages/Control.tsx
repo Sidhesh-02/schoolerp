@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useState } from 'react'
-import { addControlValues, addSubject } from '../utils/api';
-import StudentsInfoDownload from '../components/Student/RetriveStudentExcel';
+import { addControlValues, addSubject, DownloadScholarshipStudent } from '../utils/api';
 import PhotoUpdate from '../components/Search/PhotoUpdate';
 import axios from 'axios';
 
@@ -47,6 +46,7 @@ const Control = () => {
 
 
     const Submit = async () => {
+        await SplitSubString() 
         const data = {
             std: Standard,
             subjects: arrSub
@@ -84,14 +84,38 @@ const Control = () => {
         }
     }
 
+    const handleDownload = async()=>{
+        try {
+            const response = await DownloadScholarshipStudent();
+            console.log("res --> " ,response);
+            if (response.status < 200 || response.status >= 300) {
+              alert("here first")
+              throw new Error('Failed to download Scholarship records');
+            }
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Scholarship.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error('Error downloading Scholarship records:', error);
+            alert('Failed to download Scholarship records');
+          }
+    }
+
     return (
         <div className='global-container'>
-            <h2>Control Panel </h2>
+            <h1>Control Panel </h1>
             <hr style={{ margin: "30px 0px" }} />
-
-            <StudentsInfoDownload />
+            <div>
+                <h2>Download Students Opted For Scholarship</h2>
+                <button style={{ marginTop: '-2px' }} onClick={handleDownload}>Dowload</button>
+            </div>
             <hr style={{ margin: "30px 0px" }} />
-
             <PhotoUpdate />
             <hr style={{ margin: "30px 0px" }} />
             {/* for standard and subject */}
@@ -99,8 +123,6 @@ const Control = () => {
                 <h2>Add Subject</h2>
                 <input type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
                 <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input>
-                <span><button className="btn" onClick={SplitSubString}>Add</button></span>
-                &nbsp;
                 <span><button className="btn" onClick={Submit}>Submit</button></span>
             </div>
 
