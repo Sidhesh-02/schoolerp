@@ -1,6 +1,5 @@
-/* eslint-disable prefer-const */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect, ChangeEvent, FormEvent, useCallback } from "react";
 import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../utils/api";
 import "../styles/marks.css";
 import DownloadMarks from "../components/Marks/DownloadMarks";
@@ -44,7 +43,7 @@ const Marks: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [standards, setStandards] = useState<Standard[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [search, setSearch] = useState<any>();
+  const [search, setSearch] = useState<unknown>();
   const [searchQuery, setSearchQuery] = useState("");
   const [std, setStd] = useState<string>('');
   const [exam, setExam] = useState<string>();
@@ -82,7 +81,7 @@ const Marks: React.FC = () => {
     }
   }, [selectedStandard]);
 
-  const handleStandardChange = async (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleStandardChange = useCallback(async (e: ChangeEvent<HTMLSelectElement>) => {
     const standard = e.target.value;
     setSelectedStandard(standard); 
     setFormData((prevFormData) => ({
@@ -98,7 +97,7 @@ const Marks: React.FC = () => {
     } catch (error) {
       console.error("Error fetching students:", error);
     }
-  };
+  },[]);
 
   const handleStudentChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const studentName = e.target.value;
@@ -138,12 +137,13 @@ const Marks: React.FC = () => {
       await addMarks(formData);
       setSuccessMessage("Marks added successfully!");
 
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         standard: "",
         studentName: "",
         examinationType: "",
         marks: [],
-      });
+      }));
       setStudents([]);
     } catch (error) {
       console.error("Error adding marks:", error);
@@ -320,7 +320,7 @@ const Marks: React.FC = () => {
 
       <label>Exam Type</label>
       <select
-        name=""
+        name="examinationType"
         onChange={(e) => setExam(e.target.value)}
         required
       >

@@ -20,9 +20,9 @@ router.get('/gethosteldata', async (req, res) => {
     try {
       const result = await prisma.hostel.findMany();
       const hostelRes = await prisma.control.findFirst();
-      
+      const n = hostelRes.number_of_hostel_bed ?? 0;
       const available = [];
-      for (let i = 1; i <= hostelRes.number_of_hostel_bed; i++) {
+      for (let i = 1; i <= n ; i++) {
         available.push(i);
       }
   

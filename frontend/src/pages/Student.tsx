@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { constants_from_db, createStudent, uploadPhoto } from "../utils/api";
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
@@ -95,15 +95,16 @@ const Student: React.FC = () => {
     }
   };
 
-  const handleParentChange = (
-    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
-    index: number
-  ) => {
-    const { name, value } = e.target;
-    const newParents = [...student.parents];
-    newParents[index] = { ...newParents[index], [name]: value };
-    setStudent((prev) => ({ ...prev, parents: newParents }));
-  };
+  const handleParentChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
+      const { name, value } = e.target;
+      const newParents = [...student.parents];
+      newParents[index] = { ...newParents[index], [name]: value };
+      setStudent((prev) => ({ ...prev, parents: newParents }));
+    },
+    [student]
+  );
+  
 
   const handleFeeChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -159,7 +160,7 @@ const Student: React.FC = () => {
         const photoUrl = await uploadPhoto(file);
         setStudent((prev) => ({ ...prev, photoUrl }));
       } catch (error) {
-        console.error(error);
+        console.error("Error uploading image:", error);
         alert('Failed to upload image');
       }
     }
@@ -198,7 +199,7 @@ const Student: React.FC = () => {
             name="fullName"
             value={student.fullName}
             onChange={(e) => {
-              setStudent((v) => ({ ...v, fullName: e.target.value }));
+              setStudent((prev) => ({ ...prev, fullName: e.target.value }));
             }}
           />
         </div>
@@ -208,7 +209,7 @@ const Student: React.FC = () => {
             name="gender"
             value={student.gender}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, gender: e.target.value }))
+              setStudent((prev) => ({ ...prev, gender: e.target.value }))
             }
           >
             <option value="Male">Male</option>
@@ -223,7 +224,7 @@ const Student: React.FC = () => {
             name="dateOfBirth"
             value={student.dateOfBirth}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, dateOfBirth: e.target.value }))
+              setStudent((prev) => ({ ...prev, dateOfBirth: e.target.value }))
             }
           />
         </div>
@@ -235,7 +236,7 @@ const Student: React.FC = () => {
             name="rollNo"
             value={student.rollNo}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, rollNo: e.target.value }))
+              setStudent((prev) => ({ ...prev, rollNo: e.target.value }))
             }
           />
         </div>
@@ -245,7 +246,7 @@ const Student: React.FC = () => {
           name="standard"
           value={student.standard}
           onChange={(e) =>
-            setStudent((v) => ({ ...v, standard: e.target.value }))
+            setStudent((prev) => ({ ...prev, standard: e.target.value }))
           }
         >
           <option value="">Select standard</option>
@@ -268,7 +269,7 @@ const Student: React.FC = () => {
             maxLength={12}
             value={student.adhaarCardNo}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, adhaarCardNo: e.target.value }))
+              setStudent((prev) => ({ ...prev, adhaarCardNo: e.target.value }))
             }
           />
         </div>
@@ -279,7 +280,7 @@ const Student: React.FC = () => {
             name="scholarshipApplied"
             checked={student.scholarshipApplied}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, scholarshipApplied: e.target.checked }))
+              setStudent((prev) => ({ ...prev, scholarshipApplied: e.target.checked }))
             }
           />
         </div>
@@ -292,7 +293,7 @@ const Student: React.FC = () => {
                 name="remark"
                 value={student.remark}
                 onChange={(e) =>
-                  setStudent((v) => ({ ...v, remark: e.target.value }))
+                  setStudent((prev) => ({ ...prev, remark: e.target.value }))
                 }
               />
             </div>
@@ -304,7 +305,7 @@ const Student: React.FC = () => {
             name="address"
             value={student.address}
             onChange={(e) =>
-              setStudent((v) => ({ ...v, address: e.target.value }))
+              setStudent((prev) => ({ ...prev, address: e.target.value }))
             }
           ></textarea>
         </div>

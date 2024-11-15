@@ -387,7 +387,7 @@ router.post("/uploadAttendance", upload.single("file"), async (req, res) => {
           subjectName     : at.subjectName,
           rollNo          : at.rollNo,
           standard        : at.standard,
-          subjectId       : at.subjectId ? parseInt(subjectId) : null,
+          subjectId       : at.subjectId ? parseInt(at.subjectId) : null,
           session         : at.session,
           studentId       : at.studentId,
         },
