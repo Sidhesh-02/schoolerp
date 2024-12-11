@@ -114,6 +114,7 @@ model Control{
     Installment_one              Int
     Installment_two              Int
     Installment_three            Int
+    Institution_name             String
 }
 
 enum ExaminationType {

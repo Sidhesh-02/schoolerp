@@ -311,7 +311,8 @@ export const addControlValues = async(data : any) =>{
       number_of_hostel_bed : data.num_of_beds,
       one: data.Installment1,
       two :data.Installment2, 
-      three :data.Installment3
+      three :data.Installment3,
+      Institution_Name : data.InstitutionName,
     },{
       headers : {
         'Content-Type' : 'application/json'
@@ -338,3 +339,8 @@ export const DownloadScholarshipStudent = async()=>{
     responseType: 'blob',
   });
 }
+
+export const getInstitutionName = async() =>{
+  return await axios.get('http://localhost:5000/getChanges')
+}
+

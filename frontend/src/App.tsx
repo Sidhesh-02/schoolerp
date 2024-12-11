@@ -11,6 +11,8 @@ import Marks from "./pages/Marks";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Search from "./pages/Search";
 import Control from "./pages/Control";
+import { useRecoilValue } from "recoil";
+import { handleInstitutionName } from "./store/store";
 
 interface Auth {
   username: string;
@@ -20,6 +22,8 @@ interface Auth {
 const App: React.FC = () => {
   const [auth, setAuth] = useState<Auth | null>(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(true); // Add this line
+  
+  const InstitueName : string = useRecoilValue(handleInstitutionName);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem("auth");
@@ -77,7 +81,7 @@ const App: React.FC = () => {
             <div>Open</div>
           }
         </button>
-        <div style={{fontSize:"20px",fontWeight:"bold"}}>Sacred Heart School</div>
+        <div style={{fontSize:"20px",fontWeight:"bold"}}>{InstitueName}</div>
         <div>
           ERP - Pallotii
         </div>

@@ -250,8 +250,8 @@ router.get('/excelstudents', async (req, res) => {
 
 
   router.post("/changesFromControlPanel", async (req, res) => {
-    let { number_of_hostel_bed, one, two, three } = req.body;
-    
+    let { number_of_hostel_bed, one, two, three, Institution_Name} = req.body;
+    console.log("here ------------>  ", Institution_Name);
     try {
       // Check if a record already exists
       const existingRecord = await prisma.control.findFirst();
@@ -294,6 +294,14 @@ router.get('/excelstudents', async (req, res) => {
           return res.status(400).json({ error: "Invalid Installment_three." });
         }
       }
+      if (Institution_Name) {
+        const Institution_name = Institution_Name;
+        if (Institution_name) {
+          updatedData.Institution_name = Institution_name;
+        } else {
+          return res.status(400).json({ error: "Invalid Institution_Name." });
+        }
+      }
   
       if (Object.keys(updatedData).length === 0) {
         return res.status(400).json({ error: "No valid data provided for update." });
@@ -307,13 +315,14 @@ router.get('/excelstudents', async (req, res) => {
           },
           data: updatedData,
         });
-        
+       
         return res.status(200).json(updatedRecord);
       } else {
         // Create a new record
         const newRecord = await prisma.control.create({
           data: updatedData
         });
+       
         return res.status(200).json(newRecord);
       }
     } catch (error) {

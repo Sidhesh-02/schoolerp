@@ -20,6 +20,7 @@ const Control = () => {
     const [Installment1, SetInstallment1] = useState<number>(0);
     const [Installment2, SetInstallment2] = useState<number>(0);
     const [Installment3, SetInstallment3] = useState<number>(0);
+    const [InstitutionName , SetInstitutionName] = useState<String>('');
 
     const handleChangeStandard = (e: React.ChangeEvent<HTMLInputElement>) => {
         Setstandard(e.target.value);
@@ -68,10 +69,13 @@ const Control = () => {
             Installment1,
             Installment2,
             Installment3,
+            InstitutionName,
         }
+       
         const res = await addControlValues(data);
         if (res) {
             alert("Entry Successfull");
+            window.location.reload();
         } else {
             alert("Unsuccsesful");
         }
@@ -136,6 +140,8 @@ const Control = () => {
                 <input type='number' placeholder='Installment 1' onChange={(e) => { SetInstallment1(Number(e.target.value)) }}></input>
                 <input type='number' placeholder='Installment 2' onChange={(e) => { SetInstallment2(Number(e.target.value)) }}></input>
                 <input type='number' placeholder='Installment 3' onChange={(e) => { SetInstallment3(Number(e.target.value)) }}></input>
+                <h5>Alter the Institution Name</h5>
+                <input type='text' placeholder='Update institution name' onChange={(e) => {SetInstitutionName(e.target.value)}}></input>
                 <button onClick={handleControlChanges}>Submit</button>
             </div>
             <br />
