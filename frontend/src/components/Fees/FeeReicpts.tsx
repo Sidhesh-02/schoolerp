@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { feetable } from "../../utils/api";
+import { feetable, getInstitutionName } from "../../utils/api";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   const [title ,setTitle] = useState<string>('');
   const [, setFeedata] = useState<any>();
+  const [Iname, setIname] = useState<string>();
   
   const fetchFeeData = async () => {
     try {
@@ -18,6 +19,14 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
       console.log(error);
     }
   };
+
+  useEffect(()=>{
+    const name = async() =>{
+      const {data} = await getInstitutionName();
+      setIname(data.Institution_name);
+    }
+    name();
+  })
 
   const generateWordDocument = async(data : any) => {
    
@@ -34,7 +43,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "SACRED HEART SCHOOL",
+                  text: Iname,
                   bold: true,
                   size: 48,
                   color: "1E90FF",
