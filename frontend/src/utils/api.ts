@@ -340,7 +340,14 @@ export const DownloadScholarshipStudent = async()=>{
   });
 }
 
-export const getInstitutionName = async() =>{
-  return await axios.get('http://localhost:5000/getChanges')
-}
+export const getInstitutionName = async (): Promise<string> => {
+  try {
+    const response = await axios.get("http://localhost:5000/getChanges");
+    console.log("response -- >",response);
+    return response?.data?.Institution_name || "School"; // Fallback to "School"
+  } catch (error) {
+    console.error("Error fetching institution name:", error);
+    return "School"; // Fallback in case of an error
+  }
+};
 

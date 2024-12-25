@@ -251,7 +251,6 @@ router.get('/excelstudents', async (req, res) => {
 
   router.post("/changesFromControlPanel", async (req, res) => {
     let { number_of_hostel_bed, one, two, three, Institution_Name} = req.body;
-    console.log("here ------------>  ", Institution_Name);
     try {
       // Check if a record already exists
       const existingRecord = await prisma.control.findFirst();
@@ -332,14 +331,19 @@ router.get('/excelstudents', async (req, res) => {
   });
   
   
-router.get("/getChanges", async(req,res)=>{
-  try{
-    const hostelRes = await prisma.control.findFirst();
-    res.status(200).json(hostelRes);
-  }catch(error){
-    res.status(500).json(error);
-  }
-})
+  router.get("/getChanges", async (req, res) => {
+    try {
+      const controlData = await prisma.control.findFirst();
+      if (controlData) {
+        res.status(200).json(controlData);
+      } else {
+        res.status(404).json({ message: "Institution name not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Server error", details: error.message });
+    }
+  });
+  
 
 router.post("/uploadAttendance", upload.single("file"), async (req, res) => {
   const filePath = req.file.path;

@@ -114,7 +114,7 @@ model Control{
     Installment_one              Int
     Installment_two              Int
     Installment_three            Int
-    Institution_name             String
+    Institution_name             String @default("School")
 }
 
 enum ExaminationType {
@@ -133,6 +133,7 @@ enum StudentStatus {
   Failed
   None
 }
+
 
 
 
