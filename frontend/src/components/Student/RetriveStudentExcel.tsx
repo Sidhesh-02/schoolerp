@@ -1,5 +1,5 @@
 import React from 'react';
-import { downloadStudentsExcel } from '../../utils/api';
+import { downloadStudentsExcel } from '../../apis/api';
 
 const StudentsInfoDownload: React.FC = () => {
   const downloadExcel = async () => {

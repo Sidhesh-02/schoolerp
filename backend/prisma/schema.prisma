@@ -117,6 +117,12 @@ model Control{
     Institution_name             String @default("School")
 }
 
+model Credential{
+    id        Int @unique @default(autoincrement())
+    type      String  @unique
+    password  String  @unique
+}
+
 enum ExaminationType {
   UnitTest
   MidTerm
@@ -133,7 +139,3 @@ enum StudentStatus {
   Failed
   None
 }
-
-
-
-

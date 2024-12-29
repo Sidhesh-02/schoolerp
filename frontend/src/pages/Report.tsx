@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/report.css"
-import { report } from "../utils/api";
+import { report } from "../apis/api";
 
 const Report = () => {
     const [count, setCount] = useState(0);

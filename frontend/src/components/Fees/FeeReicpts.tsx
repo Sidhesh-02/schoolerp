@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { feetable, getInstitutionName } from "../../utils/api";
+import { feetable, getInstitutionName } from "../../apis/api";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 

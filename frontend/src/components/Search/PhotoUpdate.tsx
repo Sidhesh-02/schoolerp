@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fetchAllStudents, updateStudent, uploadPhoto } from "../../utils/api";
+import { fetchAllStudents, updateStudent, uploadPhoto } from "../../apis/api";
 
 
 export default function PhotoUpdate(){

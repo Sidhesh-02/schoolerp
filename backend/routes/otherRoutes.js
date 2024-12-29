@@ -8,6 +8,7 @@ const fs = require("fs");
 const path = require("path");
 const fileStorage = require("../sessionManager");
 
+const crypto = require("crypto");
 const data = fileStorage.readData();
 const session = data.year;
 
@@ -34,8 +35,6 @@ router.get('/excelstudents', async (req, res) => {
         },
       });
 
-      
-  
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Students');
   
@@ -652,6 +651,40 @@ router.get('/scholarshipStudents', async (req, res) => {
     console.error('Error fetching students data:', error);
     res.status(500).json({ error: 'An error occurred' });
   }
+});
+
+router.post("/credentials", async (req, res) => {
+  const { username, password } = req.body;
+  const hashedUsername = crypto.createHash("sha256").update(username).digest("hex");
+  const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
+  const adminStoredUsername = process.env.ADMIN_HASH ?? "";
+  const userStoredUsername = process.env.USER_HASH ?? "";
+  const token = crypto.randomBytes(16).toString("hex");
+
+  if (hashedUsername == adminStoredUsername) {
+    const adminStoredPassword = process.env.ADMINPASSWORD_HASH;
+    if (hashedPassword == adminStoredPassword) {
+      tokenRoleMap[token] = "admin"; // Store token-role mapping
+      return res.status(200).json({ token, role: "admin" });
+    }
+  } else if (hashedUsername == userStoredUsername) {
+    const userStoredPassword = process.env.USERPASSWORD_HASH;
+    if (hashedPassword == userStoredPassword) {
+      tokenRoleMap[token] = "teacher"; // Store token-role mapping
+      return res.status(200).json({ token, role: "teacher" });
+    }
+  }
+  return res.status(401).json({ message: "Invalid credentials" });
+});
+
+const tokenRoleMap = {};
+router.post("/validate-token", (req, res) => {
+  const { token } = req.body;
+  const role = tokenRoleMap[token]; // Retrieve role for the token
+  if (role) {
+    return res.status(200).json({ token, role });
+  }
+  return res.status(401).json({ message: "Invalid or expired token" });
 });
 
 module.exports = router;

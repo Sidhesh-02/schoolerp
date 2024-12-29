@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { deleteStudent, searchStudent, updateStudent } from "../../utils/api";
+import { deleteStudent, searchStudent, updateStudent } from "../../apis/api";
 import { AlignmentType, Document, ImageRun, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 

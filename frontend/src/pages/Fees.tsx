@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { fetchStudentFees, addFeeInstallment, constants_from_db } from "../utils/api";
+import { fetchStudentFees, addFeeInstallment, constants_from_db } from "../apis/api";
 import "../styles/fee.css";
 import FeeReicpts from "../components/Fees/FeeReicpts";
 import DownloadFee from "../components/Fees/DownloadFee";

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, ChangeEvent, FormEvent, useCallback } from "react";
-import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../utils/api";
+import { fetchStandards, fetchSubjects, fetchStudents, addMarks, searchMarks } from "../apis/api";
 import "../styles/marks.css";
 import DownloadMarks from "../components/Marks/DownloadMarks";
 import UploadMarks from "../components/Marks/UploadMarks";

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "../styles/hostel.css";
 import { useEffect, useState } from 'react';
-import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../utils/api";
+import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../apis/api";
 import DownloadHostel from "../components/Hostel/DownloadHostel";
 import UploadHostel from "../components/Hostel/UploadHostel";
 

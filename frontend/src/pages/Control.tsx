@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useState } from 'react'
-import { addControlValues, addSubject, DownloadScholarshipStudent } from '../utils/api';
+import { addControlValues, addSubject, DownloadScholarshipStudent } from '../apis/api';
 import PhotoUpdate from '../components/Search/PhotoUpdate';
 import axios from 'axios';
 

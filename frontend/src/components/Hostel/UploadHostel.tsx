@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {uploadHosteldata } from '../../utils/api';
+import {uploadHosteldata } from '../../apis/api';
 
 const UploadHostel = () => {
     const [file, setFile] = useState<File | null>(null);

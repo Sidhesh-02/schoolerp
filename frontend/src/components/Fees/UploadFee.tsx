@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { uploadfeedata } from '../../utils/api';
+import { uploadfeedata } from '../../apis/api';
 
 const UploadFee = () => {
     const [file, setFile] = useState<File | null>(null);

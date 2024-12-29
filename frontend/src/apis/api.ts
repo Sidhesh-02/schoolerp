@@ -343,11 +343,26 @@ export const DownloadScholarshipStudent = async()=>{
 export const getInstitutionName = async (): Promise<string> => {
   try {
     const response = await axios.get("http://localhost:5000/getChanges");
-    console.log("response -- >",response);
-    return response?.data?.Institution_name || "School"; // Fallback to "School"
+    return response?.data?.Institution_name || "School"; 
   } catch (error) {
     console.error("Error fetching institution name:", error);
     return "School"; // Fallback in case of an error
   }
 };
+
+
+export const getCredentials = async (username: string, password: string) => {
+  try {
+    const response = await axios.post("http://localhost:5000/credentials", {
+      username,
+      password,
+    });
+    return response.data; 
+  } catch (error: any) {
+    console.error("Error while fetching credentials:", error);
+    throw new Error(error.response?.data?.message || "Backend Error.");
+  }
+};
+
+
 

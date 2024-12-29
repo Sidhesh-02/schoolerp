@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DownloadAttendance from "../components/Attendance/DownloadAttendanceExcel";
 import "../styles/attendance.css";
-import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../utils/api";
+import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../apis/api";
 import UploadAttendance from "../components/Attendance/UploadAttendance";
 // import SelectStandard from "../components/SelectStandard";
 

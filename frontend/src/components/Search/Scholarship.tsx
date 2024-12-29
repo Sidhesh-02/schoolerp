@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { fetchAllStudentsSc } from "../../utils/api";
+import { fetchAllStudentsSc } from "../../apis/api";
 
 export default function Scholarship() {
     const [list, setList] = useState<any[]>([]);

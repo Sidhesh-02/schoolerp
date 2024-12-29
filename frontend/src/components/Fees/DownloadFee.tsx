@@ -1,5 +1,5 @@
 import React from 'react'
-import { downloadfeedata } from '../../utils/api';
+import { downloadfeedata } from '../../apis/api';
 
 const DownloadFee : React.FC = () => {
     const handleDownload = async () => {

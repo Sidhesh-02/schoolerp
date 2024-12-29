@@ -1,5 +1,5 @@
 import React from 'react'
-import {downloadHosteldata } from '../../utils/api';
+import {downloadHosteldata } from '../../apis/api';
 
 const DownloadHostel : React.FC = () => {
     const handleDownload = async () => {

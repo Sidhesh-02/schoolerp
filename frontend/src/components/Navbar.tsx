@@ -1,10 +1,10 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
 import { SetStateAction, useState, useEffect } from "react";
-import { currentSession } from "../utils/api";
+import { currentSession } from "../apis/api";
 
 interface NavbarProps {
-  auth: { username: string; role: "teacher" | "admin" } | null;
+  auth: { token: string; role: "teacher" | "admin" } | null;
   logout: () => void;
 }
 

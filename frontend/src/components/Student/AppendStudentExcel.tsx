@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadStudentsFile } from '../../utils/api';
+import { uploadStudentsFile } from '../../apis/api';
 
 const UploadStudents: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);

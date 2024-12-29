@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
-  auth: { username: string; role: 'teacher' | 'admin' };
+  auth: { token: string; role: 'teacher' | 'admin' };
   allowedRoles: ('teacher' | 'admin')[];
   children: ReactNode;
 }

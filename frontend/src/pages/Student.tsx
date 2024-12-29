@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { constants_from_db, createStudent, uploadPhoto } from "../utils/api";
+import { constants_from_db, createStudent, uploadPhoto } from "../apis/api";
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
 import StudentsInfoDownload from "../components/Student/RetriveStudentExcel";

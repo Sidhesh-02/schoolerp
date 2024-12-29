@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { fetchAllStudents } from '../../utils/api';
+import { fetchAllStudents } from '../../apis/api';
 
 const Searchall = () => {
   const [std, setStd] = useState<string>("");

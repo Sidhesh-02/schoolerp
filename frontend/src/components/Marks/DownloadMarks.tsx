@@ -1,5 +1,5 @@
 import React from 'react'
-import {  downloadMarks } from '../../utils/api';
+import {  downloadMarks } from '../../apis/api';
 
 const DownloadMarks : React.FC = () => {
     const handleDownload = async () => {

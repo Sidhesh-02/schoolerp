@@ -13,42 +13,75 @@ import Search from "./pages/Search";
 import Control from "./pages/Control";
 import { useRecoilValue } from "recoil";
 import { handleInstitutionName } from "./store/store";
+import { getCredentials } from "./apis/api";
+import axios from "axios";
 
 interface Auth {
-  username: string;
+  token: string;
   role: "teacher" | "admin";
 }
 
 const App: React.FC = () => {
   const [auth, setAuth] = useState<Auth | null>(null);
-  const [isNavbarOpen, setIsNavbarOpen] = useState(true); // Add this line
-  
-  const InstitueName : string = useRecoilValue(handleInstitutionName);
+  const [isNavbarOpen, setIsNavbarOpen] = useState(true);
+  const InstitueName: string = useRecoilValue(handleInstitutionName);
 
   useEffect(() => {
-    const storedAuth = localStorage.getItem("auth");
-    if (storedAuth) {
-      setAuth(JSON.parse(storedAuth));
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchRole(token);
     }
   }, []);
 
-  const login = (username: string, password: string) => {
-    let user: Auth | null = null;
-    if (username === "teacher" && password === "teacherpassword") {
-      user = { username, role: "teacher" };
-    } else if (username === "admin" && password === "adminpassword") {
-      user = { username, role: "admin" };
-    } else {
-      alert("Invalid credentials");
+  const fetchRole = async (token: string) => {
+    try {
+      const response = await axios.post("http://localhost:5000/validate-token", { token }, {
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const data: Auth = response.data;
+      setAuth(data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+      logout();
+    }
+  };
+  
+
+  const login = async () => {
+    const usernameElement = document.getElementById("username") as HTMLInputElement | null;
+    const passwordElement = document.getElementById("password") as HTMLInputElement | null;
+    const username = usernameElement?.value || "";
+    const password = passwordElement?.value || "";
+
+    if (!username || !password) {
+      alert("Username and password cannot be empty.");
       return;
     }
-    setAuth(user);
-    localStorage.setItem("auth", JSON.stringify(user));
+
+    try {
+      const response = await getCredentials(username, password);
+      if (response.message) {
+        alert(response.message);
+        return;
+      }
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        fetchRole(response.token);
+      }
+    } catch (error) {
+      alert("Login failed. Please try again.");
+    }
   };
 
   const logout = () => {
     setAuth(null);
-    localStorage.removeItem("auth");
+    localStorage.removeItem("token");
   };
 
   if (!auth) {
@@ -58,12 +91,10 @@ const App: React.FC = () => {
           <input className="studentInput" type="text" placeholder="Username" id="username" /><br />
           <input className="studentInput" type="password" placeholder="Password" id="password" /><br />
           <button
-            onClick={() =>
-              login(
-                (document.getElementById("username") as HTMLInputElement).value,
-                (document.getElementById("password") as HTMLInputElement).value
-              )
-            }
+            onClick={(e) => {
+              e.preventDefault();
+              login();
+            }}
           >
             Login
           </button>
@@ -74,23 +105,43 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <div style={{ backgroundColor: "rgb(203 213 225)",padding:"10px 30px",display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-        <button style={{fontFamily:"Times New Roman",fontSize:"16px"}} className="nullify-button" onClick={() => setIsNavbarOpen(!isNavbarOpen)}>
-          {isNavbarOpen ? 
-            <div>Close</div>:
-            <div>Open</div>
-          }
+      <div
+        style={{
+          backgroundColor: "#313970",
+          color: "white",
+          padding: "10px 30px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <button
+          style={{
+            fontFamily: "Times New Roman",
+            fontSize: "16px",
+            color: "white",
+            marginTop: "0",
+            padding: "0",
+            border: "none",
+          }}
+          onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+        >
+          {isNavbarOpen ? <div>Close</div> : <div>Open</div>}
         </button>
-        <div style={{fontSize:"20px",fontWeight:"bold"}}>{InstitueName}</div>
         <div>
-          ERP - Pallotii
+          <img
+            src="/src/images/hamburger.png"
+            style={{ width: "20px", height: "20px", paddingRight: "10px" }}
+            alt=""
+          />
+          <span style={{ fontSize: "20px", fontWeight: "bold" }}>{InstitueName}</span>
         </div>
+        <div>ERP - Pallotii</div>
       </div>
 
       <div className="App">
         {isNavbarOpen && <Navbar auth={auth} logout={logout} />}
         <div className="content-wrapper">
-          
           <Routes>
             <Route path="/" element={<Navigate to="/Report" />} />
             <Route
@@ -149,12 +200,11 @@ const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-
-          <Route 
+            <Route
               path="/control"
               element={
                 <ProtectedRoute auth={auth} allowedRoles={["admin"]}>
-                  <Control/>
+                  <Control />
                 </ProtectedRoute>
               }
             />
@@ -162,7 +212,6 @@ const App: React.FC = () => {
         </div>
       </div>
     </div>
-
   );
 };
 

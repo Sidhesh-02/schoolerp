@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { uploadAttendance } from '../../utils/api';
+import { uploadAttendance } from '../../apis/api';
 
 const UploadAttendance = () => {
 
