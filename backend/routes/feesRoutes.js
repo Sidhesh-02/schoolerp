@@ -7,9 +7,6 @@ const ExcelJS = require("exceljs");
 const path = require("path");
 const prisma = new PrismaClient();
 
-const fileStorage = require("../sessionManager");
-const data = fileStorage.readData();
-const session = data.year;
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
@@ -19,7 +16,7 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Get Fees Details
 router.get("/fees/details", async (req, res) => {
     const { standard, roll_no } = req.query;
-  
+    const session = req.session;
     if (!standard || isNaN(parseInt(roll_no))) {
       return res.status(400).json({ error: "Invalid query parameters" });
     }

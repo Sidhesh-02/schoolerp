@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import DownloadAttendance from "../components/Attendance/DownloadAttendanceExcel";
 import "../styles/attendance.css";
-import { fetchStandards, fetchSubjects, fetchStudents, submitAttendance } from "../apis/api";
+import { fetchSubjects, fetchStudents, submitAttendance } from "../apis/api";
 import UploadAttendance from "../components/Attendance/UploadAttendance";
+import { useRecoilValue } from "recoil";
+import { standardList } from "../store/store";
 // import SelectStandard from "../components/SelectStandard";
 
 interface Student {
@@ -24,26 +26,15 @@ interface Subject {
 }
 
 const Attendance: React.FC = () => {
-  const [standards, setStandards] = useState<string[]>([]);
+  // const [standards, setStandards] = useState<string[]>([]);
   const [selectedStandard, setSelectedStandard] = useState<string>("");
   const [attendanceDate, setAttendanceDate] = useState<string>("");
   const [students, setStudents] = useState<Student[]>([]);
   const [absentStudents, setAbsentStudents] = useState<number[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const standards = useRecoilValue(standardList);
 
-  useEffect(() => {
-    fetchStandardsList();
-  }, []);
-
-  const fetchStandardsList = async () => {
-    try {
-      const response = await fetchStandards();
-      setStandards(response.data.standards);
-    } catch (error) {
-      console.error("Error fetching standards:", error);
-    }
-  };
 
   const fetchSubjectsList = async (standard: string) => {
     try {
@@ -139,7 +130,7 @@ const Attendance: React.FC = () => {
           <option value="" disabled>
             Select standard
           </option>
-          {standards.map((standard) => (
+          {standards.map((standard:string) => (
             <option key={standard} value={standard}>
               {standard}
             </option>
@@ -171,40 +162,43 @@ const Attendance: React.FC = () => {
         </select>
 
         <div>
-          
-          <table className="AttendanceTable">
-            <thead>
-              <tr>
-                <th>Roll No</th>
-                <th>Full Name</th>
-                <th>Mark Absent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.id}>
-                  <td>{student.rollNo}</td>
-                  <td>{student.fullName}</td>
-                  <td>
-                    <input
-                      style={{width:"20px"}}
-                      type="checkbox"
-                      id={`student-${student.rollNo}`}
-                      name="absentStudents"
-                      checked={absentStudents.includes(student.rollNo)}
-                      onChange={() => handleCheckboxChange(student.rollNo)}
-                    />
-                  </td>
+          {attendanceDate && (
+            <>
+              <table className="AttendanceTable">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Full Name</th>
+                  <th>Mark Absent</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student.id}>
+                    <td>{student.rollNo}</td>
+                    <td>{student.fullName}</td>
+                    <td>
+                      <input
+                        style={{width:"20px"}}
+                        type="checkbox"
+                        id={`student-${student.rollNo}`}
+                        name="absentStudents"
+                        checked={absentStudents.includes(student.rollNo)}
+                        onChange={() => handleCheckboxChange(student.rollNo)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="CustomButton" onClick={handleSubmit}>
+              Submit Attendance
+            </button>
+          </>
+          )}
         </div>
 
 
-        <button className="CustomButton" onClick={handleSubmit}>
-          Submit Attendance
-        </button>
       </div>
     </div>
   );

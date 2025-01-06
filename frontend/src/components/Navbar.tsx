@@ -1,7 +1,9 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
 import { SetStateAction, useState, useEffect } from "react";
-import { currentSession } from "../apis/api";
+import { useRecoilValue } from "recoil";
+import { sessionYear } from "../store/store";
+import axios from "axios";
 
 interface NavbarProps {
   auth: { token: string; role: "teacher" | "admin" } | null;
@@ -24,7 +26,8 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
   const [selectYear, setSelectedYear] = useState(
     localStorage.getItem("selectedSession") || "2024-2025"
   );
-
+  const years : string[] = useRecoilValue(sessionYear);
+  
   useEffect(() => {
     // On component mount, if there's a saved session, use it
     const savedSession = localStorage.getItem("selectedSession");
@@ -40,25 +43,31 @@ const Navbar: React.FC<NavbarProps> = ({ auth, logout }) => {
 
   const submitSession = async () => {
     try {
-      const res = await currentSession(selectYear);
-      if (res) {
-        // Save the selected year in localStorage
+      const response = await axios.get(`http://localhost:5000/setSession`, { params: { year: selectYear } });
+  
+      if (response.status === 200) {
+        alert(response.data.message); // Consider replacing with a toast notification or modal
         localStorage.setItem("selectedSession", selectYear);
-        alert(`${selectYear} Session Selected`);
         window.location.reload();
+      } else {
+        console.error("Unexpected response status:", response.status);
       }
     } catch (e) {
-      console.error(e);
+      console.error("Error setting session:", e);
+      alert("Failed to set session. Please try again later."); // User-friendly error message
     }
   };
+  
 
   return (
     <div className="navbar">
       <label>Select Year</label>
       <select value={selectYear} onChange={handleYearChange} style={{ width: "150px" }}>
-        <option value="2024-2025">2024-2025</option>
-        <option value="2025-2026">2025-2026</option>
-        <option value="2026-2027">2026-2027</option>
+        {
+          years.map((ele,key)=>(
+            <option key={key} value={ele}>{ele}</option>
+          ))
+        }
       </select>
       <button style={{ maxWidth: "max-content" }} onClick={submitSession}>
         Select Session

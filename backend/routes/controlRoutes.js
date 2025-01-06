@@ -2,10 +2,6 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const fileStorage = require("../sessionManager");
-const data = fileStorage.readData();
-const session = data.year;
-
 const router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
@@ -27,26 +23,56 @@ async function calculateTotalPercentage(recievedData) {
     return (sumPercent / count).toFixed(2);
 }
 
-router.post("/control/subjects", async (req, res) => {
-    const { std, subjects } = req.body;
+router.post("/control/standard", async (req, res) => {
+  const { std } = req.body;
+  try {
+    const result = await prisma.standards.create({
+        data: {
+            std: std,
+            // subjects:{create:subjects}
+        }
+    })
+    res.status(200).json(result);
 
-    try {
-        const result = await prisma.standards.create({
-            data: {
-                std: std,
-                subjects: {
-                    create: subjects,
-                }
-            }
-        })
-
-        res.status(200).json(result);
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error });
-    }
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ error });
+  }
 })
+
+router.post("/control/subjects", async (req, res) => {
+  const { std, subjects } = req.body;
+
+  if (!std || !Array.isArray(subjects) || subjects.length === 0) {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+
+  try {
+    // Fetch the standard by `std`
+    const standard = await prisma.standards.findUnique({
+      where: { std }, // Find by `std`, not `id`
+    });
+
+    if (!standard) {
+      return res.status(404).json({ error: "Standard not found" });
+    }
+
+    // Create subjects linked to the standard
+    const result = await prisma.subject.createMany({
+      data: subjects.map((subject) => ({
+        name: subject.name,
+        stdId: std, // Link by `std` as defined in the schema
+      })),
+    });
+
+    res.status(200).json({ message: "Subjects created successfully", result });
+  } catch (error) {
+    console.error("Error creating subjects:", error);
+    res.status(500).json({ error: "An error occurred while creating subjects" });
+  }
+});
+
+
 
 const promotionData = {
     sessions: {
@@ -100,6 +126,7 @@ const promotionData = {
   
 
   router.post("/promotion", async (req, res) => {
+    const session = req.session;
     try {
       const studentData = await prisma.student.findMany({
         include: {

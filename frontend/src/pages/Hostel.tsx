@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, updateHostelData, constants_from_db } from "../apis/api";
 import DownloadHostel from "../components/Hostel/DownloadHostel";
 import UploadHostel from "../components/Hostel/UploadHostel";
+import { useRecoilValue } from "recoil";
+import { standardList } from "../store/store";
 
 const Hostel = () => {
   const [rollNo, setRollNo] = useState("");
-  const [standard, setStandard] = useState<string >();
+  const [standard, setStandard] = useState<string>("");
   const [bed_no, setBed] = useState<number | undefined>();
   const [occupied, setOccupied] = useState<number[]>([]);
   const [available, setAvailable] = useState<number[]>([]);
@@ -15,10 +17,10 @@ const Hostel = () => {
   const [data, setData] = useState<any>(null);
   const [res, setRes] = useState<any>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-
+  const standards = useRecoilValue(standardList);
   const [currentPage, setCurrentPage] = useState(1);
   const bedsPerPage = 100; // Number of beds per page
-
+  
   const totalBeds = occupied.length;
   const totalPages = Math.ceil(totalBeds / bedsPerPage);
 
@@ -45,7 +47,7 @@ const Hostel = () => {
       }
     } catch (error) {
       console.error('Error submitting data', error);
-      alert('Failed to add data');
+      alert('Bed Alread Allotted');
     }
   };
 
@@ -103,7 +105,7 @@ const Hostel = () => {
     }
     try {
       console.log("here ")
-      const response = await searchStudent(rollNo, standard);
+      const response = await searchStudent(parseInt(rollNo), standard);
       console.log("response " , response)
       setRes(response.data);
     } catch (error) {
@@ -127,7 +129,7 @@ const Hostel = () => {
 
   const clear = () => {
     setRollNo("");
-    setStandard(undefined);
+    setStandard("");
     setBed(undefined);
     setRes(null);
   };
@@ -196,14 +198,11 @@ const Hostel = () => {
                   value={standard ?? ''}
                   onChange={(e) => { setStandard(e.target.value); }}>
                   <option value=''>Select standard</option>
-                  <option value='lkg1'>Lkg1</option>
-                  <option value='kg1'>kg1</option>
-                  <option value='kg2'>kg2</option>
-                  <option value='1st'>1st</option>
-                  <option value='2nd'>2nd</option>
-                  <option value='3rd'>3rd</option>
-                  <option value='4th'>4th</option>
-                  <option value='5th'>5th</option>
+                  {standards.map((standard:string) => (
+                  <option key={standard} value={standard}>
+                    {standard}
+                  </option>
+                ))}
                 </select><br />
                 <button onClick={search}>Search</button>
                 {res && <button onClick={clear} style={{ marginLeft: "10px" }}>Clear</button>}
@@ -276,14 +275,11 @@ const Hostel = () => {
             <label>Standard</label>
             <select disabled className="selectB" value={standard ?? ''} onChange={(e) => setStandard(e.target.value)}>
               <option value=''>Select standard</option>
-              <option value='lkg1'>Lkg1</option>
-              <option value='kg1'>kg1</option>
-              <option value='kg2'>kg2</option>
-              <option value='1st'>1st</option>
-              <option value='2nd'>2nd</option>
-              <option value='3rd'>3rd</option>
-              <option value='4th'>4th</option>
-              <option value='5th'>5th</option>
+              {standards.map((standard:string) => (
+                <option key={standard} value={standard}>
+                  {standard}
+                </option>
+              ))}
             </select>
             <label>Bed No</label>
             <input type="number" placeholder='Bed no.' onChange={(e) => setBed(Number(e.target.value))} /><br />

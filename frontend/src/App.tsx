@@ -25,6 +25,7 @@ const App: React.FC = () => {
   const [auth, setAuth] = useState<Auth | null>(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(true);
   const InstitueName: string = useRecoilValue(handleInstitutionName);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -47,7 +48,7 @@ const App: React.FC = () => {
       } else {
         console.error("Unexpected error:", error);
       }
-      logout();
+      logout(); 
     }
   };
   
@@ -82,6 +83,9 @@ const App: React.FC = () => {
   const logout = () => {
     setAuth(null);
     localStorage.removeItem("token");
+    if(localStorage.getItem("selectedSession")){
+      localStorage.removeItem("selectedSession");
+    }
   };
 
   if (!auth) {
@@ -134,7 +138,7 @@ const App: React.FC = () => {
             style={{ width: "20px", height: "20px", paddingRight: "10px" }}
             alt=""
           />
-          <span style={{ fontSize: "20px", fontWeight: "bold" }}>{InstitueName}</span>
+          <span style={{ fontSize: "20px", fontWeight: "semibold" }}>{InstitueName}</span>
         </div>
         <div>ERP - Pallotii</div>
       </div>

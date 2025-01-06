@@ -3,9 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
 
-const fileStorage = require("../sessionManager");
-const data = fileStorage.readData();
-const session = data.year;
+
 function jsonBigIntReplacer(key, value) {
     if (typeof value === "bigint") {
         return value.toString();
@@ -48,7 +46,7 @@ router.post("/students", async (req, res) => {
         photoUrl,
         remark
     } = req.body;
-
+    const session = req.session;
     try {
         const student = await prisma.student.create({
             data: {
@@ -111,7 +109,8 @@ router.delete("/delete/students", async (req, res) => {
 // Search Students
 router.get("/getallstudent", async (req, res) => {
     const { std } = req.query;
-    
+    const session = req.session;
+    console.log("Here",session)
     try {
         const result = await prisma.student.findMany({
             where: {
@@ -128,19 +127,16 @@ router.get("/getallstudent", async (req, res) => {
 
 // Get searched student by rollno.:
 router.get("/students/rollNo", async (req, res) => {
-    const { param , standard } = req.query;
-    
+    const { rollno , standard } = req.query;
+    const session = req.session;
 
-    if (!session) {
-        alert("Backend issue with session, Contact Developer")
-    }
     
     try {
         let student;
-        if (/^\d+$/.test(param)){
+        if (/^\d+$/.test(rollno)){
             student = await prisma.student.findFirst({
                 where: {
-                    rollNo: parseInt(param),
+                    rollNo: parseInt(rollno),
                     standard: standard,
                     session: session
                 },
@@ -152,7 +148,7 @@ router.get("/students/rollNo", async (req, res) => {
         }else{
             student = await prisma.student.findFirst({
                 where: {
-                    rollNo: parseInt(param),
+                    rollNo: parseInt(rollno),
                     standard: standard,
                     session : session
                 },
@@ -163,10 +159,8 @@ router.get("/students/rollNo", async (req, res) => {
             });   
         }
         if (student) {
-            console.log("found " , student)
             res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
         } else {
-            console.log("found " , student)
             res.status(404).json({ message: "Student not found" });
         }
     } catch (error) {
@@ -179,6 +173,7 @@ router.get("/students/rollNo", async (req, res) => {
 // get all who applied for scholarship
 router.get("/getallstudentsc",async (req,res)=>{
     try{
+        const session = req.session;
         const studentsc = await prisma.student.findMany({
             where:{
                 scholarshipApplied:true,
@@ -210,7 +205,7 @@ router.put("/update/student/:id", async (req, res) => {
         scholarshipApplied,
         remark,
         address,
-        photoUrl,
+        photoUrl,   
         parents,
     } = req.body;
 

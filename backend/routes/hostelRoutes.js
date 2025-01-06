@@ -4,10 +4,6 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const ExcelJS = require("exceljs");
 const path = require("path");
-
-const fileStorage = require("../sessionManager");
-const data = fileStorage.readData();
-const session = data.year;
  
 const prisma = new PrismaClient();
 

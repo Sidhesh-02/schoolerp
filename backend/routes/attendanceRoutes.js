@@ -3,10 +3,6 @@ const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const path = require("path");
 const ExcelJS = require("exceljs");
-const fileStorage = require("../sessionManager");
-
-const data = fileStorage.readData();
-const session = data.year;
 
 const prisma = new PrismaClient();
 
@@ -26,6 +22,7 @@ function jsonBigIntReplacer(key, value) {
 
 // Get Student by Standards For Attendance
 router.get("/getstandards", async (req, res) => {
+  const session = req.session;
     try {
       const standards = await prisma.student.findMany({
         distinct: ["standard"],
@@ -48,7 +45,7 @@ router.get("/getstandards", async (req, res) => {
   // Get Student List wrt Standard for Attendance
   router.get("/getattendancelist", async (req, res) => {
     const { standard } = req.query;
-  
+    const session = req.session;
     try {
       const students = await prisma.student.findMany({
         where: {
@@ -85,7 +82,7 @@ router.get("/getstandards", async (req, res) => {
   // Submit Attendance
   router.post("/submitattendance", async (req, res) => {
     const { standard, date, absentStudents, subjectId } = req.body;
-  
+    const session = req.session;
     try {
       const students = await prisma.student.findMany({
         where: { standard, session:session },
@@ -124,6 +121,7 @@ router.get("/getstandards", async (req, res) => {
   
   // Download attendance by Date & Class
   router.get("/downloadattendance", async (req, res) => {
+    const session = req.session;
     try {
       const attendanceRecords = await prisma.attendance.findMany({
         include: {

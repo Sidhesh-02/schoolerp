@@ -1,7 +1,4 @@
 -- CreateEnum
-CREATE TYPE "ExaminationType" AS ENUM ('UnitTest', 'MidTerm', 'Final');
-
--- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('Male', 'Female');
 
 -- CreateEnum
@@ -114,13 +111,30 @@ CREATE TABLE "Standards" (
 CREATE TABLE "Control" (
     "id" SERIAL NOT NULL,
     "number_of_hostel_bed" INTEGER NOT NULL,
-    "Installment_one" INTEGER NOT NULL,
-    "Installment_two" INTEGER NOT NULL,
-    "Installment_three" INTEGER NOT NULL
+    "Institution_name" TEXT NOT NULL DEFAULT 'School'
+);
+
+-- CreateTable
+CREATE TABLE "Credential" (
+    "id" SERIAL NOT NULL,
+    "type" TEXT NOT NULL,
+    "password" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" SERIAL NOT NULL,
+    "year" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_standard_rollNo_session_key" ON "Student"("standard", "rollNo", "session");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Marks_studentId_subjectId_examinationType_key" ON "Marks"("studentId", "subjectId", "examinationType");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Hostel_id_key" ON "Hostel"("id");
@@ -139,6 +153,18 @@ CREATE UNIQUE INDEX "Standards_std_key" ON "Standards"("std");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Control_id_key" ON "Control"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Credential_id_key" ON "Credential"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Credential_type_key" ON "Credential"("type");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Credential_password_key" ON "Credential"("password");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Session_year_key" ON "Session"("year");
 
 -- AddForeignKey
 ALTER TABLE "Parent" ADD CONSTRAINT "Parent_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

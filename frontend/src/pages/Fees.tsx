@@ -4,6 +4,8 @@ import "../styles/fee.css";
 import FeeReicpts from "../components/Fees/FeeReicpts";
 import DownloadFee from "../components/Fees/DownloadFee";
 import UploadFee from "../components/Fees/UploadFee";
+import { useRecoilValue } from "recoil";
+import { standardList } from "../store/store";
 
 interface Fee {
   title: string;
@@ -25,6 +27,7 @@ const Fees: React.FC = () => {
   const [rollNo, setRollNo] = useState("");
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
+  const standards = useRecoilValue(standardList);
   const [newInstallment, setNewInstallment] = useState<Fee>({
     title: "",
     amount: 0,
@@ -116,14 +119,13 @@ const Fees: React.FC = () => {
     };
     
     try {
-      const res = await addFeeInstallment(updatedInstallment);
       let check = false;
       student.fees.forEach((e : any) =>{
        
           if(e.title === updatedInstallment.title){
-            if(e.studentId === updatedInstallment.studentId){
+            
               check = true;
-            }
+            
           }
       });
       
@@ -132,6 +134,7 @@ const Fees: React.FC = () => {
         alert("Installment Already Exists");
         return;
       }
+      const res = await addFeeInstallment(updatedInstallment);
 
       if (res.data && !res.data.error) {
         setStudent((prevStudent) => {
@@ -184,14 +187,11 @@ const Fees: React.FC = () => {
               onChange={(e) => setStandard(e.target.value)}
             >
               <option value="">Select standard</option>
-              <option value="lkg1">Lkg1</option>
-              <option value="kg1">kg1</option>
-              <option value="kg2">kg2</option>
-              <option value="1st">1st</option>
-              <option value="2nd">2nd</option>
-              <option value="3rd">3rd</option>
-              <option value="4th">4th</option>
-              <option value="5th">5th</option>
+              {standards.map((standard:string) => (
+              <option key={standard} value={standard}>
+                {standard}
+              </option>
+              ))}
             </select>
           </div>
 
@@ -224,7 +224,7 @@ const Fees: React.FC = () => {
             <h3>Standard: {student.standard}</h3>
             <h3>Fees:</h3>
             {student.fees.map((fee, index) => (
-              <div key={index} style={{ marginBottom: '10px', paddingLeft: '20px' }}>
+              <div key={index} style={{ marginBottom: '10px', padding: '15px' , backgroundColor:"#E0E0E0",border:"1px solid black" }}>
                 <h4>Title: {fee.title}</h4>
                 <p>Amount: {fee.amount}</p>
                 <p>Amount Date: {formatDateForInput(fee.amountDate)}</p>

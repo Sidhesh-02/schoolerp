@@ -38,8 +38,8 @@ table {
 table th,
 table td {
   padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid grey;
+  text-align: center;
 }
 
 table th {
@@ -52,14 +52,7 @@ table td input {
   box-sizing: border-box;
 }
 
-.alert {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  text-align: center;
-}
+
 
 @media (max-width: 600px) {
   .container {

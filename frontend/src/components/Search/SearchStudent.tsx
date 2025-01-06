@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { deleteStudent, searchStudent, updateStudent } from "../../apis/api";
 import { AlignmentType, Document, ImageRun, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
+import { standardList } from "../../store/store";
+import { useRecoilValue } from "recoil";
 
 
 interface Student {
@@ -37,7 +39,7 @@ const SearchStudent: React.FC = () => {
   const [standard, setStandard] = useState("");
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [editableStudent, setEditableStudent] = useState<Student | null>(null);
-
+  const standards = useRecoilValue(standardList);
   const formatDateForInput = (dateString: string) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -471,14 +473,11 @@ const SearchStudent: React.FC = () => {
         <label>Select Standard</label>
         <select value={standard} onChange={(e) => setStandard(e.target.value)}>
           <option value="">Select Standard</option>
-          <option value="lkg1">Lkg1</option>
-          <option value="kg1">Kg1</option>
-          <option value="kg2">Kg2</option>
-          <option value="1st">1st</option>
-          <option value="2nd">2nd</option>
-          <option value="3rd">3rd</option>
-          <option value="4th">4th</option>
-          <option value="5th">5th</option>
+          {standards.map((standard:string) => (
+            <option key={standard} value={standard}>
+              {standard}
+            </option>
+          ))}
         </select>
       </div>
       <button onClick={handleSearch}>Search</button>
@@ -780,3 +779,5 @@ const SearchStudent: React.FC = () => {
 };
 
 export default SearchStudent;
+
+

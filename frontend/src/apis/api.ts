@@ -32,10 +32,10 @@ export const createStudent = async (student: Student) => {
   }
 };
 
-export const updateStudent = async (studentId: number, studentData: any,rollNo?: any,standard?:string) => {
+export const updateStudent = async (studentId: number,photoUrl:string,rollNo?: number,standard?:string) => {
   try {
     
-    if (studentData.photoUrl && Object.keys(studentData).length === 1) {
+    if (photoUrl) {
       // Fetch current student data
       const response = await axios.get(`http://localhost:5000/students/rollNo`, {
         params: { rollno: rollNo, standard }
@@ -43,13 +43,13 @@ export const updateStudent = async (studentId: number, studentData: any,rollNo?:
       const currentData = response.data;
 
       // Merge current data with the new photoUrl
-      const updateData = { ...currentData, photoUrl: studentData.photoUrl };
+      const updateData = { ...currentData, photoUrl: photoUrl};
       
       // Update student with only photoUrl change
       await axios.put(`http://localhost:5000/update/student/${studentId}`, updateData);
     } else {
       // Update student with all provided data
-      await axios.put(`http://localhost:5000/update/student/${studentId}`, studentData);
+      await axios.put(`http://localhost:5000/update/student/${studentId}`, photoUrl);
     }
   } catch (error) {
     console.error("Error updating student:", error);
@@ -130,7 +130,7 @@ export const uploadAttendance  = async (file: File) => {
 
 export const fetchStandards = async () => {
     return await axios.get("http://localhost:5000/getstandards");
-  };
+};
   
 export const fetchSubjects = async (selectedStandard:string) => {
     return await axios.get("http://localhost:5000/getsubjects",{
@@ -190,12 +190,9 @@ export const fetchHostelData = async () => {
     });
   };
   
-  export const searchStudent = (param: string, standard: string ) => {
+  export const searchStudent = (rollNo: number, standard: string ) => {
     return axios.get('http://localhost:5000/students/rollNo', {
-      params: {
-        param,
-        standard,
-      },
+      params: { rollno: rollNo, standard }
     });
   };
   
@@ -294,7 +291,19 @@ export const fetchHostelData = async () => {
 
 // control panel
 
-export const addSubject = async(data : any)=>{
+export const addStandard = async(data : any)=>{
+  const res = await axios.post("http://localhost:5000/control/standard", {
+      std : data.std,
+      // subjects : data.subjects
+  }, {
+    headers : {
+      'Content-Type' : 'application/json'
+    }
+  })
+  return res;
+}
+
+export const addSubjects = async(data : any)=>{
   const res = await axios.post("http://localhost:5000/control/subjects", {
       std : data.std,
       subjects : data.subjects
@@ -309,9 +318,6 @@ export const addSubject = async(data : any)=>{
 export const addControlValues = async(data : any) =>{
   const res = await axios.post("http://localhost:5000/changesFromControlPanel", {
       number_of_hostel_bed : data.num_of_beds,
-      one: data.Installment1,
-      two :data.Installment2, 
-      three :data.Installment3,
       Institution_Name : data.InstitutionName,
     },{
       headers : {
@@ -332,6 +338,10 @@ export const currentSession = async (year : string)=>{
   return await axios.post("http://localhost:5000/session",{
     year : year
   });
+}
+
+export const getCurrentSession = async ()=>{
+  return await axios.get("http://localhost:5000/getSessions");
 }
 
 export const DownloadScholarshipStudent = async()=>{

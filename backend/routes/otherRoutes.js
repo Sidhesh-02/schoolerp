@@ -5,12 +5,8 @@ const ExcelJS = require("exceljs");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
-const path = require("path");
-const fileStorage = require("../sessionManager");
-
 const crypto = require("crypto");
-const data = fileStorage.readData();
-const session = data.year;
+const path = require("path");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -25,6 +21,7 @@ const storage = multer.diskStorage({
 const prisma = new PrismaClient();
 //Get all student information in excel file 
 router.get('/excelstudents', async (req, res) => {
+    const session = req.session;
     try {
       const studentsInfo = await prisma.student.findMany({
         where:{session:session},
@@ -211,6 +208,8 @@ router.get('/excelstudents', async (req, res) => {
   
   
   router.get('/reportsdata', async (req, res) => {
+    const session = req.session;
+    console.log("Here",session)
     try {
         // Fetch all required student data (including fees) in one query
         const studentData = await prisma.student.findMany({
@@ -249,7 +248,7 @@ router.get('/excelstudents', async (req, res) => {
 
 
   router.post("/changesFromControlPanel", async (req, res) => {
-    let { number_of_hostel_bed, one, two, three, Institution_Name} = req.body;
+    let { number_of_hostel_bed, Institution_Name} = req.body;
     try {
       // Check if a record already exists
       const existingRecord = await prisma.control.findFirst();
@@ -266,32 +265,6 @@ router.get('/excelstudents', async (req, res) => {
         }
       }
   
-      if (one) {
-        const installmentOne = parseInt(one);
-        if (!isNaN(installmentOne)) {
-          updatedData.Installment_one = installmentOne;
-        } else {
-          return res.status(400).json({ error: "Invalid Installment_one." });
-        }
-      }
-  
-      if (two) {
-        const installmentTwo = parseInt(two);
-        if (!isNaN(installmentTwo)) {
-          updatedData.Installment_two = installmentTwo;
-        } else {
-          return res.status(400).json({ error: "Invalid Installment_two." });
-        }
-      }
-  
-      if (three) {
-        const installmentThree = parseInt(three);
-        if (!isNaN(installmentThree)) {
-          updatedData.Installment_three = installmentThree;
-        } else {
-          return res.status(400).json({ error: "Invalid Installment_three." });
-        }
-      }
       if (Institution_Name) {
         const Institution_name = Institution_Name;
         if (Institution_name) {
@@ -560,6 +533,7 @@ router.post("/uploadMarks", upload.single("file"), async (req, res) => {
 
 
 router.get('/scholarshipStudents', async (req, res) => {
+  const session = req.session;
   try {
     const studentsInfo = await prisma.student.findMany({
       where:{
@@ -686,5 +660,13 @@ router.post("/validate-token", (req, res) => {
   }
   return res.status(401).json({ message: "Invalid or expired token" });
 });
+
+router.get("/standards",async(req,res)=>{
+  const standard = await prisma.standards.findMany();
+  if(!standard){
+    return res.status(500).json({error:"Error fetching standard"})
+  }
+  return res.status(200).json({standard});
+})
 
 module.exports = router;

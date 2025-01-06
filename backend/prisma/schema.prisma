@@ -79,6 +79,7 @@ model Marks {
   obtainedMarks  Float
   totalMarks     Float
   percentage     Float
+  @@unique([studentId,subjectId,examinationType])
   student        Student  @relation(fields: [studentId], references: [id])
   subject        Subject  @relation(fields: [subjectId], references: [id])
 }
@@ -111,9 +112,6 @@ model Standards{
 model Control{
     id                           Int @unique @default(autoincrement())
     number_of_hostel_bed         Int 
-    Installment_one              Int
-    Installment_two              Int
-    Installment_three            Int
     Institution_name             String @default("School")
 }
 
@@ -121,12 +119,6 @@ model Credential{
     id        Int @unique @default(autoincrement())
     type      String  @unique
     password  String  @unique
-}
-
-enum ExaminationType {
-  UnitTest
-  MidTerm
-  Final
 }
 
 enum Gender {
@@ -138,4 +130,10 @@ enum StudentStatus {
   Passed
   Failed
   None
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  year      String   @unique
+  createdAt DateTime @default(now())
 }

@@ -22,8 +22,8 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   useEffect(()=>{
     const fetchInstituteName = async()=>{
-      const {data} = await getInstitutionName();
-      setSName(data.Institution_name);
+      const data = await getInstitutionName();
+      setSName(data);
     }
     fetchInstituteName();
   },[])
@@ -114,11 +114,8 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
     });
   };
  
-  useEffect(()=>{
-    console.log("title : " , title )
-  },[title])
 
-  const handlecange = (e: React.ChangeEvent<HTMLSelectElement>)=>{
+  const handlechange = (e: React.ChangeEvent<HTMLSelectElement>)=>{
       setTitle(e.target.value);
   }
 
@@ -130,7 +127,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
             <select
               name="title"
               value={title}
-              onChange={handlecange}
+              onChange={handlechange}
             >
               <option value="">Select installment type</option>
               <option value="1st">1st Installment</option>

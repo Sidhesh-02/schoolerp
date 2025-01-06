@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from "react";
-import { constants_from_db, createStudent, uploadPhoto } from "../apis/api";
+import React, { useCallback, useEffect, useState } from "react";
+import { createStudent, uploadPhoto } from "../apis/api";
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
 import StudentsInfoDownload from "../components/Student/RetriveStudentExcel";
+import axios from "axios";
 
 interface Student {
   fullName: string;
@@ -71,10 +72,26 @@ const Student: React.FC = () => {
     ],
     remark :""
   });
+  const [standard,setStandard] = useState(["1st"])
+  useEffect(()=>{
+    async function fetchStandards (){
+      try {
+        const response = await axios.get("http://localhost:5000/standards");
+        const standards = response.data?.standard || [];
+        const standardArr = standards.map((ele: { std: string; id:number }) => ele.std);
+        setStandard(standardArr);
+      } catch (error) {
+        console.error("Error fetching standards:", error);
+        throw error;
+      }
+    }
+    fetchStandards();
+  },[])
+  
+  
 
   const handleSubmit = async () => {
     if (
-      
       !student.fullName ||
       !student.rollNo ||
       !student.dateOfBirth ||
@@ -116,42 +133,21 @@ const Student: React.FC = () => {
     setStudent((prev) => ({ ...prev, fees: newFees }));
   };
 
-  const handleFeeChange2 = async (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    index: number
-  ) => {
+  const handleFeeChange2 = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
     const { name, value } = e.target;
-    const newFees = [...student.fees];
-    const dataFromMiss = await constants_from_db();
-    const totalAmount = dataFromMiss.data.Installment_one + dataFromMiss.data.Installment_two + dataFromMiss.data.Installment_three;
+    const updatedFees = [...student.fees]; // Create a copy of the fees array
     
-    if (name === "installmentType") {
-      let amount = 0;
-      switch (value) {
-        case "Total":
-          amount = totalAmount;
-          break;
-        case "1st":
-          amount = dataFromMiss.data.Installment_one;
-          break;
-        case "2nd":
-          amount = dataFromMiss.data.Installment_two
-          break;
-        case "3rd":
-          amount = dataFromMiss.data.Installment_three;
-          break;
-        default:
-          amount = 0;
-          break;
-      }
-  
-      newFees[index] = { ...newFees[index], [name]: value, amount };
-    } else {
-      newFees[index] = { ...newFees[index], [name]: value };
-    }
-  
-    setStudent((prev) => ({ ...prev, fees: newFees }));
+    // Update the fee object at the specified index with the new value
+    updatedFees[index] = { ...updatedFees[index], [name]: value };
+    
+    // Set the updated fees back into the student state
+    setStudent((prevState) => ({
+      ...prevState,
+      fees: updatedFees, // Update only the fees field
+    }));
   };
+  
+
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -177,9 +173,7 @@ const Student: React.FC = () => {
               <UploadStudents/>
           </div>
         </div>
-       
-          
-         
+      
       </div>
       <div className="global-container">
         <h2>Create Student Profile</h2>
@@ -240,7 +234,6 @@ const Student: React.FC = () => {
             }
           />
         </div>
-
         <label>Standard</label>
         <select
           name="standard"
@@ -250,14 +243,9 @@ const Student: React.FC = () => {
           }
         >
           <option value="">Select standard</option>
-          <option value="lkg1">Lkg1</option>
-          <option value="kg1">kg1</option>
-          <option value="kg2">kg2</option>
-          <option value="1st">1st</option>
-          <option value="2nd">2nd</option>
-          <option value="3rd">3rd</option>
-          <option value="4th">4th</option>
-          <option value="5th">5th</option>
+          {standard.map((ele,key)=>(
+            <option key={key}>{ele}</option>
+          ))}
         </select>
 
         <div>
@@ -385,7 +373,7 @@ const Student: React.FC = () => {
                 value={fee.installmentType}
                 onChange={(e) => handleFeeChange2(e, index)}
               >
-                <option value="Total">Total</option>
+                <option disabled>Select Type</option>
                 <option value="1st">1st</option>
                 <option value="2nd">2nd</option>
                 <option value="3rd">3rd</option>
@@ -397,7 +385,7 @@ const Student: React.FC = () => {
                 type="number"
                 name="amount"
                 value={fee.amount}
-                onChange={(e) => handleFeeChange(e, index)}
+                onChange={(e) => handleFeeChange(e, index)} // This will allow the user to input the value manually
               />
 
               <label>Amount Date</label>

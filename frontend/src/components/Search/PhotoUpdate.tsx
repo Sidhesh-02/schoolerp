@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { fetchAllStudents, updateStudent, uploadPhoto } from "../../apis/api";
+import { useRecoilValue } from "recoil";
+import { standardList } from "../../store/store";
 
 
 export default function PhotoUpdate(){
     const [std, setStd] = useState<string>("");
     const [result, setResult] = useState<any[]>([]);
-    const [url,setUrl] = useState({});
-    
+    const [url,setUrl] = useState("");
+    const standards = useRecoilValue(standardList);
     const search = async () => {
         try {
             const data = await fetchAllStudents(std);
@@ -35,7 +37,7 @@ export default function PhotoUpdate(){
         if (file) {
           try {
             const photoUrl = await uploadPhoto(file);
-            setUrl({photoUrl});
+            setUrl(photoUrl);
           } catch (error) {
             console.error(error);
             alert('Failed to upload image');
@@ -50,14 +52,11 @@ export default function PhotoUpdate(){
                 <label>Select Standard</label>
                 <select onChange={(e) => setStd(e.target.value)}>
                     <option value="">Select Standard</option>
-                    <option value="lkg1">Lkg1</option>
-                    <option value="kg1">Kg1</option>
-                    <option value="kg2">Kg2</option>
-                    <option value="1st">1st</option>
-                    <option value="2nd">2nd</option>
-                    <option value="3rd">3rd</option>
-                    <option value="4th">4th</option>
-                    <option value="5th">5th</option>
+                    {standards.map((standard:string) => (
+                        <option key={standard} value={standard}>
+                        {standard}
+                        </option>
+                    ))}
                 </select>
                 <button onClick={search}>Search</button>
             </div>
