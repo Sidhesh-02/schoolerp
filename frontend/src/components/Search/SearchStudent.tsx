@@ -34,8 +34,7 @@ interface Parent {
 }
 
 const SearchStudent: React.FC = () => {
-  // const [rollNo, setRollNo] = useState("");
-  const [search,setSearchQuery] = useState("");
+  const [rollNo,setRollNo] = useState("");
   const [standard, setStandard] = useState("");
   const [searchResult, setSearchResult] = useState<Student | null>(null);
   const [editableStudent, setEditableStudent] = useState<Student | null>(null);
@@ -381,12 +380,12 @@ const SearchStudent: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      if(!search){
+      if(!rollNo){
         alert("Check Search Query");
         return;
       }
       
-      const response = await searchStudent(search, standard);
+      const response = await searchStudent(parseInt(rollNo), standard);
       
       setSearchResult(response.data);
       setEditableStudent({
@@ -420,8 +419,10 @@ const SearchStudent: React.FC = () => {
         alert("No student data to update.");
         return;
       }
-      await updateStudent(editableStudent.id,editableStudent);
-      alert("Student updated successfully");
+      const updateResponse = await updateStudent(editableStudent.id,editableStudent);
+      if(updateResponse){
+        alert("Student updated successfully");
+      }
       setSearchResult(null);
       setEditableStudent(null);
     } catch (error) {
@@ -465,8 +466,8 @@ const SearchStudent: React.FC = () => {
           className="StudentInput"
           type="text"
           placeholder="Search by Name/Roll No"
-          value={search}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={rollNo}
+          onChange={(e) => setRollNo(e.target.value)}
         />
       </div>
       <div>

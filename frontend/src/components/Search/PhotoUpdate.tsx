@@ -24,7 +24,7 @@ export default function PhotoUpdate(){
             alert("No student data to update.");
             return;
           }
-          await updateStudent(id,url,rollNo,standard);
+          await updateStudent(id,{url,rollNo,standard});
           alert("Student updated successfully");
         } catch (error) {
           console.error("Error updating student:", error);
@@ -33,6 +33,7 @@ export default function PhotoUpdate(){
       };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("Yahah  ",e.target.files);
         const file = e.target.files?.[0];
         if (file) {
           try {

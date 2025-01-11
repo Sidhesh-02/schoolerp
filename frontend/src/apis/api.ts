@@ -32,32 +32,25 @@ export const createStudent = async (student: Student) => {
   }
 };
 
-export const updateStudent = async (studentId: number,photoUrl:string,rollNo?: number,standard?:string) => {
+export const updateStudent = async (studentId: number,editableStudent:any) => {
   try {
-    
-    if (photoUrl) {
-      // Fetch current student data
-      const response = await axios.get(`http://localhost:5000/students/rollNo`, {
-        params: { rollno: rollNo, standard }
-      });
-      const currentData = response.data;
-
-      // Merge current data with the new photoUrl
-      const updateData = { ...currentData, photoUrl: photoUrl};
-      
-      // Update student with only photoUrl change
-      await axios.put(`http://localhost:5000/update/student/${studentId}`, updateData);
-    } else {
-      // Update student with all provided data
-      await axios.put(`http://localhost:5000/update/student/${studentId}`, photoUrl);
+    const response = await axios.get(`http://localhost:5000/students/rollNo`, {
+      params: { rollno: editableStudent.rollNo, standard : editableStudent.standard }
+    });
+    const currentData = response.data;
+    if(editableStudent.url){
+      console.log(editableStudent.url);
+      const updateData = { ...currentData, photoUrl: editableStudent.url};
+      console.log('Phela');
+      return await axios.put(`http://localhost:5000/update/student/${studentId}`, updateData);
     }
+    console.log('Dusra');
+    return await axios.put(`http://localhost:5000/update/student/${studentId}`, editableStudent);  
   } catch (error) {
     console.error("Error updating student:", error);
     throw error;
   }
 };
-
-
 
 
 export const deleteStudent = async (studentId: number) => {
