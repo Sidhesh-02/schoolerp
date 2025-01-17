@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { fetchStudentFees, addFeeInstallment, constants_from_db } from "../apis/api";
+import { fetchStudentFees, addFeeInstallment } from "../apis/api";
 import "../styles/fee.css";
 import FeeReicpts from "../components/Fees/FeeReicpts";
 import DownloadFee from "../components/Fees/DownloadFee";
 import UploadFee from "../components/Fees/UploadFee";
 import { useRecoilValue } from "recoil";
-import { standardList } from "../store/store";
+import { installmentArr, standardList } from "../store/store";
 
 interface Fee {
   title: string;
@@ -34,6 +34,7 @@ const Fees: React.FC = () => {
     amountDate: "",
     admissionDate: ""
   });
+  const installmentArray = useRecoilValue(installmentArr);
 
   const formatDateForInput = (dateString: string) => {
     const date = new Date(dateString);
@@ -78,31 +79,10 @@ const Fees: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    let amount = newInstallment.amount;
-    
-    const resForMis = await constants_from_db();
-    
-    if (name === "title") {
-      switch (value) {
-        case "1st" :
-          amount = resForMis.data.Installment_one;
-          break;
-        case "2nd":
-          amount = resForMis.data.Installment_two;
-          break;
-        case "3rd":
-          amount = resForMis.data.Installment_three;
-          break;
-        default:
-          amount = 0;
-          break;
-      }
-    }
-
+    console.log(name,value);
     setNewInstallment((prev) => ({
       ...prev,
       [name]: value,
-      amount: name === "title" ? amount : prev.amount,
     }));
   };
 
@@ -237,15 +217,16 @@ const Fees: React.FC = () => {
             <h2>Add New Installment</h2>
             <div>
               <label>Installment Type</label>
+              
               <select
                 name="title"
                 value={newInstallment.title}
                 onChange={handleAddInstallmentChange}
               >
                 <option value="">Select installment type</option>
-                <option value="1st">1st Installment</option>
-                <option value="2nd">2nd Installment</option>
-                <option value="3rd">3rd Installment</option>
+                {installmentArray.map((ele,id)=>(
+                  <option key={id} value={ele}>{ele}</option>
+                ))}
               </select>
             </div>
             <div>

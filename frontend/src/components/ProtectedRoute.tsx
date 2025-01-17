@@ -10,7 +10,11 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ auth, allowedRoles, children }) => {
   if (!auth || !allowedRoles.includes(auth.role)) {
-    return <Navigate to="/Report" />;
+    return (
+      <>
+        <Navigate to="/" />
+      </>
+    );
   }
   return <>{children}</>;
 };

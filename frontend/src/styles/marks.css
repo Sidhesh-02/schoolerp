@@ -22,13 +22,6 @@ label {
   color: #555;
 }
 
-input[type="number"] {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid;
-  margin-top: 5px;
-}
-
 table {
   width: 100%;
   margin-top: 20px;

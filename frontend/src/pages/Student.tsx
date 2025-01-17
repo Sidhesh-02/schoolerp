@@ -4,6 +4,8 @@ import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
 import StudentsInfoDownload from "../components/Student/RetriveStudentExcel";
 import axios from "axios";
+import { useRecoilValue } from "recoil";
+import { installmentArr } from "../store/store";
 
 interface Student {
   fullName: string;
@@ -16,6 +18,8 @@ interface Student {
   photoUrl?: string;
   address: string;
   remark:string;
+  category:string;
+  caste:string,
   parents: Parent[];
   fees: Fee[];
 }
@@ -50,6 +54,8 @@ const Student: React.FC = () => {
     scholarshipApplied: false,
     address: "",
     photoUrl: "",
+    category: "",
+    caste:"",
     parents: [
       {
         fatherName: "",
@@ -72,7 +78,8 @@ const Student: React.FC = () => {
     ],
     remark :""
   });
-  const [standard,setStandard] = useState(["1st"])
+  const [standard,setStandard] = useState(["1st"]);
+  const installmentArray = useRecoilValue(installmentArr);
   useEffect(()=>{
     async function fetchStandards (){
       try {
@@ -91,18 +98,18 @@ const Student: React.FC = () => {
   
 
   const handleSubmit = async () => {
-    if (
-      !student.fullName ||
-      !student.rollNo ||
-      !student.dateOfBirth ||
-      !student.adhaarCardNo ||
-      !student.standard ||
-      student.parents.some((parent) => !parent.fatherName || !parent.motherName || !parent.fatherContact || !parent.motherContact) ||
-      student.fees.some((fee) => !fee.installmentType || !fee.amountDate || !fee.admissionDate)
-    ) {
-      alert("Please fill all the required fields.");
-      return;
-    }
+    // if (
+    //   !student.fullName ||
+    //   !student.rollNo ||
+    //   !student.dateOfBirth ||
+    //   !student.adhaarCardNo ||
+    //   !student.standard ||
+    //   student.parents.some((parent) => !parent.fatherName || !parent.motherName || !parent.fatherContact || !parent.motherContact) ||
+    //   student.fees.some((fee) => !fee.installmentType || !fee.amountDate || !fee.admissionDate)
+    // ) {
+    //   alert("Please fill all the required fields.");
+    //   return;
+    // }
     try {
       await createStudent(student);
       alert("Student created successfully");
@@ -209,6 +216,30 @@ const Student: React.FC = () => {
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
+        </div>
+        <div>
+          <label>Category</label>
+          <input
+            className="studentInput"
+            type="text"
+            name="category"
+            value={student.category}
+            onChange={(e) =>
+              setStudent((prev) => ({ ...prev, category: e.target.value }))
+            }
+          />
+        </div>
+        <div>
+          <label>Caste</label>
+          <input
+            className="studentInput"
+            type="text"
+            name="caste"
+            value={student.caste}
+            onChange={(e) =>
+              setStudent((prev) => ({ ...prev, caste: e.target.value }))
+            }
+          />
         </div>
         <div>
           <label>Date of Birth</label>
@@ -336,7 +367,7 @@ const Student: React.FC = () => {
               <label>Father Contact</label>
               <input
                 className="StudentInput"
-                type="text"
+                type="number"
                 name="fatherContact"
                 value={parent.fatherContact}
                 onChange={(e) => handleParentChange(e, index)}
@@ -346,7 +377,7 @@ const Student: React.FC = () => {
               <label>Mother Contact</label>
               <input
                 className="StudentInput"
-                type="text"
+                type="number"
                 name="motherContact"
                 value={parent.motherContact}
                 onChange={(e) => handleParentChange(e, index)}
@@ -374,9 +405,10 @@ const Student: React.FC = () => {
                 onChange={(e) => handleFeeChange2(e, index)}
               >
                 <option disabled>Select Type</option>
-                <option value="1st">1st</option>
-                <option value="2nd">2nd</option>
-                <option value="3rd">3rd</option>
+                <option value="">Select installment type</option>
+                {installmentArray.map((ele,id)=>(
+                  <option key={id} value={ele}>{ele}</option>
+                ))}
               </select>
 
               <label>Amount</label>

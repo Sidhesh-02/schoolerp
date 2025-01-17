@@ -1,5 +1,6 @@
 import "./styles/App.css";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Report from "./pages/Report";
@@ -12,7 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Search from "./pages/Search";
 import Control from "./pages/Control";
 import { useRecoilValue } from "recoil";
-import { handleInstitutionName } from "./store/store";
+import { handleInstitutionLogo, handleInstitutionName } from "./store/store";
 import { getCredentials } from "./apis/api";
 import axios from "axios";
 
@@ -20,13 +21,12 @@ interface Auth {
   token: string;
   role: "teacher" | "admin";
 }
-
 const App: React.FC = () => {
+  const navigate = useNavigate();
   const [auth, setAuth] = useState<Auth | null>(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(true);
-  const InstitueName: string = useRecoilValue(handleInstitutionName);
-  
-
+  const InstitueName = useRecoilValue(handleInstitutionName);
+  const InstitueLogo = useRecoilValue(handleInstitutionLogo);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -86,6 +86,7 @@ const App: React.FC = () => {
     if(localStorage.getItem("selectedSession")){
       localStorage.removeItem("selectedSession");
     }
+    navigate("/");
   };
 
   if (!auth) {
@@ -132,10 +133,10 @@ const App: React.FC = () => {
         >
           {isNavbarOpen ? <div>Close</div> : <div>Open</div>}
         </button>
-        <div>
+        <div style={{display:"flex",alignItems:"center"}}>
           <img
-            src="/src/images/hamburger.png"
-            style={{ width: "20px", height: "20px", paddingRight: "10px" }}
+            src={InstitueLogo}
+            style={{ width: "40px", height: "40px", paddingRight: "10px"}}
             alt=""
           />
           <span style={{ fontSize: "20px", fontWeight: "semibold" }}>{InstitueName}</span>
@@ -147,6 +148,7 @@ const App: React.FC = () => {
         {isNavbarOpen && <Navbar auth={auth} logout={logout} />}
         <div className="content-wrapper">
           <Routes>
+            {/* If user hits /, it will redirect to /Reports as home page */}
             <Route path="/" element={<Navigate to="/Report" />} />
             <Route
               path="/Report"

@@ -30,8 +30,8 @@
 }
 
 .navbar a.active {
-  font-weight: bold;
-  color: #AF1763; 
+  font-weight: bolder;
+  color: black; 
 }
 
 .app_flex {

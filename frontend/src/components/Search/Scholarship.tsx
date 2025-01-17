@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { fetchAllStudentsSc } from "../../apis/api";
+import { DownloadScholarshipStudent, fetchAllStudentsSc } from "../../apis/api";
 
 export default function Scholarship() {
     const [list, setList] = useState<any[]>([]);
@@ -18,12 +18,35 @@ export default function Scholarship() {
             console.log(error);
         }
     };
+    const handleDownload = async()=>{
+            try {
+                const response = await DownloadScholarshipStudent();
+                if (response.status < 200 || response.status >= 300) {
+                  alert("here first")
+                  throw new Error('Failed to download Scholarship records');
+                }
+                const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Scholarship.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (error) {
+                console.error('Error downloading Scholarship records:', error);
+                alert('Failed to download Scholarship records');
+              }
+        }
 
     return (
         <>
             <div>
                 <h2>Scholarship Students :-</h2>
                 <button onClick={getStudents}>Get Students</button>
+                &nbsp;
+                <button style={{ marginTop: '-2px' }} onClick={handleDownload}>Dowload Students</button>
                 &nbsp;
                 <button onClick={() => setShowTable(false)}>Clear</button>
                 {showTable && (

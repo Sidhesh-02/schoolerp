@@ -41,10 +41,8 @@ export const updateStudent = async (studentId: number,editableStudent:any) => {
     if(editableStudent.url){
       console.log(editableStudent.url);
       const updateData = { ...currentData, photoUrl: editableStudent.url};
-      console.log('Phela');
       return await axios.put(`http://localhost:5000/update/student/${studentId}`, updateData);
     }
-    console.log('Dusra');
     return await axios.put(`http://localhost:5000/update/student/${studentId}`, editableStudent);  
   } catch (error) {
     console.error("Error updating student:", error);
@@ -311,7 +309,11 @@ export const addSubjects = async(data : any)=>{
 export const addControlValues = async(data : any) =>{
   const res = await axios.post("http://localhost:5000/changesFromControlPanel", {
       number_of_hostel_bed : data.num_of_beds,
-      Institution_Name : data.InstitutionName,
+      institutioName : data.InstitutionName,
+      hostelName : data.hostelName,
+      schoolAddress : data.schoolAddress,
+      totalFee : data.totalFee,
+      schoolLogo : data.url
     },{
       headers : {
         'Content-Type' : 'application/json'
@@ -343,10 +345,10 @@ export const DownloadScholarshipStudent = async()=>{
   });
 }
 
-export const getInstitutionName = async (): Promise<string> => {
+export const getInstitutionNameAndLogo = async () => {
   try {
     const response = await axios.get("http://localhost:5000/getChanges");
-    return response?.data?.Institution_name || "School"; 
+    return response.data;
   } catch (error) {
     console.error("Error fetching institution name:", error);
     return "School"; // Fallback in case of an error
@@ -367,5 +369,25 @@ export const getCredentials = async (username: string, password: string) => {
   }
 };
 
+export const uploadSchoolLogo = async (file: File)=>{
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post<string>("http://localhost:5000/uploadSchoolLogo", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }catch (error) {
+    throw new Error("Error uploading image");
+  }
 
+}
 
+export const fetchInstallments = async ()=>{
+  const response = await axios.get("http://localhost:5000/getInstallments");
+  if(response){
+    return response.data;
+  }
+}

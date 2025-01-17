@@ -11,6 +11,8 @@ interface Student {
   id: number;
   fullName: string;
   rollNo: string;
+  category: string;
+  caste:string,
   standard: string;
   photoUrl?: string;
   gender: string;
@@ -512,6 +514,14 @@ const SearchStudent: React.FC = () => {
                       <p>{searchResult.gender}</p>
                     </div>
                     <div className="profile-field">
+                      <label>Category:</label>
+                      <p>{searchResult.category}</p>
+                    </div>
+                    <div className="profile-field">
+                      <label>Caste:</label>
+                      <p>{searchResult.caste}</p>
+                    </div>
+                    <div className="profile-field">
                       <label>Date of Birth:</label>
                       <p>{formatDateForInput(searchResult.dateOfBirth)}</p>
                     </div>
@@ -627,6 +637,26 @@ const SearchStudent: React.FC = () => {
                 onChange={handleInputChange}
               />
             </div>
+            <div>
+          <label>Category</label>
+          <input
+            className="studentInput"
+            type="text"
+            name="category"
+            value={editableStudent.category}
+            onChange={handleInputChange}
+          />
+        </div>
+        <div>
+          <label>Caste</label>
+          <input
+            className="studentInput"
+            type="text"
+            name="caste"
+            value={editableStudent.caste}
+            onChange={handleInputChange}
+          />
+        </div>
             <div>
               <label>Roll No:</label>
               <input

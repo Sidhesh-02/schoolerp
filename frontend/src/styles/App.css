@@ -97,5 +97,6 @@ textarea {
   padding: 8px;
   background-color: ghostwhite;
   margin-top: 5px;
+  border: 2px solid darkslateblue;
   box-sizing: border-box;
 }

@@ -2,14 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { feetable, getInstitutionName } from "../../apis/api";
+import { feetable, getInstitutionNameAndLogo } from "../../apis/api";
+import { useRecoilValue } from "recoil";
+import { installmentArr } from "../../store/store";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   const [title ,setTitle] = useState<string>('');
   const [, setFeedata] = useState<any>();
   const [sName,setSName] = useState<string>('');
-  
+  const installmentArray = useRecoilValue(installmentArr);
   const fetchFeeData = async () => {
     try {
       const { data } = await feetable(id,title);
@@ -22,8 +24,8 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
   useEffect(()=>{
     const fetchInstituteName = async()=>{
-      const data = await getInstitutionName();
-      setSName(data);
+      const data = await getInstitutionNameAndLogo();
+      setSName(data.Institution_name);
     }
     fetchInstituteName();
   },[])
@@ -130,9 +132,10 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
               onChange={handlechange}
             >
               <option value="">Select installment type</option>
-              <option value="1st">1st Installment</option>
-              <option value="2nd">2nd Installment</option>
-              <option value="3rd">3rd Installment</option>
+              <option value="">Select installment type</option>
+                {installmentArray.map((ele,id)=>(
+                  <option key={id} value={ele}>{ele}</option>
+              ))}
             </select>
       </div>
       <button onClick={fetchFeeData}>Generate Receipt</button>

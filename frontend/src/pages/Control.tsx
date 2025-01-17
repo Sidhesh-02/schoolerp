@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { addControlValues, addStandard, addSubjects, currentSession, DownloadScholarshipStudent } from '../apis/api';
+import { addControlValues, addStandard, addSubjects, currentSession, uploadSchoolLogo } from '../apis/api';
 import PhotoUpdate from '../components/Search/PhotoUpdate';
 import axios from 'axios';
+import { AxiosError } from "axios";
 
 const Control = () => {
     
@@ -10,6 +11,11 @@ const Control = () => {
     const [SubString, SetSubString] = useState<string>('');
     const [num_of_beds, Setnum_of_beds] = useState<number>(0);
     const [InstitutionName , SetInstitutionName] = useState<string>('');
+    const [hostelName,setHostelName] = useState<string>("");
+    const [schoolAddress,setSchoolAddress] = useState<string>("");
+    const [totalFee,setTotalFee] = useState<number>(0);
+    const [installment,setInstallment] = useState<string>("");
+    const [url, setUrl] = useState("");
 
     const handleChangeStandard = (e: React.ChangeEvent<HTMLInputElement>) => {
         Setstandard(e.target.value);
@@ -61,15 +67,23 @@ const Control = () => {
         const data = {
             num_of_beds,
             InstitutionName,
+            hostelName,
+            schoolAddress,
+            totalFee,
+            url
         }
-       
-        const res = await addControlValues(data);
-        if (res) {
-            alert("Entry Successfull");
-            window.location.reload();
-        } else {
-            alert("Unsuccsesful");
+        // console.log(data);
+       try{
+        const controlDataStatus = await addControlValues(data);
+        if(controlDataStatus){
+            alert("Data Added Sccessfully")
         }
+       }catch(error){
+        const errorData = error as AxiosError;
+        if(errorData?.status == 400){
+            alert(errorData?.response?.data?.errorMsg)
+        }
+       }
     }
 
     const studentPromoteRoute = async()=>{
@@ -77,29 +91,6 @@ const Control = () => {
         if(promotionData){
             alert("Student Promoted Succesfully");
         }
-    }
-
-    const handleDownload = async()=>{
-        try {
-            const response = await DownloadScholarshipStudent();
-            console.log("res --> " ,response);
-            if (response.status < 200 || response.status >= 300) {
-              alert("here first")
-              throw new Error('Failed to download Scholarship records');
-            }
-            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'Scholarship.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-          } catch (error) {
-            console.error('Error downloading Scholarship records:', error);
-            alert('Failed to download Scholarship records');
-          }
     }
 
     const [input1, setInput1] = useState<string>('');
@@ -151,26 +142,44 @@ const Control = () => {
         fetchStandards();
     },[])
     
+      const handleImageUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+      ) => {
+        const file = e.target.files?.[0];
+        if (file) {
+          try {
+            const photoUrl = await uploadSchoolLogo(file);
+            setUrl(photoUrl);
+          } catch (error) {
+            console.error(error);
+            alert("Failed to upload image");
+          }
+        }
+      };
+
+    
+    const handleInstallment = async()=>{
+        console.log(installment);
+        const result = await axios.post("http://localhost:5000/handleInstallments",{installment});
+        if(result){
+            alert("Success");
+        }
+    }
+
     return (
         <div className='global-container'>
             <h1>Control Panel </h1>
-            <hr style={{ margin: "30px 0px" }} />
-            <div>
-                <h2>Download Students Opted For Scholarship</h2>
-                <button style={{ marginTop: '-2px' }} onClick={handleDownload}>Dowload</button>
-            </div>
-            <hr style={{ margin: "30px 0px" }} />
-            <PhotoUpdate />
-            <hr style={{ margin: "30px 0px" }} />
             {/* for standard and subject */}
             <div>
                 <h2>Add Standard</h2>
-                <input type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
+                <label>Enter Standards :</label>
+                <input title='Standard Formating - LKG, UKG, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th, 10th' type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
                 <span><button className="btn" onClick={Submit}>Submit</button></span>
             </div>
             <br/>
             {/* Add Subjects Choosing Standard */}
             <div>
+                <h2>Add Subjects</h2>
                 <select
                     name="standard"
                     onChange={handleDropdownStandardChange}
@@ -186,17 +195,38 @@ const Control = () => {
 
 
             <hr style={{ margin: "30px 0px" }} />
-            {/* for changing number of hostel beds  and Installment fee*/}
+        
             <div>
-                <label>Set Hostel Beds : </label>
-                <input type='number' placeholder='Enter number of hostel beds' onChange={(e) => { Setnum_of_beds(Number(e.target.value)) }}></input>
+                <h2>Set Configurations</h2>
                 <label>Set Institute Name : </label>
-                <input type='text' placeholder='Update institution name' onChange={(e) => {SetInstitutionName(e.target.value)}}></input>
+                <input type='text' placeholder='Enter institution name' onChange={(e) => {SetInstitutionName(e.target.value)}}></input>
+                <label>Set School Logo</label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e)}
+                />
+                <label>Set Hostel Name : </label>
+                <input type="text" placeholder='Enter Hostel Name' onChange={(e)=> {setHostelName(e.target.value)}}/>
+                <label>Set School Address</label>
+                <input type="text" placeholder='Enter Hostel Address' onChange={(e)=> {setSchoolAddress(e.target.value)}}/>
+                <label>Set Hostel Beds : </label>
+                <input type='number' placeholder='Enter Number of Hostel Beds' onChange={(e) => { Setnum_of_beds(Number(e.target.value)) }}></input>
+                <label>Set Total Fees</label>
+                <input type="number" placeholder='Enter Total Fees' onChange={(e)=> {setTotalFee(Number(e.target.value))}}/>
                 <button onClick={handleControlChanges}>Submit</button>
+            </div>
+            <br/>
+            <h2>Add Installments</h2>
+            <div>
+                <label>Add Installments List</label>
+                <input type="text" placeholder='Enter Installment Name' onChange={(e)=>{setInstallment(e.target.value)}}/>
+                <button onClick={handleInstallment}>Submit Installment</button>
             </div>
             <br />
             <div>
-                <label>Add Session</label>
+                <h2>Set Sessions</h2>
+                <label>Add Session : </label>
                 <input
                     type="text"
                     placeholder="Enter start year"
@@ -211,6 +241,9 @@ const Control = () => {
                 />
                 <button onClick={handleAddSession}>Add Session</button>
             </div>
+            <hr style={{ margin: "30px 0px" }} />
+            <PhotoUpdate />
+            <hr style={{ margin: "30px 0px" }} />
             <div style={{color:"#8B0000", marginLeft:"5px"}}>
                 <h2>Danger Zone - Handle with Caution</h2>
                 <div>
@@ -224,3 +257,5 @@ const Control = () => {
 }
 
 export default Control
+
+
