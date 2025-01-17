@@ -22,6 +22,8 @@ model Student {
   status            StudentStatus @default(None)
   session           String
   
+  category          String
+  caste             String
   @@unique([standard, rollNo, session])
   
   parents           Parent[]
@@ -85,13 +87,13 @@ model Marks {
 }
 
 model Hostel{
-    id Int @unique @id @default(autoincrement())
-    name String 
-    rollNo Int
-    standard String
-    gender String
-    bed_number Int  @unique
-    @@unique([rollNo, standard])
+  id Int @unique @id @default(autoincrement())
+  name String 
+  rollNo Int
+  standard String
+  gender String
+  bed_number Int  @unique
+  @@unique([rollNo, standard])
 }
 
 model Subject {
@@ -111,15 +113,14 @@ model Standards{
 
 model Control{
     id                           Int @unique @default(autoincrement())
-    number_of_hostel_bed         Int 
-    Institution_name             String @default("School")
+    number_of_hostel_bed         Int? 
+    Institution_name             String? @default("School")
+    Institution_hostel_name      String? @default("Hostel")
+    SchoolLogo                   String?
+    SchoolAddress                String?
+    TotalFees                    Int?
 }
 
-model Credential{
-    id        Int @unique @default(autoincrement())
-    type      String  @unique
-    password  String  @unique
-}
 
 enum Gender {
   Male
@@ -136,4 +137,9 @@ model Session {
   id        Int      @id @default(autoincrement())
   year      String   @unique
   createdAt DateTime @default(now())
+}
+
+model Installments{
+  id        Int     @id @default(autoincrement())
+  installments  String @unique
 }

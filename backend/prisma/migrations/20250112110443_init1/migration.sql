@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Control" ALTER COLUMN "SchoolLogo" DROP NOT NULL,
+ALTER COLUMN "SchoolAddress" DROP NOT NULL,
+ALTER COLUMN "TotalFees" DROP NOT NULL;

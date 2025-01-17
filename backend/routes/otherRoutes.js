@@ -209,7 +209,6 @@ router.get('/excelstudents', async (req, res) => {
   
   router.get('/reportsdata', async (req, res) => {
     const session = req.session;
-    console.log("Here",session)
     try {
         // Fetch all required student data (including fees) in one query
         const studentData = await prisma.student.findMany({
@@ -247,60 +246,44 @@ router.get('/excelstudents', async (req, res) => {
 });
 
 
-  router.post("/changesFromControlPanel", async (req, res) => {
-    let { number_of_hostel_bed, Institution_Name} = req.body;
-    try {
-      // Check if a record already exists
-      const existingRecord = await prisma.control.findFirst();
-  
-      // Only parse and update fields that have valid values
-      const updatedData = {};
-  
-      if (number_of_hostel_bed) {
-        const hostelBed = parseInt(number_of_hostel_bed);
-        if (!isNaN(hostelBed)) {
-          updatedData.number_of_hostel_bed = hostelBed;
-        } else {
-          return res.status(400).json({ error: "Invalid number_of_hostel_bed." });
-        }
-      }
-  
-      if (Institution_Name) {
-        const Institution_name = Institution_Name;
-        if (Institution_name) {
-          updatedData.Institution_name = Institution_name;
-        } else {
-          return res.status(400).json({ error: "Invalid Institution_Name." });
-        }
-      }
-  
-      if (Object.keys(updatedData).length === 0) {
-        return res.status(400).json({ error: "No valid data provided for update." });
-      }
-  
-      if (existingRecord) {
-        // Update existing record
-        const updatedRecord = await prisma.control.update({
-          where: {
-            id: existingRecord.id, // Use appropriate identifier field
-          },
-          data: updatedData,
-        });
-       
-        return res.status(200).json(updatedRecord);
-      } else {
-        // Create a new record
-        const newRecord = await prisma.control.create({
-          data: updatedData
-        });
-       
-        return res.status(200).json(newRecord);
-      }
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: "An error occurred while processing your request." });
-    }
+router.post("/changesFromControlPanel", async (req, res) => {
+  const { number_of_hostel_bed, institutioName, hostelName, schoolAddress, totalFee, schoolLogo } = req.body;
+  const existingRecord = await prisma.control.findFirst();
+
+  if (!existingRecord) {
+    // Create a new record if it doesn't exist
+    const newRecord = await prisma.control.create({
+      data: {
+        number_of_hostel_bed,
+        Institution_name: institutioName,
+        Institution_hostel_name: hostelName,
+        SchoolAddress: schoolAddress,
+        TotalFees: totalFee,
+        SchoolLogo:schoolLogo
+      },
+    });
+    return res.status(201).json(newRecord);
+  }
+
+  // Update only the required fields
+  const updatedData = {
+    number_of_hostel_bed: number_of_hostel_bed || existingRecord.number_of_hostel_bed,
+    Institution_name: institutioName || existingRecord.Institution_name,
+    Institution_hostel_name: hostelName || existingRecord.Institution_hostel_name,
+    SchoolAddress: schoolAddress || existingRecord.SchoolAddress,
+    TotalFees: totalFee || existingRecord.TotalFees,
+    SchoolLogo: schoolLogo || existingRecord.SchoolLogo
+  };
+
+  const updatedRecord = await prisma.control.update({
+    where: { id: existingRecord.id },
+    data: updatedData,
   });
+
+  return res.status(200).json(updatedRecord);
+});
+
+
   
   
   router.get("/getChanges", async (req, res) => {
@@ -309,7 +292,7 @@ router.get('/excelstudents', async (req, res) => {
       if (controlData) {
         res.status(200).json(controlData);
       } else {
-        res.status(404).json({ message: "Institution name not found" });
+        res.status(404).json({ message: "Data not found" });
       }
     } catch (error) {
       res.status(500).json({ error: "Server error", details: error.message });
@@ -668,5 +651,15 @@ router.get("/standards",async(req,res)=>{
   }
   return res.status(200).json({standard});
 })
+
+router.post('/uploadSchoolLogo', upload.single('file'), async (req, res) => {
+  try {
+    const fileUrl = 'http://localhost:5000/' + req.file.path; 
+    res.status(200).send(fileUrl);
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Error uploading file');
+  }
+});
 
 module.exports = router;

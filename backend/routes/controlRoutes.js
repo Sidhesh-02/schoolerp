@@ -81,9 +81,8 @@ const promotionData = {
       third: "2026-2027"
     },
     standards: [
-      "lkg",
-      "kg1",
-      "kg2",
+      "LKG",
+      "UKG",
       "1st",
       "2nd",
       "3rd",
@@ -221,7 +220,29 @@ const promotionData = {
       res.status(500).json({ error: "An error occurred during promotion." });
     }
   });
+
+  router.post("/handleInstallments",async(req,res)=>{
+      const installment = req.body;
+      console.log("Backend ",installment)
+      if(!installment){
+        return res.status(400).json({error:"Enter Valid Data"});
+      }
+      const postResult = await prisma.installments.create({
+        data: {
+          installments: installment.installment,
+        }
+    });
+      if(postResult){
+        return res.status(200).json({postResult});
+      }
+  })
   
-  
+  router.get("/getInstallments",async(req,res)=>{
+    const installmentsData = await prisma.installments.findMany();
+    if(!installmentsData){
+      return res.status(400).json({error:"No data found"});
+    }
+    return res.status(200).json(installmentsData);
+  })
 
 module.exports = router;

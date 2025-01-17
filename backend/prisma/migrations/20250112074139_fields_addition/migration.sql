@@ -19,6 +19,8 @@ CREATE TABLE "Student" (
     "photoUrl" TEXT,
     "status" "StudentStatus" NOT NULL DEFAULT 'None',
     "session" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "caste" TEXT NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
@@ -111,14 +113,11 @@ CREATE TABLE "Standards" (
 CREATE TABLE "Control" (
     "id" SERIAL NOT NULL,
     "number_of_hostel_bed" INTEGER NOT NULL,
-    "Institution_name" TEXT NOT NULL DEFAULT 'School'
-);
-
--- CreateTable
-CREATE TABLE "Credential" (
-    "id" SERIAL NOT NULL,
-    "type" TEXT NOT NULL,
-    "password" TEXT NOT NULL
+    "Institution_name" TEXT NOT NULL DEFAULT 'School',
+    "Institution_hostel_name" TEXT NOT NULL DEFAULT 'Hostel',
+    "SchoolLogo" TEXT NOT NULL,
+    "SchoolAddress" TEXT NOT NULL,
+    "TotalFees" INTEGER NOT NULL
 );
 
 -- CreateTable
@@ -128,6 +127,14 @@ CREATE TABLE "Session" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Installments" (
+    "id" SERIAL NOT NULL,
+    "installments" TEXT NOT NULL,
+
+    CONSTRAINT "Installments_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -153,15 +160,6 @@ CREATE UNIQUE INDEX "Standards_std_key" ON "Standards"("std");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Control_id_key" ON "Control"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Credential_id_key" ON "Credential"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Credential_type_key" ON "Credential"("type");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Credential_password_key" ON "Credential"("password");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Session_year_key" ON "Session"("year");

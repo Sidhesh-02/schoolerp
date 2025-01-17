@@ -44,7 +44,9 @@ router.post("/students", async (req, res) => {
         parents,
         fees,
         photoUrl,
-        remark
+        remark,
+        category,
+        caste
     } = req.body;
     const session = req.session;
     try {
@@ -60,6 +62,9 @@ router.post("/students", async (req, res) => {
                 address,
                 photoUrl,
                 remark,
+                category,
+                caste,
+                session,
                 parents: {
                     create: parents.map((parent) => ({
                         fatherName: parent.fatherName,
@@ -79,7 +84,6 @@ router.post("/students", async (req, res) => {
                         admissionDate: new Date(fee.admissionDate),
                     })),
                 },
-                session
             },
             include: {
                 parents: true,
@@ -110,7 +114,6 @@ router.delete("/delete/students", async (req, res) => {
 router.get("/getallstudent", async (req, res) => {
     const { std } = req.query;
     const session = req.session;
-    console.log("Here",session)
     try {
         const result = await prisma.student.findMany({
             where: {
@@ -130,7 +133,6 @@ router.get("/students/rollNo", async (req, res) => {
     const { rollno , standard } = req.query;
     const session = req.session;
 
-    
     try {
         let student;
         if (/^\d+$/.test(rollno)){
@@ -199,6 +201,8 @@ router.put("/update/student/:id", async (req, res) => {
         fullName,
         gender,
         dateOfBirth,
+        category,
+        caste,
         rollNo,
         standard,
         adhaarCardNo,
@@ -218,6 +222,8 @@ router.put("/update/student/:id", async (req, res) => {
                 gender,
                 dateOfBirth: new Date(dateOfBirth),
                 rollNo: parseInt(rollNo),
+                category,
+                caste,
                 standard,
                 adhaarCardNo,
                 scholarshipApplied,
