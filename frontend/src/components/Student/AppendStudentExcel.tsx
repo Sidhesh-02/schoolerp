@@ -13,8 +13,12 @@ const UploadStudents: React.FC = () => {
   const handleUpload = async () => {
     if (file) {
       try {
-        await uploadStudentsFile(file);
-        alert('File uploaded successfully');
+        const res = await uploadStudentsFile(file);
+        if(res.data.error){
+          alert("Something is wrong");
+          return;
+        }
+        alert("File Uploaded Successfully")
       } catch (error) {
         console.error('Error uploading file:', error);
         alert('Failed to upload file');

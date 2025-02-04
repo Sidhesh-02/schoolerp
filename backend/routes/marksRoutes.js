@@ -84,4 +84,105 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   });
 
 
+  router.get('/api/getMarks', async (req, res) => {
+    try {
+      const {examinationType} = req.query;
+      console.log(examinationType)
+      const result = await prisma.marks.findMany({
+        where:{
+          examinationType
+        }
+      });
+      
+      res.status(200).json(result); // Send the fetched marks as JSON
+    } catch (error) {
+      console.error("Error fetching marks:", error);
+      res.status(500).json({ error: "Failed to fetch marks" });
+    }
+  });
+
+  router.post("/api/updateMarks", async (req, res) => {
+    const { studentId, subjectId, subjectName, examinationType, obtainedMarks, totalMarks, percentage } = req.body;
+    
+    try {
+    
+      // Update marks in the database
+      const status = await prisma.marks.update({
+        where: {
+          studentId_subjectId_examinationType: {
+            studentId, 
+            subjectId, 
+            examinationType,  // Composite unique key defined in your schema
+          },
+        },
+        data: {
+          subjectName,
+          examinationType,
+          obtainedMarks,
+          totalMarks,
+          percentage,
+        },
+      });
+      console.log(status)
+  
+      return res.status(200).json({ message: "Marks updated successfully", status });
+    } catch (error) {
+      console.error("Error updating marks:", error);
+      return res.status(500).json({ message: "Failed to update marks", error: error.message });
+    }
+  });
+  
+  
+  router.post("/api/totalMarks", async (req, res) => {
+    try {
+      const { subjectId, examinationType, totalMarks } = req.body;
+      const totalMarksData = await prisma.totalMarks.findMany(
+        {
+          where:{
+            examinationType
+          }
+        }
+      );
+      if (totalMarksData.length === 0){
+        const newTotalMarks = await prisma.totalMarks.create({
+          data: {
+            subjectId,
+            examinationType,
+            totalMarks,
+          },
+        });
+        return res.status(201).json(newTotalMarks);
+      }
+      const updatedTotalMarks = await prisma.totalMarks.updateMany({
+        where: {
+          subjectId,
+          examinationType,
+        },
+        data: {
+          totalMarks,
+        },
+      });  
+      return res.status(201).json(updatedTotalMarks);    
+      
+    } catch (error) {
+      console.error("Error saving total marks:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+
+  router.get("/getTotalMarks",async (req,res)=>{
+    const {examinationType} = req.query;
+    const totalMarks = await prisma.totalMarks.findMany(
+      {
+        where:{
+          examinationType
+        }
+      }
+    );
+    console.log(totalMarks)
+    res.status(201).json(totalMarks)
+  })
+  
+
+
   module.exports = router;

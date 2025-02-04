@@ -18,6 +18,7 @@ const deleteStudent = async (studentId) => {
         await prisma.parent.deleteMany({ where: { studentId: studentId } });
         await prisma.fee.deleteMany({ where: { studentId: studentId } });
         await prisma.attendance.deleteMany({ where: { studentId: studentId } });
+        await prisma.marks.deleteMany({where:{studentId:studentId}});
         await prisma.student.delete({ where: { id: parseInt(studentId) } });
 
         return {

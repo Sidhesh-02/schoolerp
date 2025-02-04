@@ -103,6 +103,7 @@ model Subject {
   std               Standards   @relation(fields: [stdId], references: [std])
   attendanceRecords Attendance[]
   marks             Marks[]
+  subject           TotalMarks[]
 }
 
 model Standards{
@@ -142,4 +143,13 @@ model Session {
 model Installments{
   id        Int     @id @default(autoincrement())
   installments  String @unique
+}
+
+model TotalMarks{
+  id    Int @id @default(autoincrement())
+  subjectId Int
+  examinationType String
+  totalMarks  String
+  subject        Subject  @relation(fields: [subjectId], references: [id])
+  @@unique([subjectId,examinationType,totalMarks])
 }

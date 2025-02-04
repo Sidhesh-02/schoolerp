@@ -1,10 +1,10 @@
 import "../styles/marks.css";
 import DownloadMarks from "../components/Marks/DownloadMarks";
 import UploadMarks from "../components/Marks/UploadMarks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchStudents, fetchSubjects } from "../apis/api";
 import { useRecoilValue } from "recoil";
-import axios from 'axios';
+import axios from "axios";
 import { standardList } from "../store/store";
 
 interface Subject {
@@ -16,6 +16,22 @@ interface Student {
   fullName: string;
   rollNo: number;
 }
+interface MarksIn {
+  
+  studentId: number;
+  subjectId: number;
+  subjectName: string;
+  examinationType: string;
+  obtainedMarks: number;
+  totalMarks: number;
+  percentage: number;
+}
+interface MarkTotal{
+  id:number,
+  subjectId: number;
+  examinationType:string,
+  totalMarks:string
+}
 
 const Marks: React.FC = () => {
   const [selectedStandard, setSelectedStandard] = useState<string>("");
@@ -25,32 +41,37 @@ const Marks: React.FC = () => {
   const [marks, setMarks] = useState<{ [studentId: number]: { [subjectId: number]: number } }>({});
   const standards = useRecoilValue(standardList);
   const [subjectTotals, setSubjectTotals] = useState<{ [subjectId: number]: number }>({});
+  const [fetchedMarks, setFetchedMarks] = useState<MarksIn[]>([]);
+  const [editMode, setEditMode] = useState<{ [studentId: number]: boolean }>({});
+  const [totalFetchedMarks,setFetchedTotalMarks] = useState<MarkTotal[]>([])
+  const [isEditingTotalMarks, setIsEditingTotalMarks] = useState(false);
 
-  // Fetch subjects based on selected standard
-  const fetchSubjectsList = async (standard: string) => {
-    try {
-      const response = await fetchSubjects(standard);
-      setSubjects(response.data);
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-    }
-  };
 
-  // Fetch students based on selected standard
-  const fetchStudentsList = async (standard: string) => {
-    try {
-      const response = await fetchStudents(standard);
-      setStudents(response.data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchMarks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/getMarks",{params: { examinationType: exam }});
+        console.log(response.data)
+        setFetchedMarks(response.data);
+      } catch (error) {
+        console.error("Error fetching marks:", error);
+      }
+    };
+    fetchMarks();
+  }, [exam]);
 
-  // Handle standard change
+  useEffect(()=>{
+    const fetchTotalMarks = async () =>{
+      const response = await axios.get("http://localhost:5000/getTotalMarks",{params: { examinationType: exam }});
+      setFetchedTotalMarks(response.data);
+    } 
+
+    fetchTotalMarks()
+  },[exam])
+
   const handleStandardChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedStandard(value);
-
     if (value) {
       await fetchSubjectsList(value);
       await fetchStudentsList(value);
@@ -60,13 +81,40 @@ const Marks: React.FC = () => {
     }
   };
 
-  // Handle exam type change
+  const fetchSubjectsList = async (standard: string) => {
+    try {
+      const response = await fetchSubjects(standard);
+      setSubjects(response.data);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
+  };
+
+  const fetchStudentsList = async (standard: string) => {
+    try {
+      const response = await fetchStudents(standard);
+      setStudents(response.data);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setExam(e.target.value);
   };
 
-  // Handle marks input change
   const handleMarksChange = (studentId: number, subjectId: number, value: number) => {
+    // Get total marks from state or fetched data
+    const totalMarks =
+      subjectTotals[subjectId] ??
+      Number(totalFetchedMarks.find((mark) => mark.subjectId === subjectId)?.totalMarks || 0);
+  
+    // Validation: Obtained marks should not exceed total marks
+    if (value > totalMarks) {
+      alert("Obtained marks cannot be greater than total marks!");
+      return;
+    }
+  
     setMarks((prev) => ({
       ...prev,
       [studentId]: {
@@ -75,16 +123,55 @@ const Marks: React.FC = () => {
       },
     }));
   };
+  
 
-  // Submit data to backend
+  const handleTotalMarksChange = (subjectId: number, value: number) => {
+    setSubjectTotals((prev) => ({
+      ...prev,
+      [subjectId]: value,
+    }));
+  };
+
+  const calculatePercentage = (studentId: number) => {
+    let totalMarks = 0;
+    let obtainedMarks = 0;
+  
+    subjects.forEach((subject) => {
+      // Get total marks: if edited, take from state; otherwise, from DB
+      const subjectTotal =
+        subjectTotals[subject.id] ??
+        Number(totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks || 0);
+  
+      totalMarks += subjectTotal;
+  
+      // Get obtained marks: if edited, take from state; otherwise, from DB
+      const storedMark = fetchedMarks.find((mark) => mark.studentId === studentId && mark.subjectId === subject.id)?.obtainedMarks || 0;
+      const enteredMark = marks[studentId]?.[subject.id] ?? storedMark; // Prefer entered mark if available
+  
+      obtainedMarks += enteredMark;
+    });
+  
+    return totalMarks > 0 ? Math.round((obtainedMarks / totalMarks) * 100) : 0;
+  };
+  
+  
+
   const handleSubmit = async (studentId: number) => {
     try {
-      await Promise.all(
+      const newMarks: MarksIn[] = await Promise.all(
         subjects.map(async (subject) => {
           const obtainedMarks = marks[studentId]?.[subject.id] || 0;
-          const totalMarks = 100; 
+          const totalMarks =
+            subjectTotals[subject.id] ??
+            Number(totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks || 0);
           const percentage = calculatePercentage(studentId);
-
+  
+          // Validation: Percentage should not exceed 100%
+          if (percentage > 100) {
+            alert("Percentage cannot exceed 100%! Please check the marks entered.");
+            return Promise.reject("Invalid percentage");
+          }
+  
           const payload = {
             studentId,
             subjectId: subject.id,
@@ -94,31 +181,117 @@ const Marks: React.FC = () => {
             totalMarks,
             percentage,
           };
-
-          await axios.post('http://localhost:5000/api/marks', payload); // Backend endpoint for saving marks
+  
+          await axios.post("http://localhost:5000/api/marks", payload);
+          return { id: Date.now(), ...payload };
         })
       );
-      alert('Marks submitted successfully!');
+  
+      setFetchedMarks((prev) => [...prev, ...newMarks]);
+      alert("Marks submitted successfully!");
     } catch (error) {
       console.error("Error submitting marks:", error);
-      alert('Error submitting marks.');
+      alert("Error submitting marks.");
     }
   };
+  
 
-  const handleTotalMarksChange = (subjectId: number, value: number) => {
-    setSubjectTotals((prev) => ({
+  const handleEdit = (studentId: number) => {
+    setEditMode((prev) => ({
       ...prev,
-      [subjectId]: value,
+      [studentId]: !prev[studentId],
     }));
   };
 
-  // Calculate percentage for a student
-  const calculatePercentage = (studentId: number) => {
-    const totalMarks = Object.values(subjectTotals).reduce((acc, total) => acc + total, 0);
-    const obtainedMarks = Object.values(marks[studentId] || {}).reduce((acc, mark) => acc + mark, 0);
-    return totalMarks > 0 ? Math.round((obtainedMarks / totalMarks) * 100) : 0;
+  const handleSave = async (studentId: number) => {
+    try {
+      const updatedMarks: MarksIn[] = await Promise.all(
+        subjects.map(async (subject) => {
+          const obtainedMarks = marks[studentId]?.[subject.id] || 0;
+          const totalMarks =
+            subjectTotals[subject.id] ??
+            Number(totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks || 0);
+          const percentage = calculatePercentage(studentId);
+  
+          // Validation: Percentage should not exceed 100%
+          if (percentage > 100) {
+            alert("Percentage cannot exceed 100%! Please check the marks entered.");
+            return Promise.reject("Invalid percentage");
+          }
+  
+          const payload = {
+            studentId,
+            subjectId: subject.id,
+            subjectName: subject.name,
+            examinationType: exam,
+            obtainedMarks,
+            totalMarks,
+            percentage,
+          };
+  
+          await axios.post(`http://localhost:5000/api/updateMarks`, payload);
+          return payload;
+        })
+      );
+  
+      setFetchedMarks((prev) =>
+        prev.map((mark) =>
+          updatedMarks.find((updated) => updated.studentId === mark.studentId && updated.subjectId === mark.subjectId)
+            ? { ...mark, ...updatedMarks.find((updated) => updated.studentId === mark.studentId && updated.subjectId === mark.subjectId) }
+            : mark
+        )
+      );
+  
+      alert("Marks updated successfully!");
+      setEditMode((prev) => ({
+        ...prev,
+        [studentId]: false,
+      }));
+    } catch (error) {
+      console.error("Error updating marks:", error);
+      alert("Error updating marks.");
+    }
   };
+  
 
+
+  const toggleEditTotalMarks = async () => {
+    if (isEditingTotalMarks) {
+      try {
+        await Promise.all(
+          Object.entries(subjectTotals).map(async ([subjectId, totalMarks]) => {
+            if (!totalMarks) return;
+  
+            const payload = {
+              subjectId: Number(subjectId),
+              examinationType: exam,
+              totalMarks: totalMarks.toString(),
+            };
+  
+            await axios.post("http://localhost:5000/api/totalMarks", payload);
+          })
+        );
+  
+        // Update state instantly
+        setFetchedTotalMarks((prev) =>
+          prev.map((mark) =>
+            subjectTotals[mark.subjectId] !== undefined
+              ? { ...mark, totalMarks: subjectTotals[mark.subjectId]?.toString() || mark.totalMarks }
+              : mark
+          )
+        );
+  
+        alert("Total Marks Updated Successfully!");
+      } catch (error) {
+        console.error("Error updating total marks:", error);
+        alert("Error updating total marks.");
+      }
+    }
+    setIsEditingTotalMarks((prev) => !prev);
+  };
+  
+  
+  
   return (
     <div className="global-container">
       <div className="import_export">
@@ -132,24 +305,18 @@ const Marks: React.FC = () => {
         </div>
       </div>
 
-      <div className="global-container">
-        <h2>Marks Control</h2>
-        <label htmlFor="standard">Select Standard:</label>
-        <select
-          id="standard"
-          name="standard"
-          value={selectedStandard}
-          onChange={handleStandardChange}
-        >
-          <option value="">Select standard</option>
-          {standards.map((standard: string) => (
-            <option key={standard} value={standard}>
-              {standard}
-            </option>
-          ))}
-        </select>
+      <h2>Marks Control</h2>
+      <label htmlFor="standard">Select Standard:</label>
+      <select id="standard" name="standard" value={selectedStandard} onChange={handleStandardChange}>
+        <option value="">Select standard</option>
+        {standards.map((standard: string) => (
+          <option key={standard} value={standard}>
+            {standard}
+          </option>
+        ))}
+      </select>
 
-        <div>
+      <div>
           <label>Examination Type:</label>
           <select
             name="examinationType"
@@ -164,65 +331,81 @@ const Marks: React.FC = () => {
           </select>
         </div>
 
-        <table className="AttendanceTable">
-          <thead>
-            {selectedStandard && exam && (
-              <tr>
-                <th>Roll No</th>
-                <th>Full Name</th>
-                {subjects.map((subject) => (
-                <th key={subject.id}>
-                  {subject.name}
-                  <label>Total Marks</label>
-                  <input
-                    type="number"
-                    value={subjectTotals[subject.id] || ""}
-                    onChange={(e) =>
-                      handleTotalMarksChange(subject.id, Number(e.target.value))
-                    }
-                  />
-                </th>
-              ))}
+      <table className="AttendanceTable">
+        <thead>
+  {selectedStandard && exam && (
+    <tr>
+      <th>Roll No</th>
+      <th>Full Name</th>
+      {subjects.map((subject) => (
+        <th key={subject.id}>
+          {subject.name}
+          <label>Total Marks</label>
+          {isEditingTotalMarks ? (
+            <input
+              type="number"
+              value={subjectTotals[subject.id] || ""}
+              onChange={(e) => handleTotalMarksChange(subject.id, Number(e.target.value))}
+            />
+          ) : (
+            totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks
+          )}
+        </th>
+      ))}
+      <th>
+        <button onClick={toggleEditTotalMarks}>
+          {isEditingTotalMarks ? "Save" : "Edit"}
+        </button>
+      </th>
+      <th>Percentage (%)</th>
+    </tr>
+  )}
+</thead>
 
-                <th>Submit</th>
-                <th>Percentage (%)</th>
-              </tr>
-            )}
-          </thead>
-          <tbody>
-            {exam &&
-              students.map((student) => (
-                <tr key={student.id}>
-                  <td>{student.rollNo}</td>
-                  <td>{student.fullName}</td>
-                  {subjects.map((subject) => (
-                    <td key={subject.id}>
+        <tbody>
+          {exam &&
+            students.map((student) => (
+              <tr key={student.id}>
+                <td>{student.rollNo}</td>
+                <td>{student.fullName}</td>
+                {subjects.map((subject) => (
+                  <td key={subject.id}>
+                    {editMode[student.id] ? (
                       <input
                         type="number"
                         value={marks[student.id]?.[subject.id] || ""}
-                        onChange={(e) =>
-                          handleMarksChange(
-                            student.id,
-                            subject.id,
-                            Number(e.target.value)
-                          )
-                        }
+                        onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
                       />
-                    </td>
-                  ))}
-                  <td>
-                    <input
-                      type="submit"
-                      value="Submit"
-                      onClick={() => handleSubmit(student.id)}
-                    />
+                    ) : (
+                      // Check if the student has marks; if not, show input field for first-time entry
+                      fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
+                        ? fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
+                            ?.obtainedMarks || "N/A"
+                        : (
+                            <input
+                              type="number"
+                              value={marks[student.id]?.[subject.id] || ""}
+                              onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
+                            />
+                        )
+                    )}
                   </td>
-                  <td>{calculatePercentage(student.id)}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+                ))}
+                <td>
+                  {fetchedMarks.some((mark) => mark.studentId === student.id) ? (
+                    <button onClick={() => (editMode[student.id] ? handleSave(student.id) : handleEdit(student.id))}>
+                      {editMode[student.id] ? "Save" : "Edit"}
+                    </button>
+                  ) : (
+                    <button onClick={() => handleSubmit(student.id)}>Submit</button>
+                  )}
+                </td>
+                <td>{calculatePercentage(student.id) + "%"}</td>
+                
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 };

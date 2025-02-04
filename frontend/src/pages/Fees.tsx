@@ -5,7 +5,7 @@ import FeeReicpts from "../components/Fees/FeeReicpts";
 import DownloadFee from "../components/Fees/DownloadFee";
 import UploadFee from "../components/Fees/UploadFee";
 import { useRecoilValue } from "recoil";
-import { installmentArr, standardList } from "../store/store";
+import { installmentArr, standardList, totalFee } from "../store/store";
 
 interface Fee {
   title: string;
@@ -35,7 +35,7 @@ const Fees: React.FC = () => {
     admissionDate: ""
   });
   const installmentArray = useRecoilValue(installmentArr);
-
+  const fee = useRecoilValue(totalFee);
   const formatDateForInput = (dateString: string) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -100,18 +100,16 @@ const Fees: React.FC = () => {
     
     try {
       let check = false;
+      let totalFeesPaid = 0;
       student.fees.forEach((e : any) =>{
-       
-          if(e.title === updatedInstallment.title){
-            
-              check = true;
-            
-          }
+        totalFeesPaid = totalFeesPaid + e.amount;
+        if(e.title === updatedInstallment.title || totalFeesPaid === fee){
+          check = true;
+        }
       });
       
       if(check){
-        
-        alert("Installment Already Exists");
+        alert("Installment already exists, or the full payment has been made.");
         return;
       }
       const res = await addFeeInstallment(updatedInstallment);

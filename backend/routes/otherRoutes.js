@@ -60,6 +60,8 @@ router.get('/excelstudents', async (req, res) => {
         { header: 'Admission Date', key: 'admissionDate', width: 15 },
         { header: 'Remark', key: 'remark', width: 15 },
         { header: 'Session', key: 'session', width:10},
+        { header: 'Category', key:'category',width:10},
+        { header: 'Caste', key:'caste',width:10},
       ];
   
       // Add student data to worksheet
@@ -89,6 +91,8 @@ router.get('/excelstudents', async (req, res) => {
           admissionDate: student.fees[0]?.admissionDate,
           remark: student.remark || '' ,
           session: student.session,
+          castegory: student.category,
+          caste: student.caste,
         });
       });
   
@@ -124,7 +128,9 @@ router.get('/excelstudents', async (req, res) => {
   // Upload Student In Bulk with Excel
   router.post("/upload", upload.single("file"), async (req, res) => {
     const filePath = req.file.path;
-  
+
+    const data = await prisma.control.findMany();
+
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(filePath);
     const worksheet = workbook.getWorksheet(1);
@@ -165,8 +171,9 @@ router.get('/excelstudents', async (req, res) => {
             },
           ],
           remark:row.getCell(20).value,
-          session:row.getCell(21).value
-          
+          session:row.getCell(21).value,
+          category:row.getCell(22).value,
+          caste:row.getCell(23).value,
         };
         students.push(student);
       }
@@ -175,6 +182,10 @@ router.get('/excelstudents', async (req, res) => {
     try {
       // Create students with mapped class ids
       for (const student of students) {
+        if(student.fees[0].amount >= data[0].TotalFees){
+          console.log("Here");
+          return res.json({error:"Fee Amount in Excel Can't Be More than Total Amout"})
+        }
         await prisma.student.create({
           data: {
             fullName: student.fullName,
@@ -188,6 +199,8 @@ router.get('/excelstudents', async (req, res) => {
             photoUrl : student.photoUrl,
             remark:student.remark,
             session:student.session,
+            category:student.category,
+            caste:student.caste,
             parents: {
               create: student.parents,
             },

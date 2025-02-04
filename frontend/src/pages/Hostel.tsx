@@ -39,7 +39,6 @@ const Hostel = () => {
         gender: res.gender,
         bed_no,
       });
-      console.log("Check ",response.data)
       if (response.data) {
         alert('Data added successfully');
         window.location.reload();
@@ -216,7 +215,7 @@ const Hostel = () => {
                   </div>
                   <h2>Set Student Bed</h2>
                   <div>
-                    <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { setBed(Number(e.target.value)); }} />
+                    <input className='inputB' type='number' placeholder='Bed no.' onChange={(e) => { Number(e.target.value) <= totalBeds && setBed(Number(e.target.value)); }} />
                   </div>
                   <button onClick={submit}>Save</button>
                 </div>

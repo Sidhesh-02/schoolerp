@@ -112,7 +112,7 @@ const App: React.FC = () => {
     <div>
       <div
         style={{
-          backgroundColor: "#313970",
+          backgroundColor: "#0A255C",
           color: "white",
           padding: "10px 30px",
           display: "flex",

@@ -41,7 +41,7 @@ button {
   margin-top: 20px;
   padding: 10px 20px;
   border: none;
-  background-color: #313970;
+  background-color: #0A255C;
   color: white;
   cursor: pointer;
   border-radius: 3px;
@@ -97,6 +97,6 @@ textarea {
   padding: 8px;
   background-color: ghostwhite;
   margin-top: 5px;
-  border: 2px solid darkslateblue;
+  border: 2px solid #0A255C;
   box-sizing: border-box;
 }

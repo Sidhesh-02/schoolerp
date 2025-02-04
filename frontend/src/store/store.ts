@@ -17,6 +17,11 @@ export const handleInstitutionLogo = atom({
   default:jsonControlData.SchoolLogo
 })
 
+export const totalFee = atom({
+  key:"totalFee",
+  default:jsonControlData.TotalFees,
+})
+
 export const sessionYear = atom({
   key:"session",
   default: session ?? ["2024-2025"]
@@ -37,4 +42,5 @@ export const installmentArr = atom({
   key:"installments",
   default:installmentArrHandle ?? [""]
 })
+
 

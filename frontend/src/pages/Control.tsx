@@ -169,33 +169,7 @@ const Control = () => {
     return (
         <div className='global-container'>
             <h1>Control Panel </h1>
-            {/* for standard and subject */}
-            <div>
-                <h2>Add Standard</h2>
-                <label>Enter Standards :</label>
-                <input title='Standard Formating - LKG, UKG, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th, 10th' type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
-                <span><button className="btn" onClick={Submit}>Submit</button></span>
-            </div>
-            <br/>
-            {/* Add Subjects Choosing Standard */}
-            <div>
-                <h2>Add Subjects</h2>
-                <select
-                    name="standard"
-                    onChange={handleDropdownStandardChange}
-                    >
-                    <option value="">Select standard</option>
-                    {standard.map((ele,key)=>(
-                        <option key={key}>{ele}</option>
-                    ))}
-                </select>
-                <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input> 
-                <button className="btn" onClick={SubmitSubjects}>Submit</button>
-            </div>
-
-
             <hr style={{ margin: "30px 0px" }} />
-        
             <div>
                 <h2>Set Configurations</h2>
                 <label>Set Institute Name : </label>
@@ -216,7 +190,34 @@ const Control = () => {
                 <input type="number" placeholder='Enter Total Fees' onChange={(e)=> {setTotalFee(Number(e.target.value))}}/>
                 <button onClick={handleControlChanges}>Submit</button>
             </div>
-            <br/>
+            <hr style={{ margin: "30px 0px" }} />
+            {/* for standard and subject */}
+            <div>
+                <h2>Add Standard</h2>
+                <label>Enter Standards :</label>
+                <input title='Standard Formating - LKG, UKG, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th, 10th' type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
+                <span><button className="btn" onClick={Submit}>Submit</button></span>
+            </div>
+            <hr style={{ margin: "30px 0px" }} />
+            {/* Add Subjects Choosing Standard */}
+            <div>
+                <h2>Add Subjects</h2>
+                <select
+                    name="standard"
+                    onChange={handleDropdownStandardChange}
+                    >
+                    <option value="">Select standard</option>
+                    {standard.map((ele,key)=>(
+                        <option key={key}>{ele}</option>
+                    ))}
+                </select>
+                <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input> 
+                <button className="btn" onClick={SubmitSubjects}>Submit</button>
+            </div>
+
+
+            <hr style={{ margin: "30px 0px" }} />
+        
             <h2>Add Installments</h2>
             <div>
                 <label>Add Installments List</label>
