@@ -21,6 +21,10 @@ export const totalFee = atom({
   key:"totalFee",
   default:jsonControlData.TotalFees,
 })
+export const address = atom({
+  key:"address",
+  default:jsonControlData.SchoolAddress,
+})
 
 export const sessionYear = atom({
   key:"session",

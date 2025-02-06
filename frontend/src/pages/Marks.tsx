@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import { fetchStudents, fetchSubjects } from "../apis/api";
 import { useRecoilValue } from "recoil";
 import axios from "axios";
-import { standardList } from "../store/store";
+import { address, handleInstitutionName, sessionYear, standardList } from "../store/store";
+import 'jspdf-autotable';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Subject {
   id: number;
@@ -45,7 +48,9 @@ const Marks: React.FC = () => {
   const [editMode, setEditMode] = useState<{ [studentId: number]: boolean }>({});
   const [totalFetchedMarks,setFetchedTotalMarks] = useState<MarkTotal[]>([])
   const [isEditingTotalMarks, setIsEditingTotalMarks] = useState(false);
-
+  const InstitueName = useRecoilValue(handleInstitutionName);
+  const InstitueAddress = useRecoilValue(address);
+  const session = useRecoilValue(sessionYear);
 
   useEffect(() => {
     const fetchMarks = async () => {
@@ -290,6 +295,59 @@ const Marks: React.FC = () => {
     setIsEditingTotalMarks((prev) => !prev);
   };
   
+  const handleDownload = (student: Student) => {
+    const marksForStudent = fetchedMarks.filter((mark) => mark.studentId === student.id);
+    
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth(); 
+    const pageHeight = doc.internal.pageSize.getHeight(); // Get page height
+
+    // Draw border (rect: x, y, width, height)
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // 5px padding from all sides
+
+    // Center align Institute Name
+    const textWidth = doc.getTextWidth(InstitueName); 
+    const xPosition = (pageWidth - textWidth) / 2;
+
+    doc.setFontSize(16);
+    doc.text(InstitueName, xPosition, 20);
+    doc.setFontSize(12);
+    doc.text(InstitueAddress, pageWidth / 2, 30, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(`REPORT CARD FOR ACADEMIC YEAR ${session} `, pageWidth / 2, 40, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${student.fullName}`, 20, 50);
+    doc.text(`Roll No: ${student.rollNo}`, 20, 60);
+  
+    const marksData = marksForStudent.map((mark) => [
+      mark.subjectName,
+      mark.obtainedMarks,
+      totalFetchedMarks.find((t) => t.subjectId === mark.subjectId)?.totalMarks || "N/A",
+    ]);
+  
+    autoTable(doc, {
+      startY: 70,
+      head: [["Subject", "Obtained Marks", "Total Marks"]],
+      body: marksData,
+    });
+  
+    const totalObtained = marksForStudent.reduce((sum, mark) => sum + mark.obtainedMarks, 0);
+    const totalMarks = totalFetchedMarks.reduce((sum, mark) => sum + Number(mark.totalMarks), 0);
+    const percentage = totalMarks > 0 ? ((totalObtained / totalMarks) * 100).toFixed(2) : "0";
+  
+    // Display total marks and percentage below the table
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    doc.text(`Total Marks: ${totalObtained} / ${totalMarks}`, 20, doc.lastAutoTable.finalY + 10);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    doc.text(`Percentage: ${percentage}%`, 20, doc.lastAutoTable.finalY + 20);
+  
+    doc.save(`${student.fullName}_Marksheet.pdf`);
+};
+
+  
   
   
   return (
@@ -353,11 +411,13 @@ const Marks: React.FC = () => {
         </th>
       ))}
       <th>
+        Action
         <button onClick={toggleEditTotalMarks}>
           {isEditingTotalMarks ? "Save" : "Edit"}
         </button>
       </th>
       <th>Percentage (%)</th>
+      <th>Download Marksheet</th>
     </tr>
   )}
 </thead>
@@ -401,7 +461,9 @@ const Marks: React.FC = () => {
                   )}
                 </td>
                 <td>{calculatePercentage(student.id) + "%"}</td>
-                
+                <td>
+                <button onClick={() => handleDownload(student)}>Download</button>
+</td>
               </tr>
             ))}
         </tbody>

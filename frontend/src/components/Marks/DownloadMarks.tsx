@@ -5,7 +5,6 @@ const DownloadMarks : React.FC = () => {
     const handleDownload = async () => {
         try {
           const response = await downloadMarks();
-          console.log("res --> " ,response);
           if (response.status < 200 || response.status >= 300) {
             alert("here first")
             throw new Error('Failed to download fees records');
