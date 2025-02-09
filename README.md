@@ -63,6 +63,6 @@ For any inquiries or issues, please contact [here](sidheshcreates@gmail.com).
 
 ---
 
-**Shout out to Harsh Dupare & Aryan Bansod**
+**Shout out to Harsh Dupare**
 
 Thank you for checking out the School ERP System! 🎓

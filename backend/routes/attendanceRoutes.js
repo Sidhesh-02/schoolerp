@@ -52,6 +52,9 @@ router.get("/getstandards", async (req, res) => {
           standard,
           session:session
         },
+        include:{
+          parents:true,
+        },
         orderBy: { rollNo: "asc" },
       });
   

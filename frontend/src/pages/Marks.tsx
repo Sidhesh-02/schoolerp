@@ -17,7 +17,28 @@ interface Subject {
 interface Student {
   id: number;
   fullName: string;
-  rollNo: number;
+  gender: string;
+  dateOfBirth: string;
+  rollNo: string;
+  standard: string;
+  adhaarCardNo: string;
+  scholarshipApplied: boolean;
+  photoUrl?: string;
+  address: string;
+  remark:string;
+  category:string;
+  caste:string,
+  parents: Parent[];
+}
+interface Parent {
+  studentId: number;
+  fatherName: string;
+  fatherOccupation: string;
+  motherName: string;
+  motherOccupation: string;
+  fatherContact: string;
+  motherContact: string;
+  address: string;
 }
 interface MarksIn {
   
@@ -56,7 +77,6 @@ const Marks: React.FC = () => {
     const fetchMarks = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/getMarks",{params: { examinationType: exam }});
-        console.log(response.data)
         setFetchedMarks(response.data);
       } catch (error) {
         console.error("Error fetching marks:", error);
@@ -234,11 +254,13 @@ const Marks: React.FC = () => {
             percentage,
           };
   
+          // Send data to backend (create if missing, update if existing)
           await axios.post(`http://localhost:5000/api/updateMarks`, payload);
           return payload;
         })
       );
   
+      // Update state with new marks
       setFetchedMarks((prev) =>
         prev.map((mark) =>
           updatedMarks.find((updated) => updated.studentId === mark.studentId && updated.subjectId === mark.subjectId)
@@ -258,10 +280,12 @@ const Marks: React.FC = () => {
     }
   };
   
+  
 
 
   const toggleEditTotalMarks = async () => {
     if (isEditingTotalMarks) {
+      
       try {
         await Promise.all(
           Object.entries(subjectTotals).map(async ([subjectId, totalMarks]) => {
@@ -272,6 +296,7 @@ const Marks: React.FC = () => {
               examinationType: exam,
               totalMarks: totalMarks.toString(),
             };
+            console.log("TotalMarks",payload)
   
             await axios.post("http://localhost:5000/api/totalMarks", payload);
           })
@@ -296,30 +321,52 @@ const Marks: React.FC = () => {
   };
   
   const handleDownload = (student: Student) => {
-    const marksForStudent = fetchedMarks.filter((mark) => mark.studentId === student.id);
-    
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth(); 
-    const pageHeight = doc.internal.pageSize.getHeight(); // Get page height
-
-    // Draw border (rect: x, y, width, height)
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // 5px padding from all sides
-
-    // Center align Institute Name
-    const textWidth = doc.getTextWidth(InstitueName); 
-    const xPosition = (pageWidth - textWidth) / 2;
-
-    doc.setFontSize(16);
-    doc.text(InstitueName, xPosition, 20);
-    doc.setFontSize(12);
-    doc.text(InstitueAddress, pageWidth / 2, 30, { align: "center" });
-    doc.setFontSize(10);
-    doc.text(`REPORT CARD FOR ACADEMIC YEAR ${session} `, pageWidth / 2, 40, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.text(`Name: ${student.fullName}`, 20, 50);
-    doc.text(`Roll No: ${student.rollNo}`, 20, 60);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
   
+    // Draw Border
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+    
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.setFillColor(100, 50, 150); // Purple Background
+    doc.rect(5, 5, pageWidth - 10, 20, "F");
+    doc.setFont('Times', 'bold');
+    doc.text(InstitueName, pageWidth / 2, 15, { align: "center" });
+  
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.text(InstitueAddress, pageWidth/2, 20, { align: "center" });
+  
+    // Report Card Title
+    doc.setFillColor(200, 200, 200);
+    doc.rect(5, 25, pageWidth - 10, 10, "F");
+    doc.setFontSize(10);
+    doc.setFont('Times', 'bold');
+    doc.text(`REPORT CARD FOR ACADEMIC YEAR ${session}`, pageWidth / 2, 32, { align: "center" });
+  
+    // Student Details
+    let yPosition = 50;
+    const leftX = 10;
+    const rightX = pageWidth / 2 + 10;
+    doc.setFont('Times', 'normal');
+    doc.text(`NAME: ${student.fullName}`, leftX, yPosition);
+    doc.text(`ROLL NO: ${student.rollNo}`, rightX, yPosition);
+  
+    yPosition += 8;
+    doc.text(`FATHER’S NAME: ${student.parents[0].fatherName || "N/A"}`, leftX, yPosition);
+    doc.text(`STANDARD: ${student.standard || "N/A"}`, rightX, yPosition);
+  
+    yPosition += 8;
+    doc.text(`MOTHER’S NAME: ${student.parents[0].motherName || "N/A"}`, leftX, yPosition);
+    const formattedDate = new Date(student.dateOfBirth).toLocaleDateString("en-GB");
+    doc.text(`DATE OF BIRTH: ${formattedDate || "N/A"}`, rightX, yPosition);
+  
+    // Marks Table
+    yPosition += 10;
+  
+    const marksForStudent = fetchedMarks.filter((mark) => mark.studentId === student.id);
     const marksData = marksForStudent.map((mark) => [
       mark.subjectName,
       mark.obtainedMarks,
@@ -327,29 +374,69 @@ const Marks: React.FC = () => {
     ]);
   
     autoTable(doc, {
-      startY: 70,
-      head: [["Subject", "Obtained Marks", "Total Marks"]],
+      startY: yPosition,
+      head: [["Subject", "Grades", "Total Marks"]],
       body: marksData,
+      styles: {
+        font: "Times",
+        textColor: "black",
+        fontSize: 10,
+        cellPadding: 1,
+        lineWidth: 0.1,
+        halign: 'center',
+      },
+      headStyles: {
+        fillColor: [150, 100, 200],
+        textColor: "black",
+        fontStyle: "bold",
+        lineWidth: 0.1,
+        halign: 'center',
+      },
+      tableLineColor: [0, 0, 0],
+      tableLineWidth: 0.2,
     });
   
     const totalObtained = marksForStudent.reduce((sum, mark) => sum + mark.obtainedMarks, 0);
     const totalMarks = totalFetchedMarks.reduce((sum, mark) => sum + Number(mark.totalMarks), 0);
     const percentage = totalMarks > 0 ? ((totalObtained / totalMarks) * 100).toFixed(2) : "0";
   
-    // Display total marks and percentage below the table
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    doc.text(`Total Marks: ${totalObtained} / ${totalMarks}`, 20, doc.lastAutoTable.finalY + 10);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    doc.text(`Percentage: ${percentage}%`, 20, doc.lastAutoTable.finalY + 20);
+    // Total Marks & Percentage
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(10);
+    doc.text(`TOTAL MARKS: ${totalObtained} / ${totalMarks}`, leftX, finalY);
+    doc.text(`PERCENTAGE: ${percentage}%`, rightX, finalY);
   
+    // Signatures Section
+    const signatureY = doc.lastAutoTable.finalY + 30;
+    doc.setFontSize(10);
+    doc.setFont('Times', 'bold');
+    doc.text("CLASS TEACHER: _______________", leftX, signatureY);
+    doc.text("PARENT: _______________", pageWidth / 2 - 30, signatureY);
+    doc.text("PRINCIPAL: _______________", pageWidth - 60, signatureY);
+  
+    // Grading Scale Table
+    const gradingScale = [
+      ["Marks Range", "Grade"],
+      ["91 - 100", "A1"],
+      ["81 - 90", "A2"],
+      ["71 - 80", "B1"],
+      ["61 - 70", "B2"],
+      ["51 - 60", "C1"],
+      ["41 - 50", "C2"],
+    ];
+  
+    autoTable(doc, {
+      startY: finalY + 55,
+      head: [gradingScale[0]],
+      body: gradingScale.slice(1),
+      styles: { font: "Times", textColor: "black", fontSize: 10, halign: "center" },
+      headStyles: { fillColor: [100, 50, 150], textColor: "white", fontStyle: "bold" },
+    });
+  
+    // Save PDF
     doc.save(`${student.fullName}_Marksheet.pdf`);
-};
+  };
 
-  
-  
-  
   return (
     <div className="global-container">
       <div className="import_export">
@@ -401,6 +488,7 @@ const Marks: React.FC = () => {
           <label>Total Marks</label>
           {isEditingTotalMarks ? (
             <input
+              className="markInput"
               type="number"
               value={subjectTotals[subject.id] || ""}
               onChange={(e) => handleTotalMarksChange(subject.id, Number(e.target.value))}
@@ -412,7 +500,9 @@ const Marks: React.FC = () => {
       ))}
       <th>
         Action
-        <button onClick={toggleEditTotalMarks}>
+        <br />
+        <br />
+        <button className="marksButton" onClick={toggleEditTotalMarks}>
           {isEditingTotalMarks ? "Save" : "Edit"}
         </button>
       </th>
@@ -432,6 +522,7 @@ const Marks: React.FC = () => {
                   <td key={subject.id}>
                     {editMode[student.id] ? (
                       <input
+                        className="markInput"
                         type="number"
                         value={marks[student.id]?.[subject.id] || ""}
                         onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
@@ -443,6 +534,7 @@ const Marks: React.FC = () => {
                             ?.obtainedMarks || "N/A"
                         : (
                             <input
+                              className="markInput"
                               type="number"
                               value={marks[student.id]?.[subject.id] || ""}
                               onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
@@ -453,16 +545,16 @@ const Marks: React.FC = () => {
                 ))}
                 <td>
                   {fetchedMarks.some((mark) => mark.studentId === student.id) ? (
-                    <button onClick={() => (editMode[student.id] ? handleSave(student.id) : handleEdit(student.id))}>
+                    <button className="marksButton" onClick={() => (editMode[student.id] ? handleSave(student.id) : handleEdit(student.id))}>
                       {editMode[student.id] ? "Save" : "Edit"}
                     </button>
                   ) : (
-                    <button onClick={() => handleSubmit(student.id)}>Submit</button>
+                    <button className="marksButton" onClick={() => handleSubmit(student.id)}>Submit</button>
                   )}
                 </td>
                 <td>{calculatePercentage(student.id) + "%"}</td>
                 <td>
-                <button onClick={() => handleDownload(student)}>Download</button>
+                <button className="marksButton" onClick={() => handleDownload(student)}>Download</button>
 </td>
               </tr>
             ))}

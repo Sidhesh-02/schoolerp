@@ -87,7 +87,6 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   router.get('/api/getMarks', async (req, res) => {
     try {
       const {examinationType} = req.query;
-      console.log(examinationType)
       const result = await prisma.marks.findMany({
         where:{
           examinationType
@@ -103,27 +102,51 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
   router.post("/api/updateMarks", async (req, res) => {
     const { studentId, subjectId, subjectName, examinationType, obtainedMarks, totalMarks, percentage } = req.body;
-    
+  
     try {
-    
-      // Update marks in the database
-      const status = await prisma.marks.update({
+      // Check if the marks entry already exists
+      const existingMark = await prisma.marks.findUnique({
         where: {
           studentId_subjectId_examinationType: {
-            studentId, 
-            subjectId, 
-            examinationType,  // Composite unique key defined in your schema
+            studentId,
+            subjectId,
+            examinationType,
           },
         },
-        data: {
-          subjectName,
-          examinationType,
-          obtainedMarks,
-          totalMarks,
-          percentage,
-        },
       });
-      console.log(status)
+  
+      let status;
+      if (existingMark) {
+        // Update if it exists
+        status = await prisma.marks.update({
+          where: {
+            studentId_subjectId_examinationType: {
+              studentId,
+              subjectId,
+              examinationType,
+            },
+          },
+          data: {
+            subjectName,
+            obtainedMarks,
+            totalMarks,
+            percentage,
+          },
+        });
+      } else {
+        // Create if it doesn't exist
+        status = await prisma.marks.create({
+          data: {
+            studentId,
+            subjectId,
+            subjectName,
+            examinationType,
+            obtainedMarks,
+            totalMarks,
+            percentage,
+          },
+        });
+      }
   
       return res.status(200).json({ message: "Marks updated successfully", status });
     } catch (error) {
@@ -133,42 +156,45 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   });
   
   
+  
   router.post("/api/totalMarks", async (req, res) => {
     try {
       const { subjectId, examinationType, totalMarks } = req.body;
-      const totalMarksData = await prisma.totalMarks.findMany(
-        {
-          where:{
-            examinationType
-          }
-        }
-      );
-      if (totalMarksData.length === 0){
-        const newTotalMarks = await prisma.totalMarks.create({
-          data: {
-            subjectId,
-            examinationType,
-            totalMarks,
-          },
-        });
-        return res.status(201).json(newTotalMarks);
+  
+      if (!subjectId || !examinationType || totalMarks === undefined) {
+        return res.status(400).json({ error: "All fields are required" });
       }
-      const updatedTotalMarks = await prisma.totalMarks.updateMany({
+  
+      // Check if an entry already exists
+      const existingTotalMarks = await prisma.totalMarks.findFirst({
         where: {
           subjectId,
           examinationType,
         },
-        data: {
-          totalMarks,
-        },
-      });  
-      return res.status(201).json(updatedTotalMarks);    
-      
+      });
+  
+      if (existingTotalMarks) {
+        // If an entry exists, update it
+        const updatedTotalMarks = await prisma.totalMarks.update({
+          where: { id: existingTotalMarks.id }, // Use ID as it's unique
+          data: { totalMarks },
+        });
+        return res.status(200).json(updatedTotalMarks);
+      }
+  
+      // If no entry exists, create a new one
+      const newTotalMarks = await prisma.totalMarks.create({
+        data: { subjectId, examinationType, totalMarks },
+      });
+  
+      return res.status(201).json(newTotalMarks);
     } catch (error) {
       console.error("Error saving total marks:", error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   });
+  
+  
 
   router.get("/getTotalMarks",async (req,res)=>{
     const {examinationType} = req.query;
@@ -179,7 +205,7 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
         }
       }
     );
-    console.log(totalMarks)
+    
     res.status(201).json(totalMarks)
   })
   
