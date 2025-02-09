@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { fetchAllStudents } from '../../apis/api';
 import { useRecoilValue } from 'recoil';
 import { standardList } from '../../store/store';
+import GetBonafide from './GetBonafide';
+import GetTransferCertificate from './GetTransferCertificate';
 
 const Searchall = () => {
   const [std, setStd] = useState<string>("");
@@ -48,6 +50,8 @@ const Searchall = () => {
                 <th>Roll No</th>
                 <th>Scholarship Applied</th>
                 <th>Standard</th>
+                <th>Bonafide Certificate</th>
+                <th>Transfer Certificate</th>
               </tr>
             </thead>
             <tbody>
@@ -64,6 +68,8 @@ const Searchall = () => {
                     <td>{e.rollNo}</td>
                     <td>{scholarshipApplied}</td>
                     <td>{e.standard}</td>
+                    <td><GetBonafide rollNo={e.rollNo} standard={e.standard}/></td>
+                    <td><GetTransferCertificate rollNo={e.rollNo} standard={e.standard}/></td>
                   </tr>
                 );
               })}
