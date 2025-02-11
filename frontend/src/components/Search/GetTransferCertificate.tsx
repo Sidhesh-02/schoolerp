@@ -1,59 +1,12 @@
 import { useRecoilValue } from "recoil";
 import { address, handleInstitutionLogo, handleInstitutionName } from "../../store/store";
 import { searchStudent } from "../../apis/api";
-import html2PDF from "jspdf-html2canvas";
-import ReactDOM from "react-dom";
-import "../components_css/transfer_cert.css";
+import jsPDF from "jspdf";
 
 const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard: string }) => {
     const Institute_name = useRecoilValue(handleInstitutionName);
     const Institute_address = useRecoilValue(address);
     const InstitueLogo: string = useRecoilValue(handleInstitutionLogo);
-
-    const GetHtml = (data: any, logo: string) => {
-        const date = new Date().toLocaleDateString();
-        const amt = new Date(data.fees[0].amountDate).toLocaleDateString();
-        const dob = new Date(data.dateOfBirth).toLocaleDateString();
-
-        return (
-            <div className="container">
-                <div className="header">
-                    <span>
-                        <img src={logo} style={{ paddingRight: "10px" }} alt="logo" />
-                    </span>
-                    <>
-                        <h1>{Institute_name}</h1>
-                        <p>{Institute_address}</p>
-                    </>
-                </div>
-
-                <div className="date">
-                    <p>DATE: <u>{date}</u></p>
-                </div>
-
-                <h2 className="certificate-title">TRANSFER CERTIFICATE</h2>
-
-                <p className="certificate-body">
-                    Certified that Sri/Miss <span><b>{data.fullName}</b></span>, son/daughter of <span><b>{data.parents[0].fatherName}</b></span>,
-                    an inhabitant of <span><b>{data.address}</b></span>, left <b>{Institute_name}</b> on <u>{date}</u>.
-                </p>
-                <p className="certificate-body">
-                    His/Her Date of Birth according to the School Admission Register is <span><b>{dob}</b></span>.
-                    He/She was studying in Class <b>{data.standard}</b> and passed 
-                    the examination for promotion to next Class .
-                </p>
-                <p className="certificate-body">
-                    All the fees up to <span><b>{amt}</b></span> have been paid fully. His/Her character is Excellent.
-                </p>
-                
-
-                <div className="principal">
-                    <p>PRINCIPAL</p>
-                    <p>GODSON V. ZACHARIAS</p>
-                </div>
-            </div>
-        );
-    };
 
     const getBase64Image = async (url: string): Promise<string> => {
         const response = await fetch(url);
@@ -65,32 +18,89 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
         });
     };
 
-    const handlefunc = async () => {
+    const generatePDF = async () => {
         const { data } = await searchStudent(rollNo, standard);
-        console.log(data);
-        const container = document.createElement("body");
-        document.body.appendChild(container);
+        const doc = new jsPDF("p", "mm", "a4");
 
-        const logoBase64 = await getBase64Image(InstitueLogo);
-
-        ReactDOM.render(GetHtml(data, logoBase64), container);
-
+        const date = new Date().toLocaleDateString();
+        const amt = new Date(data.fees[0].amountDate).toLocaleDateString();
+        const dob = new Date(data.dateOfBirth).toLocaleDateString();
         
-        await html2PDF(container, {
-            jsPDF: {
-                format: 'a4',
-            },
-            imageType: 'image/jpeg',
-            output: 'Transfer_Cert.pdf'
+        // Fetch logo as Base64
+        const logoBase64 = await getBase64Image(InstitueLogo);
+        
+        // ** Header (Institute Name + Logo) **
+        if (logoBase64) {
+            doc.addImage(logoBase64, "JPEG", 26, 11, 14, 12); // Logo at the top-left
+        }
+
+        doc.setFont("times", "bold");
+        doc.setFontSize(26);
+        doc.setTextColor(29, 78, 216); // Blue color
+        doc.text(Institute_name, 105, 20, { align: "center" });
+
+        doc.setFontSize(12);
+        doc.setFont("times", "normal");
+        doc.setTextColor(55, 55, 55);
+        doc.text(Institute_address, 105, 30, { align: "center" });
+
+        doc.line(20, 35, 190, 35); // Header underline
+
+        // ** Date **
+        doc.setFontSize(12);
+        doc.text(`DATE: ${date}`, 160, 50);
+
+        // ** Certificate Title **
+        doc.setFontSize(20);
+        doc.setFont("times", "bold");
+        doc.text("TRANSFER CERTIFICATE", 105, 75, { align: "center" });
+
+        // ** Certificate Body **
+        doc.setFontSize(14);
+        doc.setFont("times", "normal");
+
+        const marginLeft = 25;
+        let startY = 90;
+
+        const lineSpacing = 10;
+        const text1 = `Certified that Sri/Miss ${data.fullName}, son/daughter of ${data.parents[0].fatherName}, an inhabitant of ${data.address}, left ${Institute_name} on ${date}.`;
+        const text2 = `His/Her Date of Birth according to the School Admission Register is ${dob}. He/She was studying in Class ${data.standard} and passed the examination for promotion to next Class.`;
+        const text3 = `All the fees up to ${amt} have been paid fully. His/Her character is Excellent.`;
+
+        // ** Wrap Text for Proper Line Spacing **
+        const splitText1 = doc.splitTextToSize(text1, 160);
+        const splitText2 = doc.splitTextToSize(text2, 160);
+        const splitText3 = doc.splitTextToSize(text3, 160);
+
+
+        splitText1.forEach((line:string) => {
+            doc.text(line, marginLeft, startY);
+            startY += lineSpacing; // Proper spacing between lines
         });
 
-        document.body.removeChild(container);
-      
+        splitText2.forEach((line:string) => {
+            doc.text(line, marginLeft, startY);
+            startY += lineSpacing; // Proper spacing between lines
+        });
+
+        splitText3.forEach((line:string) => {
+            doc.text(line, marginLeft, startY);
+            startY += lineSpacing; // Proper spacing between lines
+        });
+
+        // ** Principal Signature **
+        doc.setFontSize(14);
+        doc.setFont("times", "bold");
+        doc.text("PRINCIPAL", 150, startY + 50);
+        doc.text("GODSON V. ZACHARIAS", 130, startY + 60);
+
+        // ** Generate PDF **
+        doc.save("Transfer_Certificate.pdf");
     };
 
     return (
         <div>
-            <button onClick={handlefunc}>Get Transfer Certificate</button>
+            <button onClick={generatePDF}>Get Transfer Certificate</button>
         </div>
     );
 };

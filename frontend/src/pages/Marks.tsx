@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { fetchStudents, fetchSubjects } from "../apis/api";
 import { useRecoilValue } from "recoil";
 import axios from "axios";
-import { address, handleInstitutionName, sessionYear, standardList } from "../store/store";
+import { address, handleInstitutionLogo, handleInstitutionName, sessionYear, standardList } from "../store/store";
 import 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -71,6 +71,7 @@ const Marks: React.FC = () => {
   const [isEditingTotalMarks, setIsEditingTotalMarks] = useState(false);
   const InstitueName = useRecoilValue(handleInstitutionName);
   const InstitueAddress = useRecoilValue(address);
+  const InstitueLogo: string = useRecoilValue(handleInstitutionLogo);
   const session = useRecoilValue(sessionYear);
 
   useEffect(() => {
@@ -320,7 +321,7 @@ const Marks: React.FC = () => {
     setIsEditingTotalMarks((prev) => !prev);
   };
   
-  const handleDownload = (student: Student) => {
+  const handleDownload = async (student: Student) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -332,13 +333,27 @@ const Marks: React.FC = () => {
     doc.setTextColor(255, 255, 255);
     doc.setFillColor(100, 50, 150); // Purple Background
     doc.rect(5, 5, pageWidth - 10, 20, "F");
+    const getBase64Image = async (url: string): Promise<string> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+      });
+    };
+    const logoBase64 = await getBase64Image(InstitueLogo);
+        // ** Header (Institute Name + Logo) **
+        if (logoBase64) {
+            doc.addImage(logoBase64, "JPEG", 15, 10, 14, 12); // Logo at the top-left
+        }
     doc.setFont('Times', 'bold');
     doc.text(InstitueName, pageWidth / 2, 15, { align: "center" });
   
     doc.setFontSize(10);
-    doc.setTextColor(0);
     doc.text(InstitueAddress, pageWidth/2, 20, { align: "center" });
   
+    doc.setTextColor(0);
     // Report Card Title
     doc.setFillColor(200, 200, 200);
     doc.rect(5, 25, pageWidth - 10, 10, "F");
