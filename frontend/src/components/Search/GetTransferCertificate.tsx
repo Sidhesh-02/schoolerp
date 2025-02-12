@@ -3,11 +3,24 @@ import { address, handleInstitutionLogo, handleInstitutionName } from "../../sto
 import { searchStudent } from "../../apis/api";
 import jsPDF from "jspdf";
 
+/**
+ * Component to generate a Transfer Certificate PDF for a student.
+ * 
+ * @param {number} rollNo - The roll number of the student.
+ * @param {string} standard - The class/grade of the student.
+ * @returns {JSX.Element} - A button to generate the certificate.
+ */
 const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard: string }) => {
     const Institute_name = useRecoilValue(handleInstitutionName);
     const Institute_address = useRecoilValue(address);
     const InstitueLogo: string = useRecoilValue(handleInstitutionLogo);
 
+    /**
+     * Converts an image URL to a Base64-encoded string.
+     *
+     * @param {string} url - The URL of the image.
+     * @returns {Promise<string>} - A promise resolving to the Base64 string.
+     */
     const getBase64Image = async (url: string): Promise<string> => {
         const response = await fetch(url);
         const blob = await response.blob();
@@ -18,6 +31,11 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
         });
     };
 
+    /**
+     * Generates a Transfer Certificate PDF using jsPDF.
+     *
+     * @throws {Error} - If fetching student data fails.
+     */
     const generatePDF = async () => {
         const { data } = await searchStudent(rollNo, standard);
         const doc = new jsPDF("p", "mm", "a4");
@@ -61,8 +79,9 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
 
         const marginLeft = 25;
         let startY = 90;
-
         const lineSpacing = 10;
+
+        // Certificate text
         const text1 = `Certified that Sri/Miss ${data.fullName}, son/daughter of ${data.parents[0].fatherName}, an inhabitant of ${data.address}, left ${Institute_name} on ${date}.`;
         const text2 = `His/Her Date of Birth according to the School Admission Register is ${dob}. He/She was studying in Class ${data.standard} and passed the examination for promotion to next Class.`;
         const text3 = `All the fees up to ${amt} have been paid fully. His/Her character is Excellent.`;
@@ -72,20 +91,20 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
         const splitText2 = doc.splitTextToSize(text2, 160);
         const splitText3 = doc.splitTextToSize(text3, 160);
 
-
-        splitText1.forEach((line:string) => {
+        // Add wrapped text to the document
+        splitText1.forEach((line: string) => {
             doc.text(line, marginLeft, startY);
-            startY += lineSpacing; // Proper spacing between lines
+            startY += lineSpacing;
         });
 
-        splitText2.forEach((line:string) => {
+        splitText2.forEach((line: string) => {
             doc.text(line, marginLeft, startY);
-            startY += lineSpacing; // Proper spacing between lines
+            startY += lineSpacing;
         });
 
-        splitText3.forEach((line:string) => {
+        splitText3.forEach((line: string) => {
             doc.text(line, marginLeft, startY);
-            startY += lineSpacing; // Proper spacing between lines
+            startY += lineSpacing;
         });
 
         // ** Principal Signature **

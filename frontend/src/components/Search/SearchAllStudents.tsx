@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { fetchAllStudents } from '../../apis/api';
 import { useRecoilValue } from 'recoil';
@@ -6,9 +5,24 @@ import { standardList } from '../../store/store';
 import GetBonafide from './GetBonafide';
 import GetTransferCertificate from './GetTransferCertificate';
 
+interface Student {
+  fullName: string;
+  gender: string;
+  dateOfBirth: string;
+  rollNo: string;
+  standard: string;
+  adhaarCardNo: string;
+  scholarshipApplied: boolean;
+  photoUrl?: string;
+  address: string;
+  remark:string;
+  category:string;
+  caste:string,
+}
+
 const Searchall = () => {
   const [std, setStd] = useState<string>("");
-  const [result, setResult] = useState<any[]>([]);
+  const [result, setResult] = useState<Student[]>([]);
   const standards = useRecoilValue(standardList);
   const search = async () => {
     try {
@@ -27,7 +41,7 @@ const Searchall = () => {
       <h2>Search Students By Standard</h2>
       <div>
         <label>Select Standard</label>
-        <select onChange={(e) => setStd(e.target.value)}>
+        <select value={std} onChange={(e) => setStd(e.target.value)}>
           <option value="">Select Standard</option>
           {standards.map((standard:string) => (
             <option key={standard} value={standard}>
@@ -35,7 +49,8 @@ const Searchall = () => {
             </option>
           ))}
         </select>
-        <button onClick={search}>Search</button>
+        <button onClick={search}>Search</button> &nbsp;
+        <button onClick={()=>{setStd(""); setResult([]);}}>Clear</button>
       </div>
       {result.length > 0 && (
         <div>
@@ -55,7 +70,7 @@ const Searchall = () => {
               </tr>
             </thead>
             <tbody>
-              {result.map((e: any) => {
+              {result.map((e: Student) => {
                 const formattedDate = new Date(e.dateOfBirth).toISOString().split('T')[0];
                 const scholarshipApplied: string = e.scholarshipApplied ? "True" : "False";
                 return (
@@ -68,8 +83,8 @@ const Searchall = () => {
                     <td>{e.rollNo}</td>
                     <td>{scholarshipApplied}</td>
                     <td>{e.standard}</td>
-                    <td><GetBonafide rollNo={e.rollNo} standard={e.standard}/></td>
-                    <td><GetTransferCertificate rollNo={e.rollNo} standard={e.standard}/></td>
+                    <td><GetBonafide rollNo={parseInt(e.rollNo)} standard={e.standard}/></td>
+                    <td><GetTransferCertificate rollNo={parseInt(e.rollNo)} standard={e.standard}/></td>
                   </tr>
                 );
               })}

@@ -209,7 +209,7 @@ const Hostel = () => {
               {res && (
                 <div>
                   <h2>Searched Student</h2>
-                  <div style={{ paddingLeft: "10px" }}>
+                  <div style={{margin:"5px", paddingLeft:"10px", backgroundColor: "#F8F9FA", border: "1px solid black"}}>
                     <p>Name: {res.fullName}</p>
                     <p>Gender: {res.gender}</p>
                   </div>

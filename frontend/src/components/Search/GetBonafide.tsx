@@ -35,7 +35,7 @@ const GetBonafide = ({ rollNo, standard }: { rollNo: number; standard: string })
 
         // ** Header (Institute Name + Logo) **
         if (logoBase64) {
-            doc.addImage(logoBase64, "JPEG", 26, 14, 14, 12); // Logo at the top-left
+            doc.addImage(logoBase64, "JPEG", 26, 14, 14, 12); 
         }
         let startPostition = 25;
         doc.setFontSize(26);

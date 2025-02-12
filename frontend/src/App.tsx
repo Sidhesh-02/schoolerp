@@ -21,12 +21,18 @@ interface Auth {
   token: string;
   role: "teacher" | "admin";
 }
+
 const App: React.FC = () => {
   const navigate = useNavigate();
   const [auth, setAuth] = useState<Auth | null>(null);
   const [isNavbarOpen, setIsNavbarOpen] = useState(true);
   const InstitueName = useRecoilValue(handleInstitutionName);
   const InstitueLogo = useRecoilValue(handleInstitutionLogo);
+
+  /**
+   * Fetches user authentication details from local storage.
+   * If a token exists, it validates the token and sets the user's role.
+   */
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -34,12 +40,22 @@ const App: React.FC = () => {
     }
   }, []);
 
+  /**
+   * Validates the user token by sending it to the backend.
+   *
+   * @param {string} token - The authentication token stored in local storage.
+   * @throws {Error} - If the token is invalid, logs out the user.
+   */
   const fetchRole = async (token: string) => {
     try {
-      const response = await axios.post("http://localhost:5000/validate-token", { token }, {
-        headers: { "Content-Type": "application/json" },
-      });
-  
+      const response = await axios.post(
+        "http://localhost:5000/validate-token",
+        { token },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       const data: Auth = response.data;
       setAuth(data);
     } catch (error) {
@@ -48,14 +64,22 @@ const App: React.FC = () => {
       } else {
         console.error("Unexpected error:", error);
       }
-      logout(); 
+      logout();
     }
   };
-  
 
+  /**
+   * Handles user login by validating credentials and storing the token.
+   * 
+   * @returns {Promise<void>}
+   */
   const login = async () => {
-    const usernameElement = document.getElementById("username") as HTMLInputElement | null;
-    const passwordElement = document.getElementById("password") as HTMLInputElement | null;
+    const usernameElement = document.getElementById(
+      "username"
+    ) as HTMLInputElement | null;
+    const passwordElement = document.getElementById(
+      "password"
+    ) as HTMLInputElement | null;
     const username = usernameElement?.value || "";
     const password = passwordElement?.value || "";
 
@@ -80,21 +104,37 @@ const App: React.FC = () => {
     }
   };
 
+  /**
+   * Logs out the user by clearing authentication details and redirecting to the login page.
+   */
   const logout = () => {
     setAuth(null);
     localStorage.removeItem("token");
-    if(localStorage.getItem("selectedSession")){
+    if (localStorage.getItem("selectedSession")) {
       localStorage.removeItem("selectedSession");
     }
     navigate("/");
   };
 
+  // If user is not authenticated, render the login form
   if (!auth) {
     return (
-      <form className="login" action="">
+      <form className="login">
         <div>
-          <input className="studentInput" type="text" placeholder="Username" id="username" /><br />
-          <input className="studentInput" type="password" placeholder="Password" id="password" /><br />
+          <input
+            className="studentInput"
+            type="text"
+            placeholder="Username"
+            id="username"
+          />
+          <br />
+          <input
+            className="studentInput"
+            type="password"
+            placeholder="Password"
+            id="password"
+          />
+          <br />
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -110,6 +150,7 @@ const App: React.FC = () => {
 
   return (
     <div>
+      {/* Navbar Header */}
       <div
         style={{
           backgroundColor: "#0A255C",
@@ -133,13 +174,15 @@ const App: React.FC = () => {
         >
           {isNavbarOpen ? <div>Close</div> : <div>Open</div>}
         </button>
-        <div style={{display:"flex",alignItems:"center"}}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <img
             src={InstitueLogo}
-            style={{ width: "40px", height: "40px", paddingRight: "10px"}}
-            alt=""
+            style={{ width: "40px", height: "40px", paddingRight: "10px" }}
+            alt="Institute Logo"
           />
-          <span style={{ fontSize: "20px", fontWeight: "semibold" }}>{InstitueName}</span>
+          <span style={{ fontSize: "20px", fontWeight: "semibold" }}>
+            {InstitueName}
+          </span>
         </div>
         <div>ERP - Pallotii</div>
       </div>
@@ -148,7 +191,7 @@ const App: React.FC = () => {
         {isNavbarOpen && <Navbar auth={auth} logout={logout} />}
         <div className="content-wrapper">
           <Routes>
-            {/* If user hits /, it will redirect to /Reports as home page */}
+            {/* Redirect root path to /Report */}
             <Route path="/" element={<Navigate to="/Report" />} />
             <Route
               path="/Report"

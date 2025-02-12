@@ -6,14 +6,18 @@ import Scholarship from '../components/Search/Scholarship';
 const Search: React.FC = () => {
 
   return (
-    <div className='global-container'>
+    <div>
 
       <div>
-        <SearchStudent/>
-        <hr style={{margin:"30px 0px"}}/>
-        <Searchall/>
-        <hr style={{margin:"30px 0px"}}/>
-        <Scholarship/>
+        <div className='global-container'>
+          <SearchStudent/>
+        </div>
+        <div className='global-container'>
+          <Searchall/>
+        </div>
+        <div className='global-container'>
+          <Scholarship/>
+        </div>
       </div>
       
     </div>

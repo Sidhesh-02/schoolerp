@@ -247,4 +247,99 @@ const promotionData = {
     return res.status(200).json(installmentsData);
   })
 
+  // Update the installment
+  router.post("/updateinstallment", async (req, res) => {
+  const { updatedInstallment,updatedInstallment2 } = req.body;
+  if (!updatedInstallment || !updatedInstallment2) {
+    return res.status(400).json({ error: "ID and Installment are required" });
+  }
+  
+  try {
+    const existingInstallment = await prisma.installments.findUnique({
+      where: {installments:updatedInstallment },
+    });
+
+    if (!existingInstallment) {
+      return res.status(404).json({ error: "Installment not found" });
+    }
+
+    const updatedStatus = await prisma.installments.update({
+      where: { installments: updatedInstallment },
+       data: { installments: updatedInstallment2 },
+    });
+
+    return res.status(200).json({ updatedStatus });
+
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Server Error" });
+  }
+});
+
+router.put("/updateStandard", async (req, res) => {
+  
+  const { prevStandard, newStandard } = req.body
+  try {
+    const existingStandard = await prisma.standards.findFirst({
+      where: { std: prevStandard },
+    });
+
+    if (!existingStandard) {
+      return res.status(404).json({ message: "Standard not found" });
+    }
+
+    // Update the standard
+    const updatedStandard = await prisma.standards.update({
+      where: { std: prevStandard },
+      data: { std: newStandard },
+    });
+
+    //  return  res.status(200).json(updatedStandard);
+    if (!updatedStandard) {
+      return res.status.json("Error Updating")
+    }
+
+    return res.status.json("Success")
+
+  }
+  catch (err) {
+    res.status(201).json(err)
+  }
+
+
+})
+
+router.put("/updateSubject", async (req, res) => {
+  
+  const { prevSubject, updatedSubject, dropdownStandardChange2 } = req.body
+  console.log(prevSubject,updatedSubject,dropdownStandardChange2);
+  try {
+  
+    // Update the standard
+    const updatedStandard = await prisma.subject.update({
+      where: { 
+        stdId: dropdownStandardChange2,
+        name:prevSubject,
+      },
+      data:{
+        name : updatedSubject
+      }
+    });
+    console.log("Status",updatedStandard);
+    //  return  res.status(200).json(updatedStandard);
+    if (!updatedStandard) {
+      return res.status.json("Error Updating")
+    }
+
+    return res.status.json("Success")
+
+  }
+  catch (err) {
+    res.status(201).json(err)
+  }
+
+
+})
+
+
 module.exports = router;

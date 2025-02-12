@@ -101,7 +101,7 @@ const Fees: React.FC = () => {
     try {
       let check = false;
       let totalFeesPaid = 0;
-      student.fees.forEach((e : any) =>{
+      student.fees.forEach((e : Fee) =>{
         totalFeesPaid = totalFeesPaid + e.amount;
         if(e.title === updatedInstallment.title || totalFeesPaid === fee){
           check = true;
@@ -196,20 +196,53 @@ const Fees: React.FC = () => {
 
       {student && (
         <div>
-          <div className="fee-container">
-            <h3>Name: {student.fullName}</h3>
-            <h3>Roll No: {student.rollNo}</h3>
-            <h3>Standard: {student.standard}</h3>
-            <h3>Fees:</h3>
-            {student.fees.map((fee, index) => (
-              <div key={index} style={{ marginBottom: '10px', padding: '15px' , backgroundColor:"#E0E0E0",border:"1px solid black" }}>
-                <h4>Title: {fee.title}</h4>
-                <p>Amount: {fee.amount}</p>
-                <p>Amount Date: {formatDateForInput(fee.amountDate)}</p>
-                <p>Admission Date: {formatDateForInput(fee.admissionDate)}</p>
-              </div>
-            ))}
-          </div>
+          <div
+  style={{
+    margin: "20px auto",
+    padding: "20px",
+  }}
+>
+  {/* Header */}
+  <div
+    style={{
+      paddingBottom: "10px",
+      borderBottom: "2px solid #007BFF",
+      marginBottom: "15px",
+    }}
+  >
+    <h2 style={{ margin: 0, color: "#007BFF" }}>Fee Receipt</h2>
+  </div>
+
+  {/* Student Info */}
+  <div style={{ marginBottom: "15px", lineHeight: "1.6" }}>
+    <p><strong>Name:</strong> {student.fullName}</p>
+    <p><strong>Roll No:</strong> {student.rollNo}</p>
+    <p><strong>Standard:</strong> {student.standard}</p>
+  </div>
+
+  {/* Fee Details */}
+  <h3 style={{ color: "#333", paddingBottom: "5px" }}>
+    Fee Details:
+  </h3>
+
+  {student.fees.map((fee, index) => (
+    <div
+      key={index}
+      style={{
+        backgroundColor: "#F8F9FA",
+        padding: "15px",
+        marginTop: "10px",
+        border: "1px solid #ddd",
+      }}
+    >
+      <h4 style={{ margin: "5px 0", color: "#007BFF" }}>{fee.title}</h4>
+      <p><strong>Amount:</strong> ₹{fee.amount}</p>
+      <p><strong>Amount Date:</strong> {formatDateForInput(fee.amountDate)}</p>
+      <p><strong>Admission Date:</strong> {formatDateForInput(fee.admissionDate)}</p>
+    </div>
+  ))}
+</div>
+
 
           <div className="fee-container">
             <h2>Add New Installment</h2>

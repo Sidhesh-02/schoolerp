@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { addControlValues, addStandard, addSubjects, currentSession, uploadSchoolLogo } from '../apis/api';
 import PhotoUpdate from '../components/Search/PhotoUpdate';
 import axios from 'axios';
-import { AxiosError } from "axios";
 
 const Control = () => {
     
@@ -16,6 +15,9 @@ const Control = () => {
     const [totalFee,setTotalFee] = useState<number>(0);
     const [installment,setInstallment] = useState<string>("");
     const [url, setUrl] = useState("");
+    const [updatedInstallment,setUpdatedInstallment] = useState("");
+    const [updatedInstallment2,setUpdatedInstallment2] = useState("");
+    const [installmentStatus,setInstallmentStatus] = useState(false);
 
     const handleChangeStandard = (e: React.ChangeEvent<HTMLInputElement>) => {
         Setstandard(e.target.value);
@@ -29,7 +31,7 @@ const Control = () => {
     }
 
 
-    const Submit = async () => {
+    const submitStd = async () => {
         try {    
             if (!Standard.trim()) {
                 alert("Please provide Standard");
@@ -44,6 +46,7 @@ const Control = () => {
             if (res) {
                 alert("Standard Added Successfully");
                 Setstandard('');
+                window.location.reload()
             }
         } catch (error) {
             console.error("Error adding standard and subjects:", error);
@@ -51,7 +54,7 @@ const Control = () => {
         }
     };
 
-    const SubmitSubjects = async()=>{
+    const submitSubjects = async()=>{
         const subjectsArray = SubString.trim().split(" ").map((subject) => ({ name: subject }));
         const data = {
             std : dropdownStandard,
@@ -60,6 +63,7 @@ const Control = () => {
         const res = await addSubjects(data);
         if(res){
             alert("Subjects Added Successfully")
+            window.location.reload()
         }
     }
 
@@ -76,13 +80,11 @@ const Control = () => {
        try{
         const controlDataStatus = await addControlValues(data);
         if(controlDataStatus){
-            alert("Data Added Sccessfully")
+            alert("Data Added Sccessfully");
+            window.location.reload();
         }
        }catch(error){
-        const errorData = error as AxiosError;
-        if(errorData?.status == 400){
-            alert(errorData?.response?.data?.errorMsg)
-        }
+        console.log(error);
        }
     }
 
@@ -90,6 +92,7 @@ const Control = () => {
         const promotionData = await axios.post("http://localhost:5000/promotion");
         if(promotionData){
             alert("Student Promoted Succesfully");
+            window.location.reload();
         }
     }
 
@@ -159,18 +162,67 @@ const Control = () => {
 
     
     const handleInstallment = async()=>{
-        console.log(installment);
         const result = await axios.post("http://localhost:5000/handleInstallments",{installment});
         if(result){
             alert("Success");
+            window.location.reload();
+        }
+    }
+    
+    const updateInstallment = async () => {
+        try {
+        const res = await axios.post("http://localhost:5000/updateinstallment", {
+           updatedInstallment,updatedInstallment2
+          });
+          if (res) {
+            alert("Installment Updated Successfully");
+            window.location.reload();
+          }
+        }catch(err){
+            console.log(err)
+        }
+      };
+    const [isEditing,setIsEditing] = useState(false);
+    const [prevStandard,setPrevStandard] = useState("");
+    const [newStandard,setNewStandard] = useState("");
+
+    const updateStd = async ()=>{
+        try{
+            const res = await axios.put("http://localhost:5000/updateStandard",{prevStandard,newStandard})
+            if(!res){
+                alert("Error Updating Value");
+                return;
+            }
+            alert("Updated Successfully");
+            setIsEditing(false);
+            window.location.reload();
+        }catch(e){
+            console.log(e);
         }
     }
 
+    const [prevSubject,setPrevSubject] = useState("");
+    const [updatedSubject,setUpdatedSubject] = useState("");
+    const [isEditing2,setIsEditing2] = useState(false);
+    const [dropdownStandardChange2,setDropdownStandardChange2] = useState("");
+    const updateSubjects = async ()=>{
+        try{
+            const res = await axios.put("http://localhost:5000/updateSubject",{prevSubject,updatedSubject,dropdownStandardChange2})
+            if(!res){
+                alert("Error Updating Value");
+                return;
+            }
+            alert("Updated Successfully");
+            setIsEditing2(false);
+        }catch(e){
+            console.log(e);
+        }
+    }
+    
+
     return (
-        <div className='global-container'>
-            <h1>Control Panel </h1>
-            <hr style={{ margin: "30px 0px" }} />
-            <div>
+        <div>
+            <div className='global-container'>
                 <h2>Set Configurations</h2>
                 <label>Set Institute Name : </label>
                 <input type='text' placeholder='Enter institution name' onChange={(e) => {SetInstitutionName(e.target.value)}}></input>
@@ -190,17 +242,31 @@ const Control = () => {
                 <input type="number" placeholder='Enter Total Fees' onChange={(e)=> {setTotalFee(Number(e.target.value))}}/>
                 <button onClick={handleControlChanges}>Submit</button>
             </div>
-            <hr style={{ margin: "30px 0px" }} />
+            
             {/* for standard and subject */}
-            <div>
+            <div className='global-container'>
                 <h2>Add Standard</h2>
                 <label>Enter Standards :</label>
                 <input title='Standard Formating - LKG, UKG, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th, 10th' type='text' placeholder='Standard' onChange={handleChangeStandard}></input>
-                <span><button className="btn" onClick={Submit}>Submit</button></span>
+                <span>
+                    <button className="btn" onClick={submitStd}>Submit Standard</button> &nbsp;&nbsp;
+                    <button className='btn' onClick={()=>{setIsEditing(true)}}>Edit Standard</button>
+                    {
+                        isEditing && (
+                            <>
+                                <br />
+                                <br />
+                               <input type='text' placeholder='Enter Previous Standard' onChange={(e)=>{setPrevStandard(e.target.value)}}/>
+                               <input type='text' placeholder='Enter New Standard' onChange={(e)=>{setNewStandard(e.target.value)}}/>
+                               <button onClick={updateStd}>Update Standard</button>
+                            </>
+                        )
+                    }
+                </span>
             </div>
-            <hr style={{ margin: "30px 0px" }} />
+            
             {/* Add Subjects Choosing Standard */}
-            <div>
+            <div className='global-container'>
                 <h2>Add Subjects</h2>
                 <select
                     name="standard"
@@ -212,20 +278,62 @@ const Control = () => {
                     ))}
                 </select>
                 <input type='text' placeholder='Subject' onChange={handleChangeSubject}></input> 
-                <button className="btn" onClick={SubmitSubjects}>Submit</button>
+                <button className="btn" onClick={submitSubjects}>Submit Subject</button> &nbsp;&nbsp;
+                <button className="btn" onClick={()=>{setIsEditing2(true)}}>Edit Subject</button>
+                {
+                    isEditing2 && (
+                        <>
+                            <select
+                                name="standard"
+                                onChange={(e)=>{setDropdownStandardChange2(e.target.value)}}
+                                >
+                                <option value="">Select standard</option>
+                                {standard.map((ele,key)=>(
+                                    <option key={key}>{ele}</option>
+                                ))}
+                            </select>
+                            <input type='text' placeholder='Previous Subject' onChange={(e)=>{setPrevSubject(e.target.value)}}></input> 
+                            <input type='text' placeholder='Update Subject' onChange={(e)=>{setUpdatedSubject(e.target.value)}}></input> 
+                            <button onClick={updateSubjects}>Update Standard</button>
+                        </>
+                    )
+                }
+
             </div>
-
-
-            <hr style={{ margin: "30px 0px" }} />
         
+            <div className='global-container'>
             <h2>Add Installments</h2>
             <div>
-                <label>Add Installments List</label>
-                <input type="text" placeholder='Enter Installment Name' onChange={(e)=>{setInstallment(e.target.value)}}/>
-                <button onClick={handleInstallment}>Submit Installment</button>
+                <div>
+                    <label>Installment Name:</label>
+                    <input
+                        type="text"
+                        placeholder="Enter Installment Name"
+                        value={installment}
+                        onChange={(e) => setInstallment(e.target.value)}
+                    />
+                    <div className="installment-button">
+                      <button onClick={handleInstallment}>Submit Installment</button> &nbsp;&nbsp;
+                      <button onClick={()=>{setInstallmentStatus(true)}}>Update Installment</button>
+                      { installmentStatus ? <div style={{marginTop:"30px"}}>
+                          <input type="text" onChange={(e)=>
+                            {
+                                    setUpdatedInstallment(e.target.value)
+                            }
+                          } placeholder='prev installment' />
+                          <input onChange={(e)=>
+                            {
+                                setUpdatedInstallment2(e.target.value)
+                            }
+                          } placeholder='new installment' type="text" />
+                          <button onClick={updateInstallment} >Submit</button>
+                      </div> : <div></div> }
+                    </div>
+                </div>
             </div>
-            <br />
-            <div>
+
+            </div>
+            <div className='global-container'>
                 <h2>Set Sessions</h2>
                 <label>Add Session : </label>
                 <input
@@ -242,10 +350,12 @@ const Control = () => {
                 />
                 <button onClick={handleAddSession}>Add Session</button>
             </div>
-            <hr style={{ margin: "30px 0px" }} />
-            <PhotoUpdate />
-            <hr style={{ margin: "30px 0px" }} />
-            <div style={{color:"#8B0000", marginLeft:"5px"}}>
+            
+            <div className='global-container'>
+                <PhotoUpdate/>
+            </div>
+            
+            <div className='global-container' style={{color:"#8B0000", marginLeft:"5px"}}>
                 <h2>Danger Zone - Handle with Caution</h2>
                 <div>
                     <label>Promote Qualified Students</label>

@@ -30,10 +30,17 @@ li {
   margin: 10px 0;
 }
 
+hr {
+  border: none;
+  height: 1px;
+  background-color: black;
+}
+
 .global-container{
-  background-color: #f4f4f4;
   margin-top: 15px;
   padding : 15px;
+  background-color: #F8F9FA;
+  border: 1px solid #ddd;
 }
 
 button {
@@ -95,8 +102,8 @@ select,
 textarea {
   width: 100%;
   padding: 8px;
+  border : 1.5px solid;
   background-color: ghostwhite;
   margin-top: 5px;
-  border: 2px solid #0A255C;
   box-sizing: border-box;
 }

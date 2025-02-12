@@ -4,7 +4,8 @@
   width: 200px;
   padding-left: 30px;
   padding-top: 30px;
-  background-color: #f4f4f4;
+  background-color: #F8F9FA;
+  border-right: 1px solid #ddd;
 }
 
 .navbar ul {
