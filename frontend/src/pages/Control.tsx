@@ -205,19 +205,35 @@ const Control = () => {
     const [updatedSubject,setUpdatedSubject] = useState("");
     const [isEditing2,setIsEditing2] = useState(false);
     const [dropdownStandardChange2,setDropdownStandardChange2] = useState("");
-    const updateSubjects = async ()=>{
-        try{
-            const res = await axios.put("http://localhost:5000/updateSubject",{prevSubject,updatedSubject,dropdownStandardChange2})
-            if(!res){
-                alert("Error Updating Value");
-                return;
+    const updateSubjects = async () => {
+        try {
+            const res = await axios.put("http://localhost:5000/updateSubject", {
+                prevSubject,
+                updatedSubject,
+                dropdownStandardChange2
+            });
+    
+            if (res.status === 200) {
+                alert("Updated Successfully");
+                setIsEditing2(false);
             }
-            alert("Updated Successfully");
-            setIsEditing2(false);
-        }catch(e){
+        } catch (e) {
             console.log(e);
+            if (e.response) {
+                const { error } = e.response.data;
+                if (error === "Subject not found. Cannot update.") {
+                    alert("Error: The subject does not exist.");
+                } else if (error === "Subject with this name already exists.") {
+                    alert("Error: This subject name already exists.");
+                } else {
+                    alert("Error updating subject. Please try again.");
+                }
+            } else {
+                alert("Server Error: Unable to update.");
+            }
         }
-    }
+    };
+    
     
 
     return (

@@ -310,36 +310,46 @@ router.put("/updateStandard", async (req, res) => {
 })
 
 router.put("/updateSubject", async (req, res) => {
-  
-  const { prevSubject, updatedSubject, dropdownStandardChange2 } = req.body
-  console.log(prevSubject,updatedSubject,dropdownStandardChange2);
+  const { prevSubject, updatedSubject, dropdownStandardChange2 } = req.body;
+  console.log(prevSubject, updatedSubject, dropdownStandardChange2);
+
   try {
-  
-    // Update the standard
-    const updatedStandard = await prisma.subject.update({
-      where: { 
-        stdId: dropdownStandardChange2,
-        name:prevSubject,
-      },
-      data:{
-        name : updatedSubject
-      }
+    console.log("Here");
+
+    // 1️⃣ Check if the previous subject exists
+    const existingSubject = await prisma.subject.findUnique({
+      where: { stdId_name: { stdId: dropdownStandardChange2, name: prevSubject } }
     });
-    console.log("Status",updatedStandard);
-    //  return  res.status(200).json(updatedStandard);
-    if (!updatedStandard) {
-      return res.status.json("Error Updating")
+
+    if (!existingSubject) {
+      return res.status(404).json({ error: "Subject not found. Cannot update." });
     }
 
-    return res.status.json("Success")
+    // 2️⃣ Check if the updated subject name already exists under the same stdId
+    const duplicateCheck = await prisma.subject.findUnique({
+      where: { stdId_name: { stdId: dropdownStandardChange2, name: updatedSubject } }
+    });
 
+    if (duplicateCheck) {
+      return res.status(400).json({ error: "Subject with this name already exists." });
+    }
+
+    // 3️⃣ Perform the update if no issues found
+    const updatedStandard = await prisma.subject.update({
+      where: { stdId_name: { stdId: dropdownStandardChange2, name: prevSubject } },
+      data: { name: updatedSubject },
+    });
+
+    console.log("Status", updatedStandard);
+    return res.status(200).json({ message: "Updated Successfully", updatedStandard });
+
+  } catch (err) {
+    console.error("Update Error:", err);
+    return res.status(500).json({ error: "Internal Server Error", details: err.message });
   }
-  catch (err) {
-    res.status(201).json(err)
-  }
+});
 
 
-})
 
 
 module.exports = router;

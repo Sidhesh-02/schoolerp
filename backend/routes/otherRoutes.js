@@ -183,7 +183,6 @@ router.get('/excelstudents', async (req, res) => {
       // Create students with mapped class ids
       for (const student of students) {
         if(student.fees[0].amount >= data[0].TotalFees){
-          console.log("Here");
           return res.json({error:"Fee Amount in Excel Can't Be More than Total Amout"})
         }
         await prisma.student.create({
