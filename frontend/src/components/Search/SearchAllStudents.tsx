@@ -43,19 +43,20 @@ const Searchall = () => {
         <label>Select Standard</label>
         <select value={std} onChange={(e) => setStd(e.target.value)}>
           <option value="">Select Standard</option>
-          {standards.map((standard:string) => (
+          {standards.map((standard: string) => (
             <option key={standard} value={standard}>
               {standard}
             </option>
           ))}
         </select>
         <button onClick={search}>Search</button> &nbsp;
-        <button onClick={()=>{setStd(""); setResult([]);}}>Clear</button>
+        <button onClick={() => { setStd(""); setResult([]); }}>Clear</button>
       </div>
+
       {result.length > 0 && (
-        <div>
-          <table>
-            <thead>
+        <div style={{ maxHeight: "400px", overflowY: "auto", border: "1px solid #ddd", marginTop: "10px" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead style={{ position: "sticky", top: 0, background: "#f9f9f9", zIndex: 1 }}>
               <tr>
                 <th>Full Name</th>
                 <th>Date of Birth</th>
@@ -83,8 +84,8 @@ const Searchall = () => {
                     <td>{e.rollNo}</td>
                     <td>{scholarshipApplied}</td>
                     <td>{e.standard}</td>
-                    <td><GetBonafide rollNo={parseInt(e.rollNo)} standard={e.standard}/></td>
-                    <td><GetTransferCertificate rollNo={parseInt(e.rollNo)} standard={e.standard}/></td>
+                    <td><GetBonafide rollNo={parseInt(e.rollNo)} standard={e.standard} /></td>
+                    <td><GetTransferCertificate rollNo={parseInt(e.rollNo)} standard={e.standard} /></td>
                   </tr>
                 );
               })}

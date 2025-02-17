@@ -161,7 +161,7 @@ const Attendance: React.FC = () => {
           ))}
         </select>
 
-        <div>
+        <div style={{ maxHeight: "400px", overflowY: "auto" }}>
           {attendanceDate && (
             <>
               <table className="AttendanceTable">

@@ -4,7 +4,7 @@ import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import { feetable, getInstitutionNameAndLogo } from "../../apis/api";
 import { useRecoilValue } from "recoil";
-import { installmentArr } from "../../store/store";
+import { address, installmentArr } from "../../store/store";
 
 const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
 
@@ -29,6 +29,9 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
     }
     fetchInstituteName();
   },[])
+
+
+  const schoolAddress = useRecoilValue(address);
 
   const generateWordDocument = async(data : any) => {
    
@@ -56,22 +59,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "DAPORIJO, P.B. NO.6, UPPER SUBANSIRI DT, ARUNACHAL PRADESH.",
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-              alignment: "center",
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "PIN - 791 122",
-                  bold: true,
-                  size: 24,
-                }),
-                new TextRun({
-                  text: "     REG.NO:SRITA1803",
+                  text: `${schoolAddress}`,
                   bold: true,
                   size: 24,
                 }),
@@ -131,7 +119,6 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
               value={title}
               onChange={handlechange}
             >
-              <option value="">Select installment type</option>
               <option value="">Select installment type</option>
                 {installmentArray.map((ele,id)=>(
                   <option key={id} value={ele}>{ele}</option>

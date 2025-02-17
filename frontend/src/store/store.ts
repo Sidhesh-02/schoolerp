@@ -12,6 +12,7 @@ export const handleInstitutionName = atom({
   key: "name",
   default: jsonControlData.Institution_name,
 });
+
 export const handleInstitutionLogo = atom({
   key: "logo",
   default:jsonControlData.SchoolLogo
@@ -21,10 +22,16 @@ export const totalFee = atom({
   key:"totalFee",
   default:jsonControlData.TotalFees,
 })
+
 export const address = atom({
   key:"address",
   default:jsonControlData.SchoolAddress,
 })
+
+export const handleHostelName = atom({
+  key:"hostelName",
+  default:jsonControlData.Institution_hostel_name
+});
 
 export const sessionYear = atom({
   key:"session",

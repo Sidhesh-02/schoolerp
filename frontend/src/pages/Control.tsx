@@ -164,7 +164,7 @@ const Control = () => {
     const handleInstallment = async()=>{
         const result = await axios.post("http://localhost:5000/handleInstallments",{installment});
         if(result){
-            alert("Success");
+            alert("Installment Added Successfully ");
             window.location.reload();
         }
     }
@@ -248,10 +248,10 @@ const Control = () => {
                     accept="image/*"
                     onChange={(e) => handleImageUpload(e)}
                 />
+                <label>Set Institute Address</label>
+                <input type="text" placeholder='Enter Institute Address' onChange={(e)=> {setSchoolAddress(e.target.value)}}/>
                 <label>Set Hostel Name : </label>
                 <input type="text" placeholder='Enter Hostel Name' onChange={(e)=> {setHostelName(e.target.value)}}/>
-                <label>Set School Address</label>
-                <input type="text" placeholder='Enter Hostel Address' onChange={(e)=> {setSchoolAddress(e.target.value)}}/>
                 <label>Set Hostel Beds : </label>
                 <input type='number' placeholder='Enter Number of Hostel Beds' onChange={(e) => { Setnum_of_beds(Number(e.target.value)) }}></input>
                 <label>Set Total Fees</label>

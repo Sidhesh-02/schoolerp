@@ -313,6 +313,7 @@ const Marks: React.FC = () => {
         );
   
         alert("Total Marks Updated Successfully!");
+        window.location.reload();
       } catch (error) {
         console.error("Error updating total marks:", error);
         alert("Error updating total marks.");
@@ -485,96 +486,96 @@ const Marks: React.FC = () => {
             onChange={handleExamChange}
           >
             <option value="">Select Examination Type</option>
-            <option value="UnitTest">Unit Test 1</option>
-            <option value="MidTerm">Mid Term</option>
-            <option value="Final">Final Exam</option>
+            <option value="UnitTest">1st TERM </option>
+            <option value="MidTerm">2nd TERM</option>
           </select>
         </div>
-
-      <table className="AttendanceTable">
-        <thead>
-  {selectedStandard && exam && (
-    <tr>
-      <th>Roll No</th>
-      <th>Full Name</th>
-      {subjects.map((subject) => (
-        <th key={subject.id}>
-          {subject.name}
-          <label>Total Marks</label>
-          {isEditingTotalMarks ? (
-            <input
-              className="markInput"
-              type="number"
-              value={subjectTotals[subject.id] || ""}
-              onChange={(e) => handleTotalMarksChange(subject.id, Number(e.target.value))}
-            />
-          ) : (
-            totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks
-          )}
-        </th>
-      ))}
-      <th>
-        Action
-        <br />
-        <br />
-        <button className="marksButton" onClick={toggleEditTotalMarks}>
-          {isEditingTotalMarks ? "Save" : "Edit"}
-        </button>
-      </th>
-      <th>Percentage (%)</th>
-      <th>Download Marksheet</th>
-    </tr>
-  )}
-</thead>
-
-        <tbody>
-          {exam &&
-            students.map((student) => (
-              <tr key={student.id}>
-                <td>{student.rollNo}</td>
-                <td>{student.fullName}</td>
+      <div style={{ maxHeight: "400px", overflow: "auto", margin:"10px"}}>
+        <table className="AttendanceTable">
+          <thead>
+            {selectedStandard && exam && (
+              <tr>
+                <th>Roll No</th>
+                <th>Full Name</th>
                 {subjects.map((subject) => (
-                  <td key={subject.id}>
-                    {editMode[student.id] ? (
+                  <th key={subject.id}>
+                    {subject.name}
+                    <label>Total Marks</label>
+                    {isEditingTotalMarks ? (
                       <input
                         className="markInput"
                         type="number"
-                        value={marks[student.id]?.[subject.id] || ""}
-                        onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
+                        value={subjectTotals[subject.id] || ""}
+                        onChange={(e) => handleTotalMarksChange(subject.id, Number(e.target.value))}
                       />
                     ) : (
-                      // Check if the student has marks; if not, show input field for first-time entry
-                      fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
-                        ? fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
-                            ?.obtainedMarks || "N/A"
-                        : (
-                            <input
-                              className="markInput"
-                              type="number"
-                              value={marks[student.id]?.[subject.id] || ""}
-                              onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
-                            />
-                        )
+                      totalFetchedMarks.find((mark) => mark.subjectId === subject.id)?.totalMarks
+                    )}
+                  </th>
+                ))}
+                <th>
+                  Action
+                  <br />
+                  <br />
+                  <button className="marksButton" onClick={toggleEditTotalMarks}>
+                    {isEditingTotalMarks ? "Save" : "Edit"}
+                  </button>
+                </th>
+                <th>Percentage (%)</th>
+                <th>Download Marksheet</th>
+              </tr>
+            )}
+          </thead>
+
+          <tbody>
+            {exam &&
+              students.map((student) => (
+                <tr key={student.id}>
+                  <td>{student.rollNo}</td>
+                  <td>{student.fullName}</td>
+                  {subjects.map((subject) => (
+                    <td key={subject.id}>
+                      {editMode[student.id] ? (
+                        <input
+                          className="markInput"
+                          type="number"
+                          value={marks[student.id]?.[subject.id] || ""}
+                          onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
+                        />
+                      ) : (
+                        // Check if the student has marks; if not, show input field for first-time entry
+                        fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
+                          ? fetchedMarks.find((mark) => mark.studentId === student.id && mark.subjectId === subject.id)
+                              ?.obtainedMarks || "N/A"
+                          : (
+                              <input
+                                className="markInput"
+                                type="number"
+                                value={marks[student.id]?.[subject.id] || ""}
+                                onChange={(e) => handleMarksChange(student.id, subject.id, Number(e.target.value))}
+                              />
+                          )
+                      )}
+                    </td>
+                  ))}
+                  <td>
+                    {fetchedMarks.some((mark) => mark.studentId === student.id) ? (
+                      <button className="marksButton" onClick={() => (editMode[student.id] ? handleSave(student.id) : handleEdit(student.id))}>
+                        {editMode[student.id] ? "Save" : "Edit"}
+                      </button>
+                    ) : (
+                      <button className="marksButton" onClick={() => handleSubmit(student.id)}>Submit</button>
                     )}
                   </td>
-                ))}
-                <td>
-                  {fetchedMarks.some((mark) => mark.studentId === student.id) ? (
-                    <button className="marksButton" onClick={() => (editMode[student.id] ? handleSave(student.id) : handleEdit(student.id))}>
-                      {editMode[student.id] ? "Save" : "Edit"}
-                    </button>
-                  ) : (
-                    <button className="marksButton" onClick={() => handleSubmit(student.id)}>Submit</button>
-                  )}
-                </td>
-                <td>{calculatePercentage(student.id) + "%"}</td>
-                <td>
-                <button className="marksButton" onClick={() => handleDownload(student)}>Download</button>
-</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+                  <td>{calculatePercentage(student.id) + "%"}</td>
+                  <td>
+                  <button className="marksButton" onClick={() => handleDownload(student)}>Download</button>
+  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

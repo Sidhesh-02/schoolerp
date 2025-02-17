@@ -98,21 +98,10 @@ const Student: React.FC = () => {
   
 
   const handleSubmit = async () => {
-    // if (
-    //   !student.fullName ||
-    //   !student.rollNo ||
-    //   !student.dateOfBirth ||
-    //   !student.adhaarCardNo ||
-    //   !student.standard ||
-    //   student.parents.some((parent) => !parent.fatherName || !parent.motherName || !parent.fatherContact || !parent.motherContact) ||
-    //   student.fees.some((fee) => !fee.installmentType || !fee.amountDate || !fee.admissionDate)
-    // ) {
-    //   alert("Please fill all the required fields.");
-    //   return;
-    // }
     try {
       await createStudent(student);
       alert("Student created successfully");
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Failed to create student");

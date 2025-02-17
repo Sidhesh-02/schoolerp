@@ -5,7 +5,7 @@ import { fetchHostelData, submitHostelData, searchStudent, deleteHostelData, upd
 import DownloadHostel from "../components/Hostel/DownloadHostel";
 import UploadHostel from "../components/Hostel/UploadHostel";
 import { useRecoilValue } from "recoil";
-import { standardList } from "../store/store";
+import { handleHostelName, standardList } from "../store/store";
 
 const Hostel = () => {
   const [rollNo, setRollNo] = useState("");
@@ -159,8 +159,12 @@ const Hostel = () => {
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
+  const hostelName = useRecoilValue(handleHostelName);
   return (
     <div>
+      <h2 className="global-container">
+        {hostelName || "Hostel Name"}
+      </h2>
       <div className="global-container">
       <div className="import_export">
           <div className="innerbox"> 

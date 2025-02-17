@@ -74,42 +74,36 @@ router.post("/control/subjects", async (req, res) => {
 
 
 
-const promotionData = {
-    sessions: {
-      first: "2024-2025",
-      second: "2025-2026",
-      third: "2026-2027"
-    },
-    standards: [
-      "LKG",
-      "UKG",
-      "1st",
-      "2nd",
-      "3rd",
-      "4th",
-      "5th"
-    ]
-  };
+// Fetch sessions dynamically from the database
+async function fetchSessions() {
+  const sessions = await prisma.session.findMany({
+    orderBy: { createdAt: "asc" },  // Ensure sessions are ordered by creation date
+    select: { year: true }  // Fetch only the 'year' field
+  });
+
+  return sessions.map(session => session.year); // Extract 'year' values into an array
+}
+
+// Function to get the next session dynamically
+function getNextSession(currentSession, sessionList) {
+  const currentIndex = sessionList.indexOf(currentSession);
+  return currentIndex !== -1 && currentIndex < sessionList.length - 1
+    ? sessionList[currentIndex + 1]
+    : currentSession; // Stay in the same session if at the end
+}
+
+// Function to get the next standard
+function getNextStandard(currentStandard) {
+  const standardList = [
+    "LKG", "UKG", "1st", "2nd", "3rd", "4th", "5th", "6th",
+    "7th", "8th", "9th", "10th"
+  ];
+  const currentIndex = standardList.indexOf(currentStandard);
   
-  // Function to get the next session based on the current session
-  function getNextSession(currentSession) {
-    const sessionList = Object.values(promotionData.sessions);
-    const currentIndex = sessionList.indexOf(currentSession);
-    
-    return currentIndex !== -1 && currentIndex < sessionList.length - 1
-      ? sessionList[currentIndex + 1]
-      : currentSession;  // Stay in the same session if at the end
-  }
-  
-  // Function to get the next standard based on the current standard
-  function getNextStandard(currentStandard) {
-    const standardList = promotionData.standards;
-    const currentIndex = standardList.indexOf(currentStandard);
-    
-    return currentIndex !== -1 && currentIndex < standardList.length - 1
-      ? standardList[currentIndex + 1]
-      : currentStandard;  // Stay in the same standard if at the end
-  }
+  return currentIndex !== -1 && currentIndex < standardList.length - 1
+    ? standardList[currentIndex + 1]
+    : currentStandard; // Stay in the same standard if at the end
+}
   
   // Function to calculate the total percentage
   async function calculateTotalPercentage(recievedData) {
@@ -137,7 +131,7 @@ const promotionData = {
           session: session,
         },
       });
-  
+      const sessionList = await fetchSessions();
       const promotedStudents = await Promise.all(
         studentData.map(async (oldStudent) => {
           const totalPercentage = await calculateTotalPercentage(oldStudent.marks);
@@ -154,7 +148,7 @@ const promotionData = {
   
           // Only promote the student if they passed
           if (passed) {
-            const newSession = getNextSession(oldStudent.session);
+            const newSession = getNextSession(oldStudent.session, sessionList);
             const newStandard = getNextStandard(oldStudent.standard);
   
             // Create a new student without unique fields (like id)
@@ -241,6 +235,7 @@ const promotionData = {
   
   router.get("/getInstallments",async(req,res)=>{
     const installmentsData = await prisma.installments.findMany();
+    console.log(installmentsData)
     if(!installmentsData){
       return res.status(400).json({error:"No data found"});
     }
