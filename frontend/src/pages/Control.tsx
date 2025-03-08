@@ -328,7 +328,7 @@ const Control = () => {
 
             </div>
             <div className='global-container'>
-                <h2>Set Sessions</h2>
+                <h2>Add Sessions</h2>
                 <label>Add Session : </label>
                 <input
                     type="text"
