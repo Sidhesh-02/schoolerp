@@ -53,17 +53,10 @@ const Fees: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetchStudentFees(standard, rollNo);
-
-      if (res.data && !res.data.error) {
-        setStudent(res.data);
-      } else {
-        setStudent(null);
-        alert("Student does not exist");
-      }
+      const feeDetails = await fetchStudentFees(standard, rollNo);
+      setStudent(feeDetails);
     } catch (error) {
       console.error("Error fetching fees details", error);
-      alert("Error, Contact Developer/Check Student Presence");
     } finally {
       setLoading(false);
     }
@@ -79,7 +72,6 @@ const Fees: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    console.log(name,value);
     setNewInstallment((prev) => ({
       ...prev,
       [name]: value,
@@ -112,9 +104,10 @@ const Fees: React.FC = () => {
         alert("Installment already exists, or the full payment has been made.");
         return;
       }
-      const res = await addFeeInstallment(updatedInstallment);
+      const installmentStatus = await addFeeInstallment(updatedInstallment);
 
-      if (res.data && !res.data.error) {
+      if (installmentStatus && !installmentStatus
+        .error) {
         setStudent((prevStudent) => {
           if (prevStudent) {
             return {
@@ -255,7 +248,7 @@ const Fees: React.FC = () => {
                 onChange={handleAddInstallmentChange}
               >
                 <option value="">Select installment type</option>
-                {installmentArray.map((ele,id)=>(
+                {installmentArray.map((ele,id)=> ele!=="first" && ele!=="1st" && ele!=="First" && (
                   <option key={id} value={ele}>{ele}</option>
                 ))}
               </select>

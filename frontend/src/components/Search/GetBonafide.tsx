@@ -8,7 +8,7 @@ const GetBonafide = ({ rollNo, standard }: { rollNo: number; standard: string })
     const Institute_address = useRecoilValue(address);
     const InstitueLogo: string = useRecoilValue(handleInstitutionLogo);
     const generatePDF = async () => {
-        const { data } = await searchStudent(rollNo, standard);
+        const data = await searchStudent(rollNo, standard);
         const doc = new jsPDF("p", "mm", "a4");
 
         const date = new Date().toLocaleDateString();
@@ -95,7 +95,7 @@ const GetBonafide = ({ rollNo, standard }: { rollNo: number; standard: string })
         doc.text("GODSON V. ZACHARIAS", 130, startPostition + 40);
 
         // ** Generate PDF **
-        doc.save("Bonafide_Cert.pdf");
+        doc.save(`${data.fullName}_Bonafide_Cert.pdf`);
     };
 
     return (

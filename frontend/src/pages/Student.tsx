@@ -25,7 +25,6 @@ interface Student {
 }
 
 interface Parent {
-  studentId: number;
   fatherName: string;
   fatherOccupation: string;
   motherName: string;
@@ -44,7 +43,8 @@ interface Fee {
 
 const Student: React.FC = () => {
   
-  const [student, setStudent] = useState<Student>({
+  const [
+    student, setStudent] = useState<Student>({
     fullName: "",
     gender: "Male",
     dateOfBirth: "",
@@ -56,6 +56,7 @@ const Student: React.FC = () => {
     photoUrl: "",
     category: "",
     caste:"",
+    remark :"",
     parents: [
       {
         fatherName: "",
@@ -65,7 +66,6 @@ const Student: React.FC = () => {
         fatherContact: "",
         motherContact: "",
         address: "",
-        studentId: 0,
       },
     ],
     fees: [
@@ -75,8 +75,7 @@ const Student: React.FC = () => {
         amountDate: "",
         admissionDate: "",
       },
-    ],
-    remark :""
+    ]
   });
   const [standard,setStandard] = useState(["1st"]);
   const installmentArray = useRecoilValue(installmentArr);
@@ -98,14 +97,10 @@ const Student: React.FC = () => {
   
 
   const handleSubmit = async () => {
-    try {
-      await createStudent(student);
-      alert("Student created successfully");
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create student");
-    }
+    await createStudent(student);
+    alert("Student created successfully");
+    window.location.reload();
+    
   };
 
   const handleParentChange = useCallback(
@@ -356,22 +351,20 @@ const Student: React.FC = () => {
               <label>Father Contact</label>
               <input
                 className="StudentInput"
-                type="number"
+                type="text"
                 name="fatherContact"
                 value={parent.fatherContact}
                 onChange={(e) => handleParentChange(e, index)}
                 maxLength={10}
-                minLength={10}
               />
               <label>Mother Contact</label>
               <input
                 className="StudentInput"
-                type="number"
+                type="text"
                 name="motherContact"
                 value={parent.motherContact}
                 onChange={(e) => handleParentChange(e, index)}
                 maxLength={10}
-                minLength={10}
               />
               <label>Address</label>
               <textarea
@@ -393,8 +386,7 @@ const Student: React.FC = () => {
                 value={fee.installmentType}
                 onChange={(e) => handleFeeChange2(e, index)}
               >
-                <option disabled>Select Type</option>
-                <option value="">Select installment type</option>
+                <option value="" disabled>Select installment type</option>
                 {installmentArray.map((ele,id)=>(
                   <option key={id} value={ele}>{ele}</option>
                 ))}

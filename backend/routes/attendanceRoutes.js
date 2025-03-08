@@ -44,6 +44,7 @@ router.get("/getstandards", async (req, res) => {
   
   // Get Student List wrt Standard for Attendance
   router.get("/getattendancelist", async (req, res) => {
+    
     const { standard } = req.query;
     const session = req.session;
     try {
@@ -68,7 +69,6 @@ router.get("/getstandards", async (req, res) => {
   // Get Subject List for Attendance
   router.get("/getsubjects", async (req, res) => {
     const { selectedStandard } = req.query;
-    
     try {
       const subjects = await prisma.subject.findMany({
         where: {
@@ -123,7 +123,7 @@ router.get("/getstandards", async (req, res) => {
   });
   
   // Download attendance by Date & Class
-  router.get("/downloadattendance", async (req, res) => {
+  router.get("/downloadAttendance", async (req, res) => {
     const session = req.session;
     try {
       const attendanceRecords = await prisma.attendance.findMany({
@@ -134,7 +134,6 @@ router.get("/getstandards", async (req, res) => {
           session:session
         }
       });
-  
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Attendance");
   

@@ -5,10 +5,6 @@ const DownloadMarks : React.FC = () => {
     const handleDownload = async () => {
         try {
           const response = await downloadMarks();
-          if (response.status < 200 || response.status >= 300) {
-            alert("here first")
-            throw new Error('Failed to download fees records');
-          }
           const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');

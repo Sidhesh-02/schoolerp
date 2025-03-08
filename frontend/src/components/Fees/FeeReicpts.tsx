@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
-import { feetable, getInstitutionNameAndLogo } from "../../apis/api";
+import { feeRecipt, getInstitutionNameAndLogo } from "../../apis/api";
 import { useRecoilValue } from "recoil";
 import { address, installmentArr } from "../../store/store";
 
@@ -14,7 +14,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
   const installmentArray = useRecoilValue(installmentArr);
   const fetchFeeData = async () => {
     try {
-      const { data } = await feetable(id,title);
+      const data  = await feeRecipt(id,title);
       setFeedata(data[0]);
       generateWordDocument(data[0]);
     } catch (error) {
@@ -100,7 +100,7 @@ const FeeReicpts = ({ id , name } : {id : number ,name : any}) => {
     });
 
     Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, "receipt.docx");
+      saveAs(blob, `${name}_${title}_receipt.docx`);
     });
   };
  

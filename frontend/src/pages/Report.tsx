@@ -10,9 +10,9 @@ const Report = () => {
     const studentCount = async () => {
         try {
             const gotCount = await report();
-            setCount(gotCount.data.len);
-            setFee(gotCount.data.sumFee);
-            setRemBed(gotCount.data.sumBed)
+            setCount(gotCount.len);
+            setFee(gotCount.sumFee);
+            setRemBed(gotCount.sumBed)
         } catch (error) {
             console.log(error);
         }

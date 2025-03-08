@@ -110,7 +110,7 @@ const Marks: React.FC = () => {
   const fetchSubjectsList = async (standard: string) => {
     try {
       const response = await fetchSubjects(standard);
-      setSubjects(response.data);
+      setSubjects(response);
     } catch (error) {
       console.error("Error fetching subjects:", error);
     }
@@ -119,7 +119,7 @@ const Marks: React.FC = () => {
   const fetchStudentsList = async (standard: string) => {
     try {
       const response = await fetchStudents(standard);
-      setStudents(response.data);
+      setStudents(response);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
@@ -296,9 +296,7 @@ const Marks: React.FC = () => {
               subjectId: Number(subjectId),
               examinationType: exam,
               totalMarks: totalMarks.toString(),
-            };
-            console.log("TotalMarks",payload)
-  
+            };  
             await axios.post("http://localhost:5000/api/totalMarks", payload);
           })
         );

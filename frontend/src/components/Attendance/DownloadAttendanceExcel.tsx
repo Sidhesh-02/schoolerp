@@ -5,10 +5,7 @@ const DownloadAttendance: React.FC = () => {
   const handleDownload = async () => {
     try {
       const response = await downloadAttendance();
-      if (!response.ok) {
-        throw new Error('Failed to download attendance records');
-      }
-      const blob = await response.blob();
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

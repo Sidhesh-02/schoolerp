@@ -2,7 +2,7 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
-
+const StudentSchema = require("../utils/joiSchema");
 
 function jsonBigIntReplacer(key, value) {
     if (typeof value === "bigint") {
@@ -11,28 +11,17 @@ function jsonBigIntReplacer(key, value) {
     return value;
 }
 
-// Delete Function
-const deleteStudent = async (studentId) => {
-    try {
-        // Delete related records
-        await prisma.parent.deleteMany({ where: { studentId: studentId } });
-        await prisma.fee.deleteMany({ where: { studentId: studentId } });
-        await prisma.attendance.deleteMany({ where: { studentId: studentId } });
-        await prisma.marks.deleteMany({where:{studentId:studentId}});
-        await prisma.student.delete({ where: { id: parseInt(studentId) } });
-
-        return {
-            success: true,
-            message: "Student and related records deleted successfully",
-        };
-    } catch (error) {
-        console.error("Error deleting student:", error);
-        throw new Error("Failed to delete student");
-    }
-};
-
-// Create Student
 router.post("/students", async (req, res) => {
+    
+    // Validate request body
+    const { error, value } = StudentSchema.validate(req.body, { abortEarly: false });
+    if (error) {
+        return res.status(400).json({
+            message: error.details.map((err) => err.message),
+        });
+    }
+
+    // Extract validated data
     const {
         fullName,
         gender,
@@ -48,8 +37,10 @@ router.post("/students", async (req, res) => {
         remark,
         category,
         caste
-    } = req.body;
+    } = value;
+
     const session = req.session;
+
     try {
         const student = await prisma.student.create({
             data: {
@@ -58,7 +49,7 @@ router.post("/students", async (req, res) => {
                 dateOfBirth: new Date(dateOfBirth),
                 rollNo: parseInt(rollNo),
                 standard,
-                adhaarCardNo: parseInt(adhaarCardNo),
+                adhaarCardNo: BigInt(adhaarCardNo),
                 scholarshipApplied,
                 address,
                 photoUrl,
@@ -72,15 +63,15 @@ router.post("/students", async (req, res) => {
                         fatherOccupation: parent.fatherOccupation,
                         motherName: parent.motherName,
                         motherOccupation: parent.motherOccupation,
-                        fatherContact: parseInt(parent.fatherContact),
-                        motherContact: parseInt(parent.motherContact),
+                        fatherContact: BigInt(parent.fatherContact),
+                        motherContact: BigInt(parent.motherContact),
                         address: parent.address,
                     })),
                 },
                 fees: {
                     create: fees.map((fee) => ({
                         title: fee.installmentType,
-                        amount: parseFloat(fee.amount),
+                        amount: parseFloat(fee.amount.toString()),
                         amountDate: new Date(fee.amountDate),
                         admissionDate: new Date(fee.admissionDate),
                     })),
@@ -92,24 +83,36 @@ router.post("/students", async (req, res) => {
                 attendanceRecords: true,
             },
         });
-
-        res.status(201).json(JSON.stringify(student, jsonBigIntReplacer));
+        res.status(201).json(JSON.parse(JSON.stringify(student, jsonBigIntReplacer)));
     } catch (error) {
         console.error("Error creating student:", error);
         res.status(500).send("Failed to create student");
     }
 });
 
+
+
 // Delete Student
 router.delete("/delete/students", async (req, res) => {
     const { studentId } = req.query;
     try {
-        await deleteStudent(parseInt(studentId));
-        res.status(200).send({ message: "Student deleted successfully" });
+        // Delete all associated records first
+        await Promise.all([
+            prisma.parent.deleteMany({ where: { studentId: parseInt(studentId) } }),
+            prisma.fee.deleteMany({ where: { studentId: parseInt(studentId) } }),
+            prisma.attendance.deleteMany({ where: { studentId: parseInt(studentId) } }),
+            prisma.marks.deleteMany({ where: { studentId: parseInt(studentId) } }),
+        ]);
+
+        // Now delete the student
+        await prisma.student.delete({ where: { id: parseInt(studentId) } });
+
+        res.status(200).json({ message: "Student deleted successfully" });
     } catch (error) {
-        res.status(500).send({ error: "Failed to delete student" });
+        res.status(500).json({ message: "Failed to Delete Student" });
     }
 });
+
 
 // Search Students
 router.get("/getallstudent", async (req, res) => {
@@ -124,7 +127,7 @@ router.get("/getallstudent", async (req, res) => {
         });
         res.status(200).json(JSON.parse(JSON.stringify({ result }, jsonBigIntReplacer)));
     } catch (error) {
-        res.status(400).json(error);
+        res.status(400).json({message:"Server Error"});
     }
 });
 
@@ -133,43 +136,26 @@ router.get("/getallstudent", async (req, res) => {
 router.get("/students/rollNo", async (req, res) => {
     const { rollno , standard } = req.query;
     const session = req.session;
-
     try {
         let student;
-        if (/^\d+$/.test(rollno)){
-            student = await prisma.student.findFirst({
-                where: {
-                    rollNo: parseInt(rollno),
-                    standard: standard,
-                    session: session
-                },
-                include: {
-                    parents: true,
-                    fees: true,
-                },
-            });    
-        }else{
-            student = await prisma.student.findFirst({
-                where: {
-                    rollNo: parseInt(rollno),
-                    standard: standard,
-                    session : session
-                },
-                include: {
-                    parents: true,
-                    fees: true,
-                },
-            });   
-        }
+        student = await prisma.student.findFirst({
+            where: {
+                rollNo: parseInt(rollno),
+                standard: standard,
+                session : session
+            },
+            include: {
+                parents: true,
+                fees: true,
+            },
+        });   
         if (student) {
             res.status(200).send(JSON.stringify(student, jsonBigIntReplacer));
         } else {
-            res.status(404).json({ message: "Student not found" });
+            res.status(404).json({ message: "Student Not Found" });
         }
     } catch (error) {
-        console.error("Error fetching student:", error.message);
-        console.error("Stack trace:", error.stack);
-        res.status(500).json({ message: "An error occurred while fetching the student" });
+        res.status(400).json({message:"Server Error"});
     }
 });
 
@@ -183,10 +169,10 @@ router.get("/getallstudentsc",async (req,res)=>{
                 session:session
             }
         })
-        if (studentsc) {
+        if (studentsc.length>0) {
             res.status(200).send(JSON.stringify(studentsc, jsonBigIntReplacer));
         } else {
-            res.status(404).json({ message: "Student not found" });
+            res.status(404).json({ message: "No Student with Scholarship Found" });
         }
     }catch(error){
         console.error("Error fetching student:", error.message);

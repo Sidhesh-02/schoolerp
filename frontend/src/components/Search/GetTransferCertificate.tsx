@@ -37,7 +37,7 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
      * @throws {Error} - If fetching student data fails.
      */
     const generatePDF = async () => {
-        const { data } = await searchStudent(rollNo, standard);
+        const data = await searchStudent(rollNo, standard);
         const doc = new jsPDF("p", "mm", "a4");
 
         const date = new Date().toLocaleDateString();
@@ -114,7 +114,7 @@ const GetTransferCertificate = ({ rollNo, standard }: { rollNo: number; standard
         doc.text("GODSON V. ZACHARIAS", 130, startY + 60);
 
         // ** Generate PDF **
-        doc.save("Transfer_Certificate.pdf");
+        doc.save(`${data.fullName}_Transfer_Certificate.pdf`);
     };
 
     return (

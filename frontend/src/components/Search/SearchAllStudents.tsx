@@ -27,10 +27,10 @@ const Searchall = () => {
   const search = async () => {
     try {
       const data = await fetchAllStudents(std);
-      if(data.length === 0){
+      if(data.result.length === 0){
         alert("No Student Found");
       }
-      setResult(data);
+      setResult(data.result);
     } catch (error) {
       console.log(error);
     }

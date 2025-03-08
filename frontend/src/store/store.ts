@@ -2,9 +2,9 @@ import {atom}  from "recoil";
 import { getInstitutionNameAndLogo, getCurrentSession, fetchStandards, fetchInstallments } from "../apis/api";
 const jsonControlData = await getInstitutionNameAndLogo();
 const fetchSessionJson = await getCurrentSession();
-const sessions = fetchSessionJson.data;
+
 const session: string[] = [];
-sessions.forEach((element: { year: string; }) => {
+fetchSessionJson.forEach((element: { year: string; }) => {
   session.push(element.year)
 });
 
@@ -38,10 +38,10 @@ export const sessionYear = atom({
   default: session ?? ["2024-2025"]
 })
 
-const standards = await fetchStandards();
+const standardsData = await fetchStandards();
 export const standardList = atom({
   key:"standard",
-  default: standards.data.standards ?? [""]
+  default: standardsData.standards ?? [""]
 })
 
 const installmentHandle = await fetchInstallments();

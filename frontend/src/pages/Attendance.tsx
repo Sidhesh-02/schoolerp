@@ -39,7 +39,7 @@ const Attendance: React.FC = () => {
   const fetchSubjectsList = async (standard: string) => {
     try {
       const response = await fetchSubjects(standard); // Fetch subjects for the selected standard
-      setSubjects(response.data);
+      setSubjects(response);
     } catch (error) {
       console.error("Error fetching subjects:", error);
     }
@@ -48,7 +48,7 @@ const Attendance: React.FC = () => {
   const fetchStudentsList = async (standard: string) => {
     try {
       const response = await fetchStudents(standard);
-      setStudents(response.data);
+      setStudents(response);
     } catch (error) {
       console.error("Error fetching students:", error);
     }

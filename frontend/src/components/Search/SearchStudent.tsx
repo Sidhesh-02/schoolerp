@@ -388,31 +388,25 @@ const SearchStudent: React.FC = () => {
       }
       
       const response = await searchStudent(parseInt(rollNo), standard);
-      
-      setSearchResult(response.data);
+      setSearchResult(response);
       setEditableStudent({
-        ...response.data,
-        dateOfBirth: formatDateForInput(response.data.dateOfBirth),
+        ...response,
+        dateOfBirth: formatDateForInput(response.dateOfBirth),
       });
     } catch (error) {
-      alert("Student Not Found");
+      console.log(error)
     }
   };
 
   const handleDelete = async () => {
-    try {
-      if (!searchResult?.id) {
-        alert("Please search and select a valid student to delete.");
-        return;
-      }
-      await deleteStudent(searchResult.id);
-      alert("Student deleted successfully");
-      setSearchResult(null); 
-      setEditableStudent(null); // Clear the editable student state
-    } catch (error) {
-      console.error("Error deleting student:", error);
-      alert("Failed to delete student");
+    if (!searchResult?.id) {
+      alert("Please search and select a valid student to delete.");
+      return;
     }
+    await deleteStudent(searchResult.id);
+    alert("Student deleted successfully");
+    setSearchResult(null); 
+    setEditableStudent(null); 
   };
 
   const handleUpdate = async () => {
@@ -463,11 +457,11 @@ const SearchStudent: React.FC = () => {
     <div>
       <h2>Search, Update, Delete Students</h2>
       <div>
-        <label>Name/Roll No.</label>
+        <label>Roll No.</label>
         <input
           className="StudentInput"
           type="text"
-          placeholder="Search by Name/Roll No"
+          placeholder="Search by Roll No"
           value={rollNo}
           onChange={(e) => setRollNo(e.target.value)}
         />

@@ -5,6 +5,7 @@ const router = express.Router();
 const ExcelJS = require("exceljs");
 
 const path = require("path");
+const prismaErrorHandler = require("../utils/prismaErrorHandler");
 const prisma = new PrismaClient();
 
 
@@ -14,7 +15,7 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 // Get Fees Details
-router.get("/fees/details", async (req, res) => {
+router.get("/fees/details", async (req, res,next) => {
     const { standard, roll_no } = req.query;
     const session = req.session;
     if (!standard || isNaN(parseInt(roll_no))) {
@@ -48,17 +49,16 @@ router.get("/fees/details", async (req, res) => {
       });
   
       if (!result) {
-        return res.status(404).json({ error: "Student not found" });
+        return res.status(404).json({ message: "Student Not found" });
       }
       res.status(200).json(result);
     } catch (error) {
-      console.error("Error fetching fees details:", error);
-      res.status(500).json({ error: "An error occurred" });
+      error = prismaErrorHandler(error);
+      next(error)
     }
   });
   
-  // Redundant Route to Get Fees Details
-  router.get("/feetable", async(req,res)=>{
+  router.get("/feeRecipt", async(req,res)=>{
     const {title, id} = req.query;
     try{
       const result = await prisma.fee.findMany({
@@ -102,7 +102,7 @@ router.get("/fees/details", async (req, res) => {
 
 
 
-  router.get("/downloadfeedata", async (req, res) => {
+  router.get("/downloadFees", async (req, res) => {
     try {
       const feeRecord = await prisma.fee.findMany();
   

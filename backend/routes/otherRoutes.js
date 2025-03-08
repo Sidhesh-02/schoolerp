@@ -260,15 +260,15 @@ router.get('/excelstudents', async (req, res) => {
 
 
 router.post("/changesFromControlPanel", async (req, res) => {
-  const { number_of_hostel_bed, institutioName, hostelName, schoolAddress, totalFee, schoolLogo } = req.body;
+  const { num_of_beds, InstitutionName, hostelName, schoolAddress, totalFee, schoolLogo } = req.body;
   const existingRecord = await prisma.control.findFirst();
 
   if (!existingRecord) {
     // Create a new record if it doesn't exist
     const newRecord = await prisma.control.create({
       data: {
-        number_of_hostel_bed,
-        Institution_name: institutioName,
+        num_of_beds,
+        Institution_name: InstitutionName,
         Institution_hostel_name: hostelName,
         SchoolAddress: schoolAddress,
         TotalFees: totalFee,
@@ -280,8 +280,8 @@ router.post("/changesFromControlPanel", async (req, res) => {
 
   // Update only the required fields
   const updatedData = {
-    number_of_hostel_bed: number_of_hostel_bed || existingRecord.number_of_hostel_bed,
-    Institution_name: institutioName || existingRecord.Institution_name,
+    number_of_hostel_bed: num_of_beds || existingRecord.number_of_hostel_bed,
+    Institution_name: InstitutionName || existingRecord.Institution_name,
     Institution_hostel_name: hostelName || existingRecord.Institution_hostel_name,
     SchoolAddress: schoolAddress || existingRecord.SchoolAddress,
     TotalFees: totalFee || existingRecord.TotalFees,
@@ -543,8 +543,6 @@ router.get('/scholarshipStudents', async (req, res) => {
       },
     });
 
-    console.log()
-
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Scholarship');
 
@@ -624,7 +622,8 @@ router.get('/scholarshipStudents', async (req, res) => {
 });
 
 router.post("/credentials", async (req, res) => {
-  const { username, password } = req.body;
+
+  const { username, password } = req.query;
   const hashedUsername = crypto.createHash("sha256").update(username).digest("hex");
   const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
   const adminStoredUsername = process.env.ADMIN_HASH ?? "";

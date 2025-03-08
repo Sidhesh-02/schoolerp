@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { DownloadScholarshipStudent, fetchAllStudentsSc } from "../../apis/api";
+import { downloadScholarshipStudent, fetchAllStudentsSc } from "../../apis/api";
 
 export default function Scholarship() {
     const [list, setList] = useState<any[]>([]);
@@ -9,9 +9,6 @@ export default function Scholarship() {
     const getStudents = async () => {
         try {
             const students = await fetchAllStudentsSc();
-            if (students.length === 0) {
-                alert("No Student Found");
-            }
             setList(students);
             setShowTable(true);
         } catch (error) {
@@ -20,11 +17,7 @@ export default function Scholarship() {
     };
     const handleDownload = async()=>{
             try {
-                const response = await DownloadScholarshipStudent();
-                if (response.status < 200 || response.status >= 300) {
-                  alert("here first")
-                  throw new Error('Failed to download Scholarship records');
-                }
+                const response = await downloadScholarshipStudent();
                 const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');

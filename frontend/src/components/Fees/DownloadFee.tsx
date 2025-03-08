@@ -1,13 +1,10 @@
 import React from 'react'
-import { downloadfeedata } from '../../apis/api';
+import { downloadFees } from '../../apis/api';
 
 const DownloadFee : React.FC = () => {
     const handleDownload = async () => {
         try {
-          const response = await downloadfeedata();
-          if (response.status < 200 || response.status >= 300) {
-            throw new Error('Failed to download fees records');
-          }
+          const response = await downloadFees();
           const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement('a');

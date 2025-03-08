@@ -126,6 +126,7 @@ const App: React.FC = () => {
             type="text"
             placeholder="Username"
             id="username"
+            autoComplete="username"
           />
           <br />
           <input
@@ -133,6 +134,7 @@ const App: React.FC = () => {
             type="password"
             placeholder="Password"
             id="password"
+            autoComplete="current-password"
           />
           <br />
           <button

@@ -13,7 +13,7 @@ export default function PhotoUpdate() {
   const search = async () => {
     try {
       const data = await fetchAllStudents(std);
-      setResult(data);
+      setResult(data.result);
     } catch (error) {
       console.log(error);
     }

@@ -14,8 +14,8 @@ const UploadStudents: React.FC = () => {
     if (file) {
       try {
         const res = await uploadStudentsFile(file);
-        if(res.data.error){
-          alert(res.data.error);
+        if(res.error){
+          alert(res.error);
           return;
         }
         alert("File Uploaded Successfully")

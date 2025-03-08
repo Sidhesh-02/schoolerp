@@ -39,7 +39,7 @@ const Hostel = () => {
         gender: res.gender,
         bed_no,
       });
-      if (response.data) {
+      if (response) {
         alert('Data added successfully');
         window.location.reload();
       }
@@ -53,7 +53,7 @@ const Hostel = () => {
     const handlePromises = async() =>{
       const dataFromMiss = await constants_from_db();
       const newOccupied: number[] = [];
-      for (let i = 1; i <= dataFromMiss.data.number_of_hostel_bed; i++) {
+      for (let i = 1; i <= dataFromMiss.number_of_hostel_bed; i++) {
         newOccupied.push(i);
       }
       setOccupied(newOccupied);
@@ -63,7 +63,7 @@ const Hostel = () => {
     const fetchData = async () => {
       try {
         const response = await fetchHostelData();
-        setAvailable(response.data.available);
+        setAvailable(response.available);
       } catch (error) {
         console.log('Error fetching hostel data', error);
       }
@@ -82,7 +82,7 @@ const Hostel = () => {
   const details = async (ele: number) => {
     try {
       const response = await fetchHostelData();
-      response.data.result.forEach((e: any) => {
+      response.result.forEach((e: any) => {
         if (e.bed_number === ele) {
           setData(e);
           setBed(e.bed_number);
@@ -102,10 +102,8 @@ const Hostel = () => {
       return;
     }
     try {
-      console.log("here ")
       const response = await searchStudent(parseInt(rollNo), standard);
-      console.log("response " , response)
-      setRes(response.data);
+      setRes(response);
     } catch (error) {
       console.log('Error searching student', error);
     }
