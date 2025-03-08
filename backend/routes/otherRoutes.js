@@ -267,7 +267,7 @@ router.post("/changesFromControlPanel", async (req, res) => {
     // Create a new record if it doesn't exist
     const newRecord = await prisma.control.create({
       data: {
-        num_of_beds,
+        number_of_hostel_bed:num_of_beds,
         Institution_name: InstitutionName,
         Institution_hostel_name: hostelName,
         SchoolAddress: schoolAddress,
@@ -302,11 +302,7 @@ router.post("/changesFromControlPanel", async (req, res) => {
   router.get("/getChanges", async (req, res) => {
     try {
       const controlData = await prisma.control.findFirst();
-      if (controlData) {
-        res.status(200).json(controlData);
-      } else {
-        res.status(404).json({ message: "Data not found" });
-      }
+      res.status(200).json(controlData);
     } catch (error) {
       res.status(500).json({ error: "Server error", details: error.message });
     }
