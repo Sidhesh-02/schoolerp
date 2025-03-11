@@ -13,30 +13,33 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Get Hostel Data
 router.get('/gethosteldata', async (req, res) => {
-    try {
-      const result = await prisma.hostel.findMany();
-      const hostelRes = await prisma.control.findFirst();
-      const n = hostelRes.number_of_hostel_bed ?? 0;
-      const available = [];
-      for (let i = 1; i <= n ; i++) {
-        available.push(i);
-      }
-  
-      available.forEach((e) => {
-        result.forEach((v) => {
-          if (e === v.bed_number) {
-            let index = available.indexOf(e);
-            available[index] = 0;
-          }
-        });
-      });
-  
-      res.status(201).json({ result, available });
-    } catch (error) {
-      console.error("Error fetching hostel data: ", error); // Detailed logging
-      res.status(500).json({ error: 'An error occurred while fetching the hostel data.' });
+  try {
+    const result = await prisma.hostel.findMany();
+    const hostelRes = await prisma.control.findFirst();
+
+    const n = hostelRes?.number_of_hostel_bed ?? 0;
+    const available = [];
+    
+    for (let i = 1; i <= n; i++) {
+      available.push(i);
     }
-  });
+
+    available.forEach((e) => {
+      result.forEach((v) => {
+        if (e === v.bed_number) {
+          let index = available.indexOf(e);
+          available[index] = 0;
+        }
+      });
+    });
+
+    res.status(201).json({ result, available });
+  } catch (error) {
+    console.error("Error fetching hostel data: ", error); // Detailed logging
+    res.status(500).json({ error: 'An error occurred while fetching the hostel data.' });
+  }
+});
+
   
   // Posting Hostel Data
   router.post("/hosteldata",async (req, res)=>{

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { addControlValues, addStandard, addSubjects, currentSession, uploadSchoolLogo } from '../apis/api';
-import PhotoUpdate from '../components/Search/PhotoUpdate';
 import axios from 'axios';
 
 
@@ -79,7 +78,7 @@ const Control = () => {
         try {
             const controlDataStatus = await addControlValues(data);
             if (controlDataStatus) {
-                alert("Data Added Sccessfully");
+                alert("Data Added Successfully");
                 window.location.reload();
             }
         } catch (error) {
@@ -99,14 +98,10 @@ const Control = () => {
     const [input2, setInput2] = useState<string>('');
 
     const handleAddSession = async () => {
-        try {
-            const newSession = `${input1}-${input2}`;
-            await currentSession(newSession);
-            alert("Session Added Successfully");
-            window.location.reload();
-        } catch (error) {
-            alert(error.response.data.message);
-        }
+        const newSession = `${input1}-${input2}`;
+        await currentSession(newSession);
+        alert("Session Added Successfully");
+        window.location.reload();
     };
 
     const [standard, setStandard] = useState(["1st"])
@@ -132,6 +127,7 @@ const Control = () => {
         if (file) {
             try {
                 const photoUrl = await uploadSchoolLogo(file);
+                console.log(photoUrl);
                 setUrl(photoUrl);
             } catch (error) {
                 console.error(error);
@@ -199,18 +195,6 @@ const Control = () => {
             }
         } catch (e) {
             console.log(e);
-            if (e.response) {
-                const { error } = e.response.data;
-                if (error === "Subject not found. Cannot update.") {
-                    alert("Error: The subject does not exist.");
-                } else if (error === "Subject with this name already exists.") {
-                    alert("Error: This subject name already exists.");
-                } else {
-                    alert("Error updating subject. Please try again.");
-                }
-            } else {
-                alert("Server Error: Unable to update.");
-            }
         }
     };
 
@@ -345,9 +329,7 @@ const Control = () => {
                 <button onClick={handleAddSession}>Add Session</button>
             </div>
 
-            <div className='global-container'>
-                <PhotoUpdate />
-            </div>
+            
 
             <div className='global-container' style={{ color: "#8B0000", marginLeft: "5px" }}>
                 <h2>Danger Zone - Handle with Caution</h2>

@@ -260,7 +260,8 @@ router.get('/excelstudents', async (req, res) => {
 
 
 router.post("/changesFromControlPanel", async (req, res) => {
-  const { num_of_beds, InstitutionName, hostelName, schoolAddress, totalFee, schoolLogo } = req.body;
+  const { num_of_beds, InstitutionName, hostelName, schoolAddress, totalFee, url } = req.body;
+  console.log(req.body)
   const existingRecord = await prisma.control.findFirst();
 
   if (!existingRecord) {
@@ -272,7 +273,7 @@ router.post("/changesFromControlPanel", async (req, res) => {
         Institution_hostel_name: hostelName,
         SchoolAddress: schoolAddress,
         TotalFees: totalFee,
-        SchoolLogo:schoolLogo
+        SchoolLogo:url
       },
     });
     return res.status(201).json(newRecord);
@@ -285,7 +286,7 @@ router.post("/changesFromControlPanel", async (req, res) => {
     Institution_hostel_name: hostelName || existingRecord.Institution_hostel_name,
     SchoolAddress: schoolAddress || existingRecord.SchoolAddress,
     TotalFees: totalFee || existingRecord.TotalFees,
-    SchoolLogo: schoolLogo || existingRecord.SchoolLogo
+    SchoolLogo: url || existingRecord.SchoolLogo
   };
 
   const updatedRecord = await prisma.control.update({

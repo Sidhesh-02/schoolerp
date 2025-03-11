@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { createStudent, uploadPhoto } from "../apis/api";
+import PhotoUpdate from '../components/Search/PhotoUpdate';
 import "../styles/student.css";
 import UploadStudents from "../components/Student/AppendStudentExcel";
 import StudentsInfoDownload from "../components/Student/RetriveStudentExcel";
@@ -165,6 +166,10 @@ const Student: React.FC = () => {
           </div>
         </div>
       
+      </div>
+
+      <div className='global-container'>
+                <PhotoUpdate />
       </div>
       <div className="global-container">
         <h2>Create Student Profile</h2>
