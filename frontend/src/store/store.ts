@@ -6,70 +6,93 @@ import {
   fetchInstallments 
 } from "../apis/api";
 
-// Fetch data asynchronously
-const jsonControlDataPromise = getInstitutionNameAndLogo();
-const fetchSessionJsonPromise = getCurrentSession();
-const standardsDataPromise = fetchStandards();
-const installmentHandlePromise = fetchInstallments();
-
 // Default values in case API calls fail
 const defaultSession = ["2024-2025"];
 const defaultStandards = [""];
 const defaultInstallments = [""];
 
-// Process fetched session data
-const session: string[] = [];
-fetchSessionJsonPromise.then((fetchSessionJson) => {
-  fetchSessionJson?.forEach((element: { year: string }) => {
-    session.push(element.year);
-  });
-}).catch(() => session.push(...defaultSession));
+// Fetch and process session data
+async function fetchSession() {
+  try {
+    const fetchSessionJson = await getCurrentSession();
+    return fetchSessionJson?.map((element: { year: string }) => element.year) || defaultSession;
+  } catch {
+    return defaultSession;
+  }
+}
 
-// Process fetched installment data
-const installmentArrHandle: string[] = [];
-installmentHandlePromise.then((installmentHandle) => {
-  installmentHandle?.forEach((element: { installments: string }) => {
-    installmentArrHandle.push(element.installments);
-  });
-}).catch(() => installmentArrHandle.push(...defaultInstallments));
+// Fetch and process installment data
+async function fetchInstallmentsData() {
+  try {
+    const installmentHandle = await fetchInstallments();
+    return installmentHandle?.map((element: { installments: string }) => element.installments) || defaultInstallments;
+  } catch {
+    return defaultInstallments;
+  }
+}
 
-// Initialize atoms with default values
+// Fetch institution data
+async function fetchInstitutionData() {
+  try {
+    return await getInstitutionNameAndLogo();
+  } catch {
+    return {
+      Institution_name: "Institution Placeholder",
+      SchoolLogo: "",
+      TotalFees: 0,
+      SchoolAddress: "Not Available",
+      Institution_hostel_name: "No Hostel",
+    };
+  }
+}
+
+// Fetch standard list
+async function fetchStandardsData() {
+  try {
+    const data = await fetchStandards();
+    return data.standards || defaultStandards;
+  } catch {
+    return defaultStandards;
+  }
+}
+
+// Initialize atoms with async values
 export const handleInstitutionName = atom({
   key: "name",
-  default: jsonControlDataPromise.then(data => data.Institution_name).catch(() => "Institution Placeholder"),
+  default: (async () => (await fetchInstitutionData()).Institution_name)(),
 });
 
 export const handleInstitutionLogo = atom({
   key: "logo",
-  default: jsonControlDataPromise.then(data => data.SchoolLogo).catch(() => ""),
+  default: (async () => (await fetchInstitutionData()).SchoolLogo)(),
 });
 
 export const totalFee = atom({
   key: "totalFee",
-  default: jsonControlDataPromise.then(data => data.TotalFees).catch(() => 0),
+  default: (async () => (await fetchInstitutionData()).TotalFees)(),
 });
 
 export const address = atom({
   key: "address",
-  default: jsonControlDataPromise.then(data => data.SchoolAddress).catch(() => "Not Available"),
+  default: (async () => (await fetchInstitutionData()).SchoolAddress)(),
 });
 
 export const handleHostelName = atom({
   key: "hostelName",
-  default: jsonControlDataPromise.then(data => data.Institution_hostel_name).catch(() => "No Hostel"),
+  default: (async () => (await fetchInstitutionData()).Institution_hostel_name)(),
 });
 
 export const sessionYear = atom({
   key: "session",
-  default: session,
+  default: fetchSession(),
 });
 
 export const standardList = atom({
   key: "standard",
-  default: standardsDataPromise.then(data => data.standards).catch(() => defaultStandards),
+  default: fetchStandardsData(),
 });
 
 export const installmentArr = atom({
   key: "installments",
-  default: installmentArrHandle,
+  default: fetchInstallmentsData(),
 });

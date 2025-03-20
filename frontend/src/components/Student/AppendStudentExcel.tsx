@@ -19,6 +19,7 @@ const UploadStudents: React.FC = () => {
           return;
         }
         alert("File Uploaded Successfully")
+        window.location.reload();
       } catch (error) {
         console.error('Error uploading file:', error);
         alert('Failed to upload file');

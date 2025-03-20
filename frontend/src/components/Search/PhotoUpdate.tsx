@@ -7,7 +7,7 @@ export default function PhotoUpdate() {
   const [std, setStd] = useState<string>("");
   const [result, setResult] = useState<any[]>([]);
   const [url, setUrl] = useState("");
-  const [activeRowId, setActiveRowId] = useState<number | null>(null); // State to track the active row
+  const [activeRowId, setActiveRowId] = useState<number | null>(null);
   const standards = useRecoilValue(standardList);
 
   const search = async () => {
@@ -27,7 +27,7 @@ export default function PhotoUpdate() {
       }
       await updateStudent(id, { url, rollNo, standard });
       alert("Student updated successfully");
-      setActiveRowId(null); // Reset the active row after update
+      setActiveRowId(null);
     } catch (error) {
       console.error("Error updating student:", error);
       alert("Failed to update student");
@@ -43,7 +43,7 @@ export default function PhotoUpdate() {
       try {
         const photoUrl = await uploadPhoto(file);
         setUrl(photoUrl);
-        setActiveRowId(id); // Set the current row as active after image upload
+        setActiveRowId(id);
       } catch (error) {
         console.error(error);
         alert("Failed to upload image");
@@ -68,19 +68,25 @@ export default function PhotoUpdate() {
       </div>
       {result.length > 0 && (
         <div>
-          <table>
-            <thead>
-              <tr>
-                <th>Full Name</th>
-                <th>Roll No</th>
-                <th>Standard</th>
-                <th>Upload</th>
-                <th>Update Photo</th>
-              </tr>
-            </thead>
-            <tbody style={{ minWidth: "100%" }}>
-              {result.map((item) =>
-                 (
+          {/* Conditional scrollable container: scrolls if more than 8 records */}
+          <div
+            style={{
+              maxHeight: result.length > 8 ? "400px" : "auto",
+              overflowY: result.length > 8 ? "auto" : "visible",
+            }}
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Full Name</th>
+                  <th>Roll No</th>
+                  <th>Standard</th>
+                  <th>Upload</th>
+                  <th>Update Photo</th>
+                </tr>
+              </thead>
+              <tbody style={{ minWidth: "100%" }}>
+                {result.map((item) => (
                   <tr key={item.id}>
                     <td>{item.fullName}</td>
                     <td>{item.rollNo}</td>
@@ -89,13 +95,13 @@ export default function PhotoUpdate() {
                       <input
                         type="file"
                         accept="image/*"
-                        disabled={activeRowId !== null && activeRowId !== item.id} // Disable other rows
+                        disabled={activeRowId !== null && activeRowId !== item.id}
                         onChange={(e) => handleImageUpload(e, item.id)}
                       />
                     </td>
                     <td>
                       <button
-                        disabled={activeRowId !== item.id || !url} // Disable if not active or URL not uploaded
+                        disabled={activeRowId !== item.id || !url}
                         onClick={() =>
                           handleUpdate(item.id, item.rollNo, item.standard)
                         }
@@ -104,10 +110,10 @@ export default function PhotoUpdate() {
                       </button>
                     </td>
                   </tr>
-                )
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

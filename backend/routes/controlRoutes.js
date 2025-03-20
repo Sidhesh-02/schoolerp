@@ -231,19 +231,20 @@ router.post("/promotion", async (req, res) => {
   }
 });
 
-router.post("/handleInstallments", async (req, res) => {
-  const installment = req.body;
-  if (!installment) {
-    return res.status(400).json({ error: "Enter Valid Data" });
+router.post("/handleInstallments", async (req, res,next) => {
+  const installmentObject = req.body;
+  
+  if (installmentObject.installment.length==0) {
+    return res.status(400).json({ message: "Enter Valid Data" });
   }
   const postResult = await prisma.installments.create({
     data: {
-      installments: installment.installment,
+      installments: installmentObject.installment,
     },
   });
-  if (postResult) {
-    return res.status(200).json({ postResult });
-  }
+
+  return res.status(200).json({ postResult });
+
 });
 
 router.get("/getInstallments", async (req, res) => {
@@ -346,7 +347,6 @@ router.put("/updateSubject", async (req, res) => {
       data: { name: updatedSubject },
     });
 
-    console.log("Status", updatedStandard);
     return res
       .status(200)
       .json({ message: "Updated Successfully", updatedStandard });
